@@ -1,0 +1,9 @@
+cypress/screenshots
+cypress/videos
+internal/sirius/log/
+logs/
+node_modules
+pacts/
+web/static
+# ignore JetBrains project files
+.idea
