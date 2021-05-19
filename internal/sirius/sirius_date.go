@@ -12,7 +12,9 @@ type SiriusDate struct {
 func (sd *SiriusDate) UnmarshalJSON(input []byte) error {
 	strInput := string(input)
 	strInput = strings.Trim(strInput, `"`)
-	newTime, err := time.Parse("02\\/01\\/2006", strInput)
+	strInput = strings.ReplaceAll(strInput, "\\/", "/")
+
+	newTime, err := time.Parse("02/01/2006", strInput)
 	if err != nil {
 		return err
 	}
