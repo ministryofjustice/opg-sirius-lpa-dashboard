@@ -37,7 +37,7 @@ func TestCasesByAssignee(t *testing.T) {
 					UponReceiving("A request to get a user's cases").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/123/cases"),
+						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
 							"filter": dsl.String("caseType:lpa,status:Pending,active:true"),
 							"sort":   dsl.String("caseSubType:asc"),
@@ -94,7 +94,7 @@ func TestCasesByAssignee(t *testing.T) {
 					UponReceiving("A request to get a user's cases without cookies").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/123/cases"),
+						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
 							"filter": dsl.String("caseType:lpa,status:Pending,active:true"),
 							"sort":   dsl.String("caseSubType:asc"),
@@ -115,7 +115,7 @@ func TestCasesByAssignee(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				cases, err := client.CasesByAssignee(getContext(tc.cookies), 123)
+				cases, err := client.CasesByAssignee(getContext(tc.cookies), 47)
 				assert.Equal(t, tc.expectedCases, cases)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -130,10 +130,10 @@ func TestCasesByAssigneeStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, err := client.CasesByAssignee(getContext(nil), 123)
+	_, err := client.CasesByAssignee(getContext(nil), 47)
 	assert.Equal(t, StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/assignees/123/cases?filter=caseType:lpa,status:Pending,active:true&sort=caseSubType:asc",
+		URL:    s.URL + "/api/v1/assignees/47/cases?filter=caseType:lpa,status:Pending,active:true&sort=caseSubType:asc",
 		Method: http.MethodGet,
 	}, err)
 }
