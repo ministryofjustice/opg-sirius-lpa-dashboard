@@ -1,0 +1,31 @@
+version: 2
+updates:
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "Europe/London"
+    pull-request-branch-name:
+      separator: "-"
+
+  - package-ecosystem: "docker"
+    directory: "/docker/sirius-lpa-dashboard"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "Europe/London"
+    pull-request-branch-name:
+      separator: "-"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    allow:
+      - dependency-type: "production"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "Europe/London"
+    pull-request-branch-name:
+      separator: "-"
