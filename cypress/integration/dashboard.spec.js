@@ -6,6 +6,6 @@ describe("The tests run", () => {
     });
 
     it("goes to a page", () => {
-        cy.contains('Delete this page');
+        cy.contains('Your cases');
     });
 });
