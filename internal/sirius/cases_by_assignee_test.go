@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/pact-foundation/pact-go/dsl"
 	"github.com/stretchr/testify/assert"
@@ -52,7 +53,16 @@ func TestCasesByAssignee(t *testing.T) {
 						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
 						Body: dsl.Like(map[string]interface{}{
 							"cases": dsl.EachLike(map[string]interface{}{
-								"id": dsl.Like(58),
+								"id":  dsl.Like(58),
+								"uId": dsl.Term("7000-2830-9492", `\d{4}-\d{4}-\d{4}`),
+								"donor": dsl.Like(map[string]interface{}{
+									"id":        dsl.Like(17),
+									"uId":       dsl.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
+									"firstname": dsl.Like("Wilma"),
+									"surname":   dsl.Like("Ruthman"),
+								}),
+								"caseSubtype": dsl.Term("HW", "HW|PF"),
+								"receiptDate": dsl.Term("14/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
 							}, 1),
 						}),
 					})
@@ -62,7 +72,16 @@ func TestCasesByAssignee(t *testing.T) {
 				{Name: "Other", Value: "other"},
 			},
 			expectedCases: []Case{{
-				ID: 58,
+				ID:  58,
+				Uid: "7000-2830-9492",
+				Donor: Donor{
+					ID:        17,
+					Uid:       "7000-5382-4438",
+					FirstName: "Wilma",
+					Surname:   "Ruthman",
+				},
+				SubType:     "HW",
+				ReceiptDate: SiriusDate{time.Date(2021, 5, 14, 0, 0, 0, 0, time.UTC)},
 			}},
 		},
 
