@@ -46,6 +46,12 @@ func main() {
 			"sirius": func(s string) string {
 				return siriusPublicURL + s
 			},
+			"format": func(d sirius.SiriusDate, s string) string {
+				return d.Format(s)
+			},
+			"upper": func(s string) string {
+				return strings.ToUpper(s)
+			},
 		}).
 		ParseGlob(webDir + "/template/layout/*.gotmpl")
 
