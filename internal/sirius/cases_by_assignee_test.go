@@ -33,8 +33,8 @@ func TestCasesByAssignee(t *testing.T) {
 			setup: func() {
 				pact.
 					AddInteraction().
-					Given("A user has cases").
-					UponReceiving("A request to get a user's cases").
+					Given("I have a pending case assigned").
+					UponReceiving("A request to get my cases").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
@@ -90,8 +90,8 @@ func TestCasesByAssignee(t *testing.T) {
 			setup: func() {
 				pact.
 					AddInteraction().
-					Given("A user has cases").
-					UponReceiving("A request to get a user's cases without cookies").
+					Given("I have a pending case assigned").
+					UponReceiving("A request to get my cases without cookies").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
