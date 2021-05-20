@@ -122,3 +122,21 @@ func TestGetDashboardQueryError(t *testing.T) {
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
 }
+
+func TestBadMethodDashboard(t *testing.T) {
+	assert := assert.New(t)
+
+	client := &mockDashboardClient{}
+	template := &mockTemplate{}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("DELETE", "/path", nil)
+
+	err := dashboard(client, template)(w, r)
+
+	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
+
+	assert.Equal(0, client.myDetails.count)
+	assert.Equal(0, client.casesByAssignee.count)
+	assert.Equal(0, template.count)
+}
