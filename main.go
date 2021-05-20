@@ -46,8 +46,8 @@ func main() {
 			"sirius": func(s string) string {
 				return siriusPublicURL + s
 			},
-			"format": func(d sirius.SiriusDate, s string) string {
-				return d.Format(s)
+			"formatDate": func(d sirius.SiriusDate) string {
+				return d.Format("02 Jan 2006")
 			},
 			"upper": func(s string) string {
 				return strings.ToUpper(s)
