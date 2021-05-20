@@ -15,6 +15,7 @@ type Logger interface {
 }
 
 type Client interface {
+	DashboardClient
 }
 
 type Template interface {
@@ -25,10 +26,10 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	wrap := errorHandler(logger, templates["error.gotmpl"], prefix, siriusPublicURL)
 
 	mux := http.NewServeMux()
-	mux.Handle("/", wrap(func(w http.ResponseWriter, r *http.Request) error {
-		_ = getContext(r)
-		return templates["temp.gotmpl"].ExecuteTemplate(w, "page", nil)
-	}))
+
+	mux.Handle("/",
+		wrap(
+			dashboard(client, templates["dashboard.gotmpl"])))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 
