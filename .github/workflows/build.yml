@@ -202,7 +202,7 @@ jobs:
           docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.bump_version.outputs.tag }}
           if [ $BRANCH_NAME == "main" ]; then
             # We want all of the tags pushed
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY
+            docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
           else
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.bump_version.outputs.tag }}
           fi
