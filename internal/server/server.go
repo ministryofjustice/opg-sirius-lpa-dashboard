@@ -15,8 +15,7 @@ type Logger interface {
 }
 
 type Client interface {
-	CasesByAssignee(sirius.Context, int) ([]sirius.Case, error)
-	MyDetails(sirius.Context) (sirius.MyDetails, error)
+	DashboardClient
 }
 
 type Template interface {
