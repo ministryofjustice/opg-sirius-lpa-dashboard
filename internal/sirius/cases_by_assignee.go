@@ -17,12 +17,12 @@ type Case struct {
 type Donor struct {
 	ID        int    `json:"id"`
 	Uid       string `json:"uId"`
-	FirstName string `json:"firstname"`
+	Firstname string `json:"firstname"`
 	Surname   string `json:"surname"`
 }
 
 func (d Donor) DisplayName() string {
-	return d.FirstName + " " + d.Surname
+	return d.Firstname + " " + d.Surname
 }
 
 func (c *Client) CasesByAssignee(ctx Context, id int) ([]Case, error) {

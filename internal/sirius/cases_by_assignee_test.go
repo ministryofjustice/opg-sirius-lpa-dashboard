@@ -77,7 +77,7 @@ func TestCasesByAssignee(t *testing.T) {
 				Donor: Donor{
 					ID:        17,
 					Uid:       "7000-5382-4438",
-					FirstName: "Wilma",
+					Firstname: "Wilma",
 					Surname:   "Ruthman",
 				},
 				SubType:     "hw",
