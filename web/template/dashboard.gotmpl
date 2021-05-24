@@ -16,6 +16,9 @@
       <li class="govuk-tabs__list-item">
         <a class="govuk-tabs__tab" href="/tasks">Tasks</a>
       </li>
+      <li class="govuk-tabs__list-item{{ if eq .Path "/all-cases" }} govuk-tabs__list-item--selected{{ end }}">
+        <a class="govuk-tabs__tab" href="/all-cases">Cases</a>
+      </li>
     </ul>
   </div>
 
@@ -30,6 +33,9 @@
         <th scope="col" class="govuk-table__header">Received</th>
         {{ if .ShowWorked }}
           <th scope="col" class="govuk-table__header">Worked</th>
+        {{ end }}
+        {{ if .ShowStatus }}
+          <th scope="col" class="govuk-table__header">Case status</th>
         {{ end }}
       </tr>
     </thead>
@@ -50,6 +56,13 @@
           </td>
           {{ if $.ShowWorked }}
             <td class="govuk-table__cell">
+            </td>
+          {{ end }}
+          {{ if $.ShowStatus }}
+            <td class="govuk-table__cell">
+              <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+                {{ .Status }}
+              </strong>
             </td>
           {{ end }}
         </tr>
