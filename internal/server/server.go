@@ -16,6 +16,7 @@ type Logger interface {
 
 type Client interface {
 	DashboardClient
+	TasksClient
 }
 
 type Template interface {
@@ -27,9 +28,19 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/",
+	mux.Handle("/", http.RedirectHandler("/pending-cases", http.StatusFound))
+
+	mux.Handle("/pending-cases",
 		wrap(
 			dashboard(client, templates["dashboard.gotmpl"])))
+
+	mux.Handle("/tasks",
+		wrap(
+			tasks(client, templates["tasks.gotmpl"])))
+
+	mux.Handle("/all-cases",
+		wrap(
+			cases(client, templates["dashboard.gotmpl"])))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 

@@ -2,7 +2,7 @@ describe("Dashboard", () => {
     beforeEach(() => {
         cy.setCookie("Other", "other");
         cy.setCookie("XSRF-TOKEN", "abcde");
-        cy.visit("/pending-cases");
+        cy.visit("/all-cases");
     });
 
     it("shows your cases", () => {
@@ -10,9 +10,10 @@ describe("Dashboard", () => {
         cy.get('h1').should('contain', 'Your cases');
 
         const $row = cy.get('table > tbody > tr');
-        $row.should('contain', 'Wilma Ruthman');
-        $row.should('contain', 'HW');
-        $row.should('contain', '14 May 2021');
-        $row.contains('7000-2830-9492').should('have.attr', 'href').should('contain', '/person/17/58');
+        $row.should('contain', 'Adrian Kurkjian');
+        $row.should('contain', 'PF');
+        $row.should('contain', '12 May 2021');
+        $row.should('contain', 'Perfect');
+        $row.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/36');
     });
 });

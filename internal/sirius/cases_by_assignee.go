@@ -12,6 +12,8 @@ type Case struct {
 	Donor       Donor      `json:"donor"`
 	SubType     string     `json:"caseSubtype"`
 	ReceiptDate SiriusDate `json:"receiptDate"`
+	Status      string     `json:"status"`
+	TaskCount   int        `json:"taskCount"`
 }
 
 type Donor struct {
@@ -25,32 +27,46 @@ func (d Donor) DisplayName() string {
 	return d.Firstname + " " + d.Surname
 }
 
-func (c *Client) CasesByAssignee(ctx Context, id int) ([]Case, error) {
-	var v struct {
-		Cases []Case `json:"cases"`
+func (c *Client) CasesByAssignee(ctx Context, id int, status string, page int) ([]Case, *Pagination, error) {
+	filter := "caseType:lpa,active:true"
+
+	if status != "" {
+		filter = fmt.Sprintf("%s,status:%s", filter, status)
 	}
 
-	url := fmt.Sprintf("/api/v1/assignees/%d/cases?filter=caseType:lpa,status:Pending,active:true&sort=caseSubType:asc", id)
+	url := fmt.Sprintf("/api/v1/assignees/%d/cases?page=%d&filter=%s&sort=caseSubType:asc", id, page, filter)
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return v.Cases, err
+		return nil, nil, err
 	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return v.Cases, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized {
-		return v.Cases, ErrUnauthorized
+		return nil, nil, ErrUnauthorized
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return v.Cases, newStatusError(resp)
+		return nil, nil, newStatusError(resp)
+	}
+
+	var v struct {
+		Pages apiPages `json:"pages"`
+		Total int      `json:"total"`
+		Limit int      `json:"limit"`
+		Cases []Case   `json:"cases"`
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&v)
-	return v.Cases, err
+	return v.Cases, &Pagination{
+		TotalItems:  v.Total,
+		CurrentPage: v.Pages.Current,
+		TotalPages:  v.Pages.Total,
+		PageSize:    v.Limit,
+	}, err
 }
