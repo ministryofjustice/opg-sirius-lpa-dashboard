@@ -12,6 +12,8 @@ type Case struct {
 	Donor       Donor      `json:"donor"`
 	SubType     string     `json:"caseSubtype"`
 	ReceiptDate SiriusDate `json:"receiptDate"`
+	Status      string     `json:"status"`
+	TaskCount   int        `json:"taskCount"`
 }
 
 type Donor struct {
