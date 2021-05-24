@@ -7,12 +7,16 @@ import (
 )
 
 type DashboardClient interface {
-	CasesByAssignee(sirius.Context, int) ([]sirius.Case, error)
+	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
 type dashboardVars struct {
-	Cases []sirius.Case
+	Path       string
+	Cases      []sirius.Case
+	Pagination *sirius.Pagination
+	ShowWorked bool
+	ShowStatus bool
 }
 
 func dashboard(client DashboardClient, tmpl Template) Handler {
@@ -28,13 +32,16 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 			return err
 		}
 
-		myCases, err := client.CasesByAssignee(ctx, myDetails.ID)
+		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, "Pending", getPage(r))
 		if err != nil {
 			return err
 		}
 
 		vars := dashboardVars{
-			Cases: myCases,
+			Path:       r.URL.Path,
+			Cases:      myCases,
+			Pagination: pagination,
+			ShowWorked: true,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)

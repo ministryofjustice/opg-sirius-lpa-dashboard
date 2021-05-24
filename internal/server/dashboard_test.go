@@ -18,11 +18,14 @@ type mockDashboardClient struct {
 		err     error
 	}
 	casesByAssignee struct {
-		count   int
-		lastCtx sirius.Context
-		lastId  int
-		data    []sirius.Case
-		err     error
+		count      int
+		lastCtx    sirius.Context
+		lastId     int
+		lastStatus string
+		lastPage   int
+		data       []sirius.Case
+		pagination *sirius.Pagination
+		err        error
 	}
 }
 
@@ -33,12 +36,14 @@ func (m *mockDashboardClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, e
 	return m.myDetails.data, m.myDetails.err
 }
 
-func (m *mockDashboardClient) CasesByAssignee(ctx sirius.Context, id int) ([]sirius.Case, error) {
+func (m *mockDashboardClient) CasesByAssignee(ctx sirius.Context, id int, status string, page int) ([]sirius.Case, *sirius.Pagination, error) {
 	m.casesByAssignee.count += 1
 	m.casesByAssignee.lastCtx = ctx
 	m.casesByAssignee.lastId = id
+	m.casesByAssignee.lastStatus = status
+	m.casesByAssignee.lastPage = page
 
-	return m.casesByAssignee.data, m.casesByAssignee.err
+	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
 
 func TestGetDashboard(t *testing.T) {
@@ -68,11 +73,54 @@ func TestGetDashboard(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
+	assert.Equal("Pending", client.casesByAssignee.lastStatus)
+	assert.Equal(1, client.casesByAssignee.lastPage)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(dashboardVars{
-		Cases: client.casesByAssignee.data,
+		Path:       "/path",
+		Cases:      client.casesByAssignee.data,
+		ShowWorked: true,
+	}, template.lastVars)
+}
+
+func TestGetDashboardPage(t *testing.T) {
+	assert := assert.New(t)
+
+	client := &mockDashboardClient{}
+	client.myDetails.data = sirius.MyDetails{
+		ID: 14,
+	}
+	client.casesByAssignee.data = []sirius.Case{{
+		ID: 78,
+		Donor: sirius.Donor{
+			ID: 79,
+		},
+	}}
+	template := &mockTemplate{}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/path?page=4", nil)
+
+	err := dashboard(client, template)(w, r)
+	assert.Nil(err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
+
+	assert.Equal(1, client.casesByAssignee.count)
+	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
+	assert.Equal(14, client.casesByAssignee.lastId)
+	assert.Equal("Pending", client.casesByAssignee.lastStatus)
+	assert.Equal(4, client.casesByAssignee.lastPage)
+
+	assert.Equal(1, template.count)
+	assert.Equal("page", template.lastName)
+	assert.Equal(dashboardVars{
+		Path:       "/path",
+		Cases:      client.casesByAssignee.data,
+		ShowWorked: true,
 	}, template.lastVars)
 }
 
@@ -121,6 +169,7 @@ func TestGetDashboardQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
+	assert.Equal("Pending", client.casesByAssignee.lastStatus)
 }
 
 func TestBadMethodDashboard(t *testing.T) {
