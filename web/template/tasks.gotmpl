@@ -10,14 +10,16 @@
       Contents
     </h2>
     <ul class="govuk-tabs__list">
-      <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+      <li class="govuk-tabs__list-item">
         <a class="govuk-tabs__tab" href="/pending-cases">Pending cases</a>
       </li>
-      <li class="govuk-tabs__list-item">
+      <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
         <a class="govuk-tabs__tab" href="/tasks">Tasks</a>
       </li>
     </ul>
   </div>
+
+  {{ template "pagination" .Pagination }}
 
   <table class="govuk-table">
     <thead class="govuk-table__head">
@@ -25,8 +27,8 @@
         <th scope="col" class="govuk-table__header">Donor</th>
         <th scope="col" class="govuk-table__header">Case</th>
         <th scope="col" class="govuk-table__header">LPA type</th>
-        <th scope="col" class="govuk-table__header">Received</th>
-        <th scope="col" class="govuk-table__header">Worked</th>
+        <th scope="col" class="govuk-table__header">Open tasks per case</th>
+        <th scope="col" class="govuk-table__header">Case status</th>
       </tr>
     </thead>
     <tbody class="govuk-table__body">
@@ -42,9 +44,12 @@
             {{ upper .SubType }}
           </td>
           <td class="govuk-table__cell">
-            {{ formatDate .ReceiptDate }}
+            {{ .TaskCount }} {{ if eq .TaskCount 1 }}task{{ else }}tasks{{ end }}
           </td>
           <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+              {{ .Status }}
+            </strong>
           </td>
         </tr>
       {{ else }}
