@@ -58,8 +58,10 @@ func main() {
 					return "green"
 				case "Imperfect":
 					return "red"
-				default:
+				case "Pending":
 					return "blue"
+				default:
+					return "grey"
 				}
 			},
 		}).
