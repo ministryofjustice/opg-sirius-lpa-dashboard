@@ -52,6 +52,18 @@ func main() {
 			"upper": func(s string) string {
 				return strings.ToUpper(s)
 			},
+			"statusColour": func(s string) string {
+				switch s {
+				case "Perfect":
+					return "green"
+				case "Imperfect":
+					return "red"
+				case "Pending":
+					return "blue"
+				default:
+					return "grey"
+				}
+			},
 		}).
 		ParseGlob(webDir + "/template/layout/*.gotmpl")
 
