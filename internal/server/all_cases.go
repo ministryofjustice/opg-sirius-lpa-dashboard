@@ -6,20 +6,12 @@ import (
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
-type DashboardClient interface {
+type CasesClient interface {
 	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
-type dashboardVars struct {
-	Path       string
-	Cases      []sirius.Case
-	Pagination *sirius.Pagination
-	ShowWorked bool
-	ShowStatus bool
-}
-
-func dashboard(client DashboardClient, tmpl Template) Handler {
+func cases(client CasesClient, tmpl Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -32,7 +24,7 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 			return err
 		}
 
-		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, "Pending", getPage(r))
+		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, "", getPage(r))
 		if err != nil {
 			return err
 		}
@@ -41,7 +33,7 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 			Path:       r.URL.Path,
 			Cases:      myCases,
 			Pagination: pagination,
-			ShowWorked: true,
+			ShowStatus: true,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
