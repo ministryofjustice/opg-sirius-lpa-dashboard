@@ -16,10 +16,15 @@
       <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
         <a class="govuk-tabs__tab" href="/tasks">Tasks</a>
       </li>
+      <li class="govuk-tabs__list-item">
+        <a class="govuk-tabs__tab" href="/all-cases">All cases</a>
+      </li>
     </ul>
   </div>
 
   {{ template "pagination" .Pagination }}
+
+  <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
 
   <table class="govuk-table">
     <thead class="govuk-table__head">
