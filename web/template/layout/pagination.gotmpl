@@ -13,9 +13,9 @@
 
         {{ range .Pages }}
           {{ if eq . $.CurrentPage }}
-            <li class="moj-pagination__item moj-pagination__item--active"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ .TotalPages }}</span></li>
+            <li class="moj-pagination__item moj-pagination__item--active"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></li>
           {{ else }}
-            <li class="moj-pagination__item"><a class="moj-pagination__link" href="?page={{ . }}"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ .TotalPages }}</span></a></li>
+            <li class="moj-pagination__item"><a class="moj-pagination__link" href="?page={{ . }}"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></a></li>
           {{ end }}
         {{ end }}
 
