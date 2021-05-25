@@ -38,6 +38,10 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 		wrap(
 			tasks(client, templates["tasks.gotmpl"])))
 
+	mux.Handle("/all-cases",
+		wrap(
+			cases(client, templates["all-cases.gotmpl"])))
+
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 
 	static := http.FileServer(http.Dir(webDir + "/static"))
