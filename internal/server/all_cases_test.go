@@ -78,10 +78,8 @@ func TestGetCases(t *testing.T) {
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
-	assert.Equal(dashboardVars{
-		Path:       "/path",
+	assert.Equal(allCasesVars{
 		Cases:      client.casesByAssignee.data,
-		ShowStatus: true,
 	}, template.lastVars)
 }
 
@@ -117,10 +115,8 @@ func TestGetCasesPage(t *testing.T) {
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
-	assert.Equal(dashboardVars{
-		Path:       "/path",
+	assert.Equal(allCasesVars{
 		Cases:      client.casesByAssignee.data,
-		ShowStatus: true,
 	}, template.lastVars)
 }
 

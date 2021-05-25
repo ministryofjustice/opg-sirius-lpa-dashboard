@@ -79,9 +79,7 @@ func TestGetDashboard(t *testing.T) {
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(dashboardVars{
-		Path:       "/path",
 		Cases:      client.casesByAssignee.data,
-		ShowWorked: true,
 	}, template.lastVars)
 }
 
@@ -118,9 +116,7 @@ func TestGetDashboardPage(t *testing.T) {
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(dashboardVars{
-		Path:       "/path",
 		Cases:      client.casesByAssignee.data,
-		ShowWorked: true,
 	}, template.lastVars)
 }
 

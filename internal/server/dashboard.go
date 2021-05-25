@@ -12,11 +12,8 @@ type DashboardClient interface {
 }
 
 type dashboardVars struct {
-	Path       string
 	Cases      []sirius.Case
 	Pagination *sirius.Pagination
-	ShowWorked bool
-	ShowStatus bool
 }
 
 func dashboard(client DashboardClient, tmpl Template) Handler {
@@ -38,10 +35,8 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 		}
 
 		vars := dashboardVars{
-			Path:       r.URL.Path,
 			Cases:      myCases,
 			Pagination: pagination,
-			ShowWorked: true,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)

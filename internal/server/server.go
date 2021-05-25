@@ -40,7 +40,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux.Handle("/all-cases",
 		wrap(
-			cases(client, templates["dashboard.gotmpl"])))
+			cases(client, templates["all-cases.gotmpl"])))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 

@@ -11,6 +11,11 @@ type CasesClient interface {
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
+type allCasesVars struct {
+	Cases      []sirius.Case
+	Pagination *sirius.Pagination
+}
+
 func cases(client CasesClient, tmpl Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
@@ -29,11 +34,9 @@ func cases(client CasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		vars := dashboardVars{
-			Path:       r.URL.Path,
+		vars := allCasesVars{
 			Cases:      myCases,
 			Pagination: pagination,
-			ShowStatus: true,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
