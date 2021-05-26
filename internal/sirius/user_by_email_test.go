@@ -52,7 +52,7 @@ func TestUserByEmail(t *testing.T) {
 						Status:  http.StatusOK,
 						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
 						Body: dsl.Like(map[string]interface{}{
-							"id": dsl.Like(14),
+							"id": dsl.Like(47),
 						}),
 					})
 			},
@@ -61,7 +61,7 @@ func TestUserByEmail(t *testing.T) {
 				{Name: "Other", Value: "other"},
 			},
 			expectedUser: User{
-				ID: 14,
+				ID: 47,
 			},
 		},
 
