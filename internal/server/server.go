@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
@@ -16,6 +17,7 @@ type Logger interface {
 
 type Client interface {
 	DashboardClient
+	RequestNextCasesClient
 	TasksClient
 }
 
@@ -41,6 +43,8 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/all-cases",
 		wrap(
 			cases(client, templates["all-cases.gotmpl"])))
+
+	mux.Handle("/request-next-cases", wrap(requestNextCases(client)))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 
@@ -142,4 +146,18 @@ func getContext(r *http.Request) sirius.Context {
 		Cookies:   r.Cookies(),
 		XSRFToken: token,
 	}
+}
+
+func getPage(r *http.Request) int {
+	page := r.FormValue("page")
+	if page == "" {
+		return 1
+	}
+
+	v, err := strconv.Atoi(page)
+	if err != nil {
+		return 1
+	}
+
+	return v
 }

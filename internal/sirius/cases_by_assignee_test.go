@@ -31,7 +31,7 @@ func TestCasesByAssignee(t *testing.T) {
 		expectedError      error
 	}{
 		{
-			name:   "OK",
+			name: "OK",
 			setup: func() {
 				pact.
 					AddInteraction().

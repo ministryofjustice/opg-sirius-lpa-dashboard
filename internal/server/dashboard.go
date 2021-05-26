@@ -12,8 +12,10 @@ type DashboardClient interface {
 }
 
 type dashboardVars struct {
-	Cases      []sirius.Case
-	Pagination *sirius.Pagination
+	Cases           []sirius.Case
+	Pagination      *sirius.Pagination
+	HasWorkableCase bool
+	XSRFToken       string
 }
 
 func dashboard(client DashboardClient, tmpl Template) Handler {
@@ -35,8 +37,10 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 		}
 
 		vars := dashboardVars{
-			Cases:      myCases,
-			Pagination: pagination,
+			Cases:           myCases,
+			Pagination:      pagination,
+			HasWorkableCase: pagination.TotalItems > 0,
+			XSRFToken:       ctx.XSRFToken,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
