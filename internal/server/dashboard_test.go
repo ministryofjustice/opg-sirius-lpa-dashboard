@@ -59,6 +59,9 @@ func TestGetDashboard(t *testing.T) {
 			ID: 79,
 		},
 	}}
+	client.casesByAssignee.pagination = &sirius.Pagination{
+		TotalItems: 20,
+	}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
@@ -79,7 +82,9 @@ func TestGetDashboard(t *testing.T) {
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(dashboardVars{
-		Cases:      client.casesByAssignee.data,
+		Cases:           client.casesByAssignee.data,
+		Pagination:      client.casesByAssignee.pagination,
+		HasWorkableCase: true,
 	}, template.lastVars)
 }
 
@@ -96,6 +101,7 @@ func TestGetDashboardPage(t *testing.T) {
 			ID: 79,
 		},
 	}}
+	client.casesByAssignee.pagination = &sirius.Pagination{}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
@@ -117,6 +123,7 @@ func TestGetDashboardPage(t *testing.T) {
 	assert.Equal("page", template.lastName)
 	assert.Equal(dashboardVars{
 		Cases:      client.casesByAssignee.data,
+		Pagination: client.casesByAssignee.pagination,
 	}, template.lastVars)
 }
 
