@@ -8,6 +8,7 @@ import (
 
 type CentralCasesClient interface {
 	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
+	MyDetails(sirius.Context) (sirius.MyDetails, error)
 	UserByEmail(sirius.Context, string) (sirius.User, error)
 }
 
@@ -23,6 +24,15 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 		}
 
 		ctx := getContext(r)
+
+		myDetails, err := client.MyDetails(ctx)
+		if err != nil {
+			return err
+		}
+
+		if !myDetails.IsManager() {
+			return StatusError(http.StatusUnauthorized)
+		}
 
 		centralPotUser, err := client.UserByEmail(ctx, "manager@opgtest.com")
 		if err != nil {

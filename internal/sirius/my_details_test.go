@@ -137,3 +137,41 @@ func TestMyDetailsStatusError(t *testing.T) {
 		Method: http.MethodGet,
 	}, err)
 }
+
+func TestMyDetailsIsManager(t *testing.T) {
+	testCases := []struct {
+		roles    []string
+		expected bool
+	}{
+		{
+			roles:    []string{},
+			expected: false,
+		},
+		{
+			roles:    []string{"Admin"},
+			expected: false,
+		},
+		{
+			roles:    []string{"Manager"},
+			expected: true,
+		},
+		{
+			roles:    []string{"User", "Admin"},
+			expected: false,
+		},
+		{
+			roles:    []string{"User", "Manager", "Admin"},
+			expected: true,
+		},
+	}
+
+	assert := assert.New(t)
+
+	for _, tc := range testCases {
+		myDetails := MyDetails{
+			Roles: tc.roles,
+		}
+
+		assert.Equal(tc.expected, myDetails.IsManager())
+	}
+}

@@ -11,13 +11,6 @@ import (
 )
 
 type mockCentralCasesClient struct {
-	userByEmail struct {
-		count     int
-		lastCtx   sirius.Context
-		lastEmail string
-		data      sirius.User
-		err       error
-	}
 	casesByAssignee struct {
 		count      int
 		lastCtx    sirius.Context
@@ -28,14 +21,19 @@ type mockCentralCasesClient struct {
 		pagination *sirius.Pagination
 		err        error
 	}
-}
-
-func (m *mockCentralCasesClient) UserByEmail(ctx sirius.Context, email string) (sirius.User, error) {
-	m.userByEmail.count += 1
-	m.userByEmail.lastCtx = ctx
-	m.userByEmail.lastEmail = email
-
-	return m.userByEmail.data, m.userByEmail.err
+	myDetails struct {
+		count   int
+		lastCtx sirius.Context
+		data    sirius.MyDetails
+		err     error
+	}
+	userByEmail struct {
+		count     int
+		lastCtx   sirius.Context
+		lastEmail string
+		data      sirius.User
+		err       error
+	}
 }
 
 func (m *mockCentralCasesClient) CasesByAssignee(ctx sirius.Context, id int, status string, page int) ([]sirius.Case, *sirius.Pagination, error) {
@@ -48,10 +46,28 @@ func (m *mockCentralCasesClient) CasesByAssignee(ctx sirius.Context, id int, sta
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
 
+func (m *mockCentralCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
+	m.myDetails.count += 1
+	m.myDetails.lastCtx = ctx
+
+	return m.myDetails.data, m.myDetails.err
+}
+
+func (m *mockCentralCasesClient) UserByEmail(ctx sirius.Context, email string) (sirius.User, error) {
+	m.userByEmail.count += 1
+	m.userByEmail.lastCtx = ctx
+	m.userByEmail.lastEmail = email
+
+	return m.userByEmail.data, m.userByEmail.err
+}
+
 func TestGetCentralCases(t *testing.T) {
 	assert := assert.New(t)
 
 	client := &mockCentralCasesClient{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Manager"},
+	}
 	client.userByEmail.data = sirius.User{
 		ID: 14,
 	}
@@ -68,6 +84,9 @@ func TestGetCentralCases(t *testing.T) {
 
 	err := centralCases(client, template)(w, r)
 	assert.Nil(err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
@@ -90,6 +109,9 @@ func TestGetCentralCasesPage(t *testing.T) {
 	assert := assert.New(t)
 
 	client := &mockCentralCasesClient{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Case Manager", "Manager", "System Admin"},
+	}
 	client.userByEmail.data = sirius.User{
 		ID: 14,
 	}
@@ -106,6 +128,9 @@ func TestGetCentralCasesPage(t *testing.T) {
 
 	err := centralCases(client, template)(w, r)
 	assert.Nil(err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
@@ -124,12 +149,59 @@ func TestGetCentralCasesPage(t *testing.T) {
 	}, template.lastVars)
 }
 
+func TestGetCentralCasesUnauthorized(t *testing.T) {
+	assert := assert.New(t)
+
+	client := &mockCentralCasesClient{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Case Manager", "System Admin"},
+	}
+	template := &mockTemplate{}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/path", nil)
+
+	err := centralCases(client, template)(w, r)
+	assert.Equal(StatusError(http.StatusUnauthorized), err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
+
+	assert.Equal(0, client.userByEmail.count)
+	assert.Equal(0, client.casesByAssignee.count)
+}
+
+func TestGetCentralCasesMyDetailsError(t *testing.T) {
+	assert := assert.New(t)
+
+	expectedError := errors.New("oops")
+
+	client := &mockCentralCasesClient{}
+	client.myDetails.err = expectedError
+	template := &mockTemplate{}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/path", nil)
+
+	err := centralCases(client, template)(w, r)
+	assert.Equal(expectedError, err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
+
+	assert.Equal(0, client.userByEmail.count)
+	assert.Equal(0, client.casesByAssignee.count)
+}
+
 func TestGetCentralCasesUserError(t *testing.T) {
 	assert := assert.New(t)
 
 	expectedError := errors.New("oops")
 
 	client := &mockCentralCasesClient{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Manager"},
+	}
 	client.userByEmail.err = expectedError
 	template := &mockTemplate{}
 
@@ -138,6 +210,9 @@ func TestGetCentralCasesUserError(t *testing.T) {
 
 	err := centralCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
@@ -152,6 +227,9 @@ func TestGetCentralCasesQueryError(t *testing.T) {
 	expectedError := errors.New("oops")
 
 	client := &mockCentralCasesClient{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Manager"},
+	}
 	client.userByEmail.data = sirius.User{
 		ID: 14,
 	}
@@ -163,6 +241,9 @@ func TestGetCentralCasesQueryError(t *testing.T) {
 
 	err := centralCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
