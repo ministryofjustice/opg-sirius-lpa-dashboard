@@ -2,19 +2,21 @@ package server
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
 type TasksClient interface {
 	CasesWithOpenTasksByAssignee(sirius.Context, int, int) ([]sirius.Case, *sirius.Pagination, error)
+	HasWorkableCase(sirius.Context, int) (bool, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
 type tasksVars struct {
-	Cases      []sirius.Case
-	Pagination *sirius.Pagination
+	Cases           []sirius.Case
+	Pagination      *sirius.Pagination
+	HasWorkableCase bool
+	XSRFToken       string
 }
 
 func tasks(client TasksClient, tmpl Template) Handler {
@@ -35,23 +37,16 @@ func tasks(client TasksClient, tmpl Template) Handler {
 			return err
 		}
 
+		hasWorkableCase, err := client.HasWorkableCase(ctx, myDetails.ID)
+		if err != nil {
+			return err
+		}
+
 		return tmpl.ExecuteTemplate(w, "page", tasksVars{
-			Cases:      cases,
-			Pagination: pagination,
+			Cases:           cases,
+			Pagination:      pagination,
+			HasWorkableCase: hasWorkableCase,
+			XSRFToken:       ctx.XSRFToken,
 		})
 	}
-}
-
-func getPage(r *http.Request) int {
-	page := r.FormValue("page")
-	if page == "" {
-		return 1
-	}
-
-	v, err := strconv.Atoi(page)
-	if err != nil {
-		return 1
-	}
-
-	return v
 }
