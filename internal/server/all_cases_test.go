@@ -18,14 +18,13 @@ type mockCasesClient struct {
 		err     error
 	}
 	casesByAssignee struct {
-		count      int
-		lastCtx    sirius.Context
-		lastId     int
-		lastStatus string
-		lastPage   int
-		data       []sirius.Case
-		pagination *sirius.Pagination
-		err        error
+		count        int
+		lastCtx      sirius.Context
+		lastId       int
+		lastCriteria sirius.CasesByAssigneeCriteria
+		data         []sirius.Case
+		pagination   *sirius.Pagination
+		err          error
 	}
 	hasWorkableCase struct {
 		count   int
@@ -43,12 +42,11 @@ func (m *mockCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error
 	return m.myDetails.data, m.myDetails.err
 }
 
-func (m *mockCasesClient) CasesByAssignee(ctx sirius.Context, id int, status string, page int) ([]sirius.Case, *sirius.Pagination, error) {
+func (m *mockCasesClient) CasesByAssignee(ctx sirius.Context, id int, criteria sirius.CasesByAssigneeCriteria) ([]sirius.Case, *sirius.Pagination, error) {
 	m.casesByAssignee.count += 1
 	m.casesByAssignee.lastCtx = ctx
 	m.casesByAssignee.lastId = id
-	m.casesByAssignee.lastStatus = status
-	m.casesByAssignee.lastPage = page
+	m.casesByAssignee.lastCriteria = criteria
 
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
@@ -89,8 +87,8 @@ func TestGetCases(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("", client.casesByAssignee.lastStatus)
-	assert.Equal(1, client.casesByAssignee.lastPage)
+	assert.Equal("", client.casesByAssignee.lastCriteria.Filter.Status)
+	assert.Equal(1, client.casesByAssignee.lastCriteria.Page)
 
 	assert.Equal(1, client.hasWorkableCase.count)
 	assert.Equal(getContext(r), client.hasWorkableCase.lastCtx)
@@ -131,8 +129,8 @@ func TestGetCasesPage(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("", client.casesByAssignee.lastStatus)
-	assert.Equal(4, client.casesByAssignee.lastPage)
+	assert.Equal("", client.casesByAssignee.lastCriteria.Filter.Status)
+	assert.Equal(4, client.casesByAssignee.lastCriteria.Page)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -186,7 +184,7 @@ func TestGetCasesQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("", client.casesByAssignee.lastStatus)
+	assert.Equal("", client.casesByAssignee.lastCriteria.Filter.Status)
 }
 
 func TestBadMethodCases(t *testing.T) {

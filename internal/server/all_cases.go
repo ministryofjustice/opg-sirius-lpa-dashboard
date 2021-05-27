@@ -7,7 +7,7 @@ import (
 )
 
 type CasesClient interface {
-	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
+	CasesByAssignee(sirius.Context, int, sirius.CasesByAssigneeCriteria) ([]sirius.Case, *sirius.Pagination, error)
 	HasWorkableCase(sirius.Context, int) (bool, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
@@ -32,7 +32,9 @@ func cases(client CasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, "", getPage(r))
+		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, sirius.CasesByAssigneeCriteria{
+			Page: getPage(r),
+		})
 		if err != nil {
 			return err
 		}
