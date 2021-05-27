@@ -26,6 +26,13 @@ type mockTasksClient struct {
 		pagination *sirius.Pagination
 		err        error
 	}
+	hasWorkableCase struct {
+		count   int
+		lastCtx sirius.Context
+		lastId  int
+		data    bool
+		err     error
+	}
 }
 
 func (m *mockTasksClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
@@ -42,6 +49,14 @@ func (m *mockTasksClient) CasesWithOpenTasksByAssignee(ctx sirius.Context, id, p
 	m.casesWithOpenTasksByAssignee.lastPage = page
 
 	return m.casesWithOpenTasksByAssignee.data, m.casesWithOpenTasksByAssignee.pagination, m.casesWithOpenTasksByAssignee.err
+}
+
+func (m *mockTasksClient) HasWorkableCase(ctx sirius.Context, id int) (bool, error) {
+	m.hasWorkableCase.count += 1
+	m.hasWorkableCase.lastCtx = ctx
+	m.hasWorkableCase.lastId = id
+
+	return m.hasWorkableCase.data, m.hasWorkableCase.err
 }
 
 func TestGetTasks(t *testing.T) {
@@ -78,6 +93,7 @@ func TestGetTasks(t *testing.T) {
 				},
 			}}
 			client.casesWithOpenTasksByAssignee.pagination = &sirius.Pagination{}
+			client.hasWorkableCase.data = true
 			template := &mockTemplate{}
 
 			w := httptest.NewRecorder()
@@ -94,11 +110,16 @@ func TestGetTasks(t *testing.T) {
 			assert.Equal(14, client.casesWithOpenTasksByAssignee.lastId)
 			assert.Equal(tc.Page, client.casesWithOpenTasksByAssignee.lastPage)
 
+			assert.Equal(1, client.hasWorkableCase.count)
+			assert.Equal(getContext(r), client.hasWorkableCase.lastCtx)
+			assert.Equal(14, client.hasWorkableCase.lastId)
+
 			assert.Equal(1, template.count)
 			assert.Equal("page", template.lastName)
 			assert.Equal(tasksVars{
-				Cases:      client.casesWithOpenTasksByAssignee.data,
-				Pagination: client.casesWithOpenTasksByAssignee.pagination,
+				Cases:           client.casesWithOpenTasksByAssignee.data,
+				Pagination:      client.casesWithOpenTasksByAssignee.pagination,
+				HasWorkableCase: true,
 			}, template.lastVars)
 		})
 	}

@@ -70,3 +70,9 @@ func (c *Client) CasesByAssignee(ctx Context, id int, status string, page int) (
 		PageSize:    v.Limit,
 	}, err
 }
+
+func (c *Client) HasWorkableCase(ctx Context, id int) (bool, error) {
+	_, pagination, err := c.CasesByAssignee(ctx, id, "Pending", 1)
+
+	return pagination.TotalItems > 0, err
+}
