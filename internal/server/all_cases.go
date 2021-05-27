@@ -8,12 +8,15 @@ import (
 
 type CasesClient interface {
 	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
+	HasWorkableCase(sirius.Context, int) (bool, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
 type allCasesVars struct {
-	Cases      []sirius.Case
-	Pagination *sirius.Pagination
+	Cases           []sirius.Case
+	Pagination      *sirius.Pagination
+	HasWorkableCase bool
+	XSRFToken       string
 }
 
 func cases(client CasesClient, tmpl Template) Handler {
@@ -34,9 +37,16 @@ func cases(client CasesClient, tmpl Template) Handler {
 			return err
 		}
 
+		hasWorkableCase, err := client.HasWorkableCase(ctx, myDetails.ID)
+		if err != nil {
+			return err
+		}
+
 		vars := allCasesVars{
-			Cases:      myCases,
-			Pagination: pagination,
+			Cases:           myCases,
+			Pagination:      pagination,
+			HasWorkableCase: hasWorkableCase,
+			XSRFToken:       ctx.XSRFToken,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
