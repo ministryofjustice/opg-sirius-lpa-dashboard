@@ -15,6 +15,7 @@ type Logger interface {
 }
 
 type Client interface {
+	CentralCasesClient
 	DashboardClient
 	TasksClient
 }
@@ -41,6 +42,10 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/all-cases",
 		wrap(
 			cases(client, templates["all-cases.gotmpl"])))
+
+	mux.Handle("/teams/central",
+		wrap(
+			centralCases(client, templates["central-cases.gotmpl"])))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 

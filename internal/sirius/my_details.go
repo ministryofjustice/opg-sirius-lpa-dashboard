@@ -20,6 +20,16 @@ type MyDetails struct {
 	Suspended   bool            `json:"suspended"`
 }
 
+func (md *MyDetails) IsManager() bool {
+	for _, role := range md.Roles {
+		if role == "Manager" {
+			return true
+		}
+	}
+
+	return false
+}
+
 type MyDetailsTeam struct {
 	DisplayName string `json:"displayName"`
 }
