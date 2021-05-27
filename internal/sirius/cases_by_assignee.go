@@ -114,7 +114,12 @@ func (c *Client) CasesByAssignee(ctx Context, id int, criteria CasesByAssigneeCr
 }
 
 func (c *Client) HasWorkableCase(ctx Context, id int) (bool, error) {
-	_, pagination, err := c.CasesByAssignee(ctx, id, "Pending", 1)
+	_, pagination, err := c.CasesByAssignee(ctx, id, CasesByAssigneeCriteria{
+		Filter: CasesByAssigneeFilter{
+			Status: "Pending",
+		},
+		Page: 1,
+	})
 
 	return pagination.TotalItems > 0, err
 }
