@@ -7,7 +7,7 @@ import (
 )
 
 type DashboardClient interface {
-	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
+	CasesByAssignee(sirius.Context, int, sirius.CasesByAssigneeCriteria) ([]sirius.Case, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
@@ -31,7 +31,13 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 			return err
 		}
 
-		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, "Pending", getPage(r))
+		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, sirius.CasesByAssigneeCriteria{
+			Filter: sirius.CasesByAssigneeFilter{
+				Status: "Pending",
+			},
+			Page: getPage(r),
+		})
+
 		if err != nil {
 			return err
 		}

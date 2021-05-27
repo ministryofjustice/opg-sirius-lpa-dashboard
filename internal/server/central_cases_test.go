@@ -15,8 +15,7 @@ type mockCentralCasesClient struct {
 		count      int
 		lastCtx    sirius.Context
 		lastId     int
-		lastStatus string
-		lastPage   int
+		criteria   []sirius.CasesByAssigneeCriteria
 		data       []sirius.Case
 		pagination *sirius.Pagination
 		err        error
@@ -36,12 +35,11 @@ type mockCentralCasesClient struct {
 	}
 }
 
-func (m *mockCentralCasesClient) CasesByAssignee(ctx sirius.Context, id int, status string, page int) ([]sirius.Case, *sirius.Pagination, error) {
+func (m *mockCentralCasesClient) CasesByAssignee(ctx sirius.Context, id int, criteria sirius.CasesByAssigneeCriteria) ([]sirius.Case, *sirius.Pagination, error) {
 	m.casesByAssignee.count += 1
 	m.casesByAssignee.lastCtx = ctx
 	m.casesByAssignee.lastId = id
-	m.casesByAssignee.lastStatus = status
-	m.casesByAssignee.lastPage = page
+	m.casesByAssignee.criteria = append(m.casesByAssignee.criteria, criteria)
 
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
@@ -92,11 +90,16 @@ func TestGetCentralCases(t *testing.T) {
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
 	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
 
-	assert.Equal(1, client.casesByAssignee.count)
+	assert.Equal(2, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("Pending", client.casesByAssignee.lastStatus)
-	assert.Equal(1, client.casesByAssignee.lastPage)
+	assert.Equal("Pending", client.casesByAssignee.criteria[0].Filter.Status)
+	assert.Equal(1, client.casesByAssignee.criteria[0].Page)
+
+	assert.Equal("Pending", client.casesByAssignee.criteria[1].Filter.Status)
+	assert.Equal("receiptDate", client.casesByAssignee.criteria[1].Sort.Field)
+	assert.Equal(sirius.Ascending, client.casesByAssignee.criteria[1].Sort.Order)
+	assert.Equal(1, client.casesByAssignee.criteria[1].Limit)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -136,11 +139,16 @@ func TestGetCentralCasesPage(t *testing.T) {
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
 	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
 
-	assert.Equal(1, client.casesByAssignee.count)
+	assert.Equal(2, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("Pending", client.casesByAssignee.lastStatus)
-	assert.Equal(4, client.casesByAssignee.lastPage)
+	assert.Equal("Pending", client.casesByAssignee.criteria[0].Filter.Status)
+	assert.Equal(4, client.casesByAssignee.criteria[0].Page)
+
+	assert.Equal("Pending", client.casesByAssignee.criteria[1].Filter.Status)
+	assert.Equal("receiptDate", client.casesByAssignee.criteria[1].Sort.Field)
+	assert.Equal(sirius.Ascending, client.casesByAssignee.criteria[1].Sort.Order)
+	assert.Equal(1, client.casesByAssignee.criteria[1].Limit)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -252,7 +260,7 @@ func TestGetCentralCasesQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("Pending", client.casesByAssignee.lastStatus)
+	assert.Equal("Pending", client.casesByAssignee.criteria[0].Filter.Status)
 }
 
 func TestBadMethodCentralCases(t *testing.T) {
