@@ -23,7 +23,7 @@ func TestCasesByAssignee(t *testing.T) {
 
 	testCases := []struct {
 		name               string
-		criteria           CasesByAssigneeCriteria
+		criteria           Criteria
 		setup              func()
 		cookies            []*http.Cookie
 		expectedCases      []Case
@@ -43,8 +43,6 @@ func TestCasesByAssignee(t *testing.T) {
 						Query: dsl.MapMatcher{
 							"filter": dsl.String("caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
-							"limit":  dsl.String("25"),
-							"page":   dsl.String("1"),
 						},
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
@@ -103,12 +101,8 @@ func TestCasesByAssignee(t *testing.T) {
 			},
 		},
 		{
-			name: "OK by status",
-			criteria: CasesByAssigneeCriteria{
-				Filter: CasesByAssigneeFilter{
-					Status: "Pending",
-				},
-			},
+			name:     "OK by status",
+			criteria: Criteria{}.Filter("status", "Pending"),
 			setup: func() {
 				pact.
 					AddInteraction().
@@ -118,10 +112,8 @@ func TestCasesByAssignee(t *testing.T) {
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
-							"filter": dsl.String("caseType:lpa,active:true,status:Pending"),
+							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
-							"limit":  dsl.String("25"),
-							"page":   dsl.String("1"),
 						},
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
@@ -180,17 +172,8 @@ func TestCasesByAssignee(t *testing.T) {
 			},
 		},
 		{
-			name: "OK with full criteria",
-			criteria: CasesByAssigneeCriteria{
-				Limit: 1,
-				Filter: CasesByAssigneeFilter{
-					Status: "Pending",
-				},
-				Sort: CasesByAssigneeSort{
-					Field: "receiptDate",
-					Order: Ascending,
-				},
-			},
+			name:     "OK with criteria",
+			criteria: Criteria{}.Filter("status", "Pending").Limit(1).Sort("receiptDate", Ascending),
 			setup: func() {
 				pact.
 					AddInteraction().
@@ -200,10 +183,9 @@ func TestCasesByAssignee(t *testing.T) {
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
-							"filter": dsl.String("caseType:lpa,active:true,status:Pending"),
+							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
 							"limit":  dsl.String("1"),
-							"page":   dsl.String("1"),
 						},
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
@@ -274,8 +256,6 @@ func TestCasesByAssignee(t *testing.T) {
 						Query: dsl.MapMatcher{
 							"filter": dsl.String("caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
-							"page":   dsl.String("1"),
-							"limit":  dsl.String("25"),
 						},
 					}).
 					WillRespondWith(dsl.Response{
@@ -309,10 +289,10 @@ func TestCasesByAssigneeStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, _, err := client.CasesByAssignee(getContext(nil), 47, CasesByAssigneeCriteria{Page: 2})
+	_, _, err := client.CasesByAssignee(getContext(nil), 47, Criteria{}.Page(2))
 	assert.Equal(t, StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/assignees/47/cases?page=2&filter=caseType:lpa,active:true&limit=25&sort=receiptDate:asc",
+		URL:    s.URL + "/api/v1/assignees/47/cases?filter=caseType%3Alpa%2Cactive%3Atrue&page=2&sort=receiptDate%3Aasc",
 		Method: http.MethodGet,
 	}, err)
 }

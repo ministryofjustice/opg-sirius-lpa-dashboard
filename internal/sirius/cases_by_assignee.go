@@ -27,56 +27,10 @@ func (d Donor) DisplayName() string {
 	return d.Firstname + " " + d.Surname
 }
 
-type SortOrder string
+func (c *Client) CasesByAssignee(ctx Context, id int, criteria Criteria) ([]Case, *Pagination, error) {
+	criteria = criteria.Filter("caseType", "lpa").Filter("active", "true")
 
-const (
-	Ascending  SortOrder = "asc"
-	Descending SortOrder = "desc"
-)
-
-type CasesByAssigneeFilter struct {
-	Status string
-}
-
-type CasesByAssigneeSort struct {
-	Field string
-	Order SortOrder
-}
-
-type CasesByAssigneeCriteria struct {
-	Page   int
-	Limit  int
-	Filter CasesByAssigneeFilter
-	Sort   CasesByAssigneeSort
-}
-
-func (c *Client) CasesByAssignee(ctx Context, id int, criteria CasesByAssigneeCriteria) ([]Case, *Pagination, error) {
-	filter := "caseType:lpa,active:true"
-	if criteria.Filter.Status != "" {
-		filter = fmt.Sprintf("%s,status:%s", filter, criteria.Filter.Status)
-	}
-
-	sortField := "receiptDate"
-	if criteria.Sort.Field != "" {
-		sortField = criteria.Sort.Field
-	}
-
-	sortOrder := Ascending
-	if criteria.Sort.Order != "" {
-		sortOrder = criteria.Sort.Order
-	}
-
-	page := 1
-	if criteria.Page != 0 {
-		page = criteria.Page
-	}
-
-	limit := 25
-	if criteria.Limit != 0 {
-		limit = criteria.Limit
-	}
-
-	url := fmt.Sprintf("/api/v1/assignees/%d/cases?page=%d&filter=%s&limit=%d&sort=%s:%s", id, page, filter, limit, sortField, sortOrder)
+	url := fmt.Sprintf("/api/v1/assignees/%d/cases?%s", id, criteria.String())
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -114,12 +68,7 @@ func (c *Client) CasesByAssignee(ctx Context, id int, criteria CasesByAssigneeCr
 }
 
 func (c *Client) HasWorkableCase(ctx Context, id int) (bool, error) {
-	_, pagination, err := c.CasesByAssignee(ctx, id, CasesByAssigneeCriteria{
-		Filter: CasesByAssigneeFilter{
-			Status: "Pending",
-		},
-		Page: 1,
-	})
+	_, pagination, err := c.CasesByAssignee(ctx, id, Criteria{}.Filter("status", "Pending").Page(1))
 
 	return pagination.TotalItems > 0, err
 }

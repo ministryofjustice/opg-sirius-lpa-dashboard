@@ -21,7 +21,7 @@ type mockCasesClient struct {
 		count        int
 		lastCtx      sirius.Context
 		lastId       int
-		lastCriteria sirius.CasesByAssigneeCriteria
+		lastCriteria sirius.Criteria
 		data         []sirius.Case
 		pagination   *sirius.Pagination
 		err          error
@@ -42,7 +42,7 @@ func (m *mockCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error
 	return m.myDetails.data, m.myDetails.err
 }
 
-func (m *mockCasesClient) CasesByAssignee(ctx sirius.Context, id int, criteria sirius.CasesByAssigneeCriteria) ([]sirius.Case, *sirius.Pagination, error) {
+func (m *mockCasesClient) CasesByAssignee(ctx sirius.Context, id int, criteria sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error) {
 	m.casesByAssignee.count += 1
 	m.casesByAssignee.lastCtx = ctx
 	m.casesByAssignee.lastId = id
@@ -87,8 +87,7 @@ func TestGetCases(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("", client.casesByAssignee.lastCriteria.Filter.Status)
-	assert.Equal(1, client.casesByAssignee.lastCriteria.Page)
+	assert.Equal(sirius.Criteria{}.Page(1), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, client.hasWorkableCase.count)
 	assert.Equal(getContext(r), client.hasWorkableCase.lastCtx)
@@ -129,8 +128,7 @@ func TestGetCasesPage(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("", client.casesByAssignee.lastCriteria.Filter.Status)
-	assert.Equal(4, client.casesByAssignee.lastCriteria.Page)
+	assert.Equal(sirius.Criteria{}.Page(4), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -184,7 +182,7 @@ func TestGetCasesQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal("", client.casesByAssignee.lastCriteria.Filter.Status)
+	assert.Equal(sirius.Criteria{}.Page(1), client.casesByAssignee.lastCriteria)
 }
 
 func TestBadMethodCases(t *testing.T) {

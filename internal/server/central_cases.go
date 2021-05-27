@@ -7,7 +7,7 @@ import (
 )
 
 type CentralCasesClient interface {
-	CasesByAssignee(sirius.Context, int, sirius.CasesByAssigneeCriteria) ([]sirius.Case, *sirius.Pagination, error)
+	CasesByAssignee(sirius.Context, int, sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 	UserByEmail(sirius.Context, string) (sirius.User, error)
 }
@@ -40,27 +40,15 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		teamCases, pagination, err := client.CasesByAssignee(ctx, centralPotUser.ID, sirius.CasesByAssigneeCriteria{
-			Filter: sirius.CasesByAssigneeFilter{
-				Status: "Pending",
-			},
-			Page: getPage(r),
-		})
+		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r))
+		teamCases, pagination, err := client.CasesByAssignee(ctx, centralPotUser.ID, criteria)
 
 		if err != nil {
 			return err
 		}
 
-		oldestCases, _, err := client.CasesByAssignee(ctx, centralPotUser.ID, sirius.CasesByAssigneeCriteria{
-			Filter: sirius.CasesByAssigneeFilter{
-				Status: "Pending",
-			},
-			Sort: sirius.CasesByAssigneeSort{
-				Field: "receiptDate",
-				Order: sirius.Ascending,
-			},
-			Limit: 1,
-		})
+		criteria = sirius.Criteria{}.Filter("status", "Pending").Sort("receiptDate", sirius.Ascending).Limit(1).Page(1)
+		oldestCases, _, err := client.CasesByAssignee(ctx, centralPotUser.ID, criteria)
 
 		if err != nil {
 			return err
