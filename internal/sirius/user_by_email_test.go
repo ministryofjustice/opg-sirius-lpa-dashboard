@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMyDetails(t *testing.T) {
+func TestUserByEmail(t *testing.T) {
 	pact := &dsl.Pact{
 		Consumer:          "sirius-lpa-dashboard",
 		Provider:          "sirius",
@@ -21,22 +21,27 @@ func TestMyDetails(t *testing.T) {
 	defer pact.Teardown()
 
 	testCases := []struct {
-		name              string
-		setup             func()
-		cookies           []*http.Cookie
-		expectedMyDetails MyDetails
-		expectedError     error
+		name          string
+		setup         func()
+		cookies       []*http.Cookie
+		email         string
+		expectedUser  User
+		expectedError error
 	}{
 		{
-			name: "OK",
+			name:  "OK",
+			email: "manager@opgtest.com",
 			setup: func() {
 				pact.
 					AddInteraction().
-					Given("User exists").
-					UponReceiving("A request to get my details").
+					Given("!Manager user exists").
+					UponReceiving("A request to get !Manager's ID").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users/current"),
+						Path:   dsl.String("/api/v1/users"),
+						Query: dsl.MapMatcher{
+							"email": dsl.String("manager@opgtest.com"),
+						},
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
 							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
@@ -47,8 +52,7 @@ func TestMyDetails(t *testing.T) {
 						Status:  http.StatusOK,
 						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
 						Body: dsl.Like(map[string]interface{}{
-							"id":    dsl.Like(47),
-							"roles": dsl.EachLike("Manager", 1),
+							"id": dsl.Like(47),
 						}),
 					})
 			},
@@ -56,22 +60,25 @@ func TestMyDetails(t *testing.T) {
 				{Name: "XSRF-TOKEN", Value: "abcde"},
 				{Name: "Other", Value: "other"},
 			},
-			expectedMyDetails: MyDetails{
-				ID:    47,
-				Roles: []string{"Manager"},
+			expectedUser: User{
+				ID: 47,
 			},
 		},
 
 		{
-			name: "Unauthorized",
+			name:  "Unauthorized",
+			email: "manager@opgtest.com",
 			setup: func() {
 				pact.
 					AddInteraction().
-					Given("User exists").
-					UponReceiving("A request to get my details without cookies").
+					Given("!Manager user exists").
+					UponReceiving("A request to get !Manager's ID without cookies").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users/current"),
+						Path:   dsl.String("/api/v1/users"),
+						Query: dsl.MapMatcher{
+							"email": dsl.String("manager@opgtest.com"),
+						},
 						Headers: dsl.MapMatcher{
 							"OPG-Bypass-Membrane": dsl.String("1"),
 						},
@@ -91,8 +98,8 @@ func TestMyDetails(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				myDetails, err := client.MyDetails(getContext(tc.cookies))
-				assert.Equal(t, tc.expectedMyDetails, myDetails)
+				user, err := client.UserByEmail(getContext(tc.cookies), tc.email)
+				assert.Equal(t, tc.expectedUser, user)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
 			}))
@@ -100,54 +107,16 @@ func TestMyDetails(t *testing.T) {
 	}
 }
 
-func TestMyDetailsStatusError(t *testing.T) {
+func TestUserByEmailStatusError(t *testing.T) {
 	s := teapotServer()
 	defer s.Close()
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, err := client.MyDetails(getContext(nil))
+	_, err := client.UserByEmail(getContext(nil), "someone@opgtest.com")
 	assert.Equal(t, StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/users/current",
+		URL:    s.URL + "/api/v1/users?email=someone@opgtest.com",
 		Method: http.MethodGet,
 	}, err)
-}
-
-func TestMyDetailsIsManager(t *testing.T) {
-	testCases := []struct {
-		roles    []string
-		expected bool
-	}{
-		{
-			roles:    []string{},
-			expected: false,
-		},
-		{
-			roles:    []string{"Admin"},
-			expected: false,
-		},
-		{
-			roles:    []string{"Manager"},
-			expected: true,
-		},
-		{
-			roles:    []string{"User", "Admin"},
-			expected: false,
-		},
-		{
-			roles:    []string{"User", "Manager", "Admin"},
-			expected: true,
-		},
-	}
-
-	assert := assert.New(t)
-
-	for _, tc := range testCases {
-		myDetails := MyDetails{
-			Roles: tc.roles,
-		}
-
-		assert.Equal(tc.expected, myDetails.IsManager())
-	}
 }
