@@ -8,6 +8,7 @@ import (
 
 type DashboardClient interface {
 	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
+	HasWorkableCase(sirius.Context, int) (bool, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
@@ -36,10 +37,15 @@ func dashboard(client DashboardClient, tmpl Template) Handler {
 			return err
 		}
 
+		hasWorkableCase, err := client.HasWorkableCase(ctx, myDetails.ID)
+		if err != nil {
+			return err
+		}
+
 		vars := dashboardVars{
 			Cases:           myCases,
 			Pagination:      pagination,
-			HasWorkableCase: pagination.TotalItems > 0,
+			HasWorkableCase: hasWorkableCase,
 			XSRFToken:       ctx.XSRFToken,
 		}
 
