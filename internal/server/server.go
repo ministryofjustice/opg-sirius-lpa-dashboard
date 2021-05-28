@@ -31,7 +31,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/", http.RedirectHandler(prefix+"/pending-cases", http.StatusFound))
+	mux.Handle("/", wrap(landingPage(client)))
 
 	mux.Handle("/pending-cases",
 		wrap(
