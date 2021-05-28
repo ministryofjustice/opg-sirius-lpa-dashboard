@@ -71,6 +71,9 @@ func (c *Client) newRequest(ctx Context, method, path string, body io.Reader) (*
 
 	req.Header.Add("OPG-Bypass-Membrane", "1")
 	req.Header.Add("X-XSRF-TOKEN", ctx.XSRFToken)
+	if body != nil {
+		req.Header.Add("Content-Type", "application/json")
+	}
 
 	return req, err
 }
