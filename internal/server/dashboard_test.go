@@ -26,6 +26,13 @@ type mockDashboardClient struct {
 		pagination   *sirius.Pagination
 		err          error
 	}
+	hasWorkableCase struct {
+		count   int
+		lastCtx sirius.Context
+		lastId  int
+		data    bool
+		err     error
+	}
 }
 
 func (m *mockDashboardClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
@@ -44,6 +51,14 @@ func (m *mockDashboardClient) CasesByAssignee(ctx sirius.Context, id int, criter
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
 
+func (m *mockDashboardClient) HasWorkableCase(ctx sirius.Context, id int) (bool, error) {
+	m.hasWorkableCase.count += 1
+	m.hasWorkableCase.lastCtx = ctx
+	m.hasWorkableCase.lastId = id
+
+	return m.hasWorkableCase.data, m.hasWorkableCase.err
+}
+
 func TestGetDashboard(t *testing.T) {
 	assert := assert.New(t)
 
@@ -60,6 +75,7 @@ func TestGetDashboard(t *testing.T) {
 	client.casesByAssignee.pagination = &sirius.Pagination{
 		TotalItems: 20,
 	}
+	client.hasWorkableCase.data = true
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
@@ -74,7 +90,7 @@ func TestGetDashboard(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -113,7 +129,7 @@ func TestGetDashboardPage(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(4), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -168,7 +184,7 @@ func TestGetDashboardQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 }
 
 func TestBadMethodDashboard(t *testing.T) {
