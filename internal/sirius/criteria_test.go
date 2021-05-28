@@ -53,7 +53,6 @@ func TestCriteria(t *testing.T) {
 			},
 		},
 		"everything": {
-
 			Input: Criteria{}.Filter("type", "LPA").Page(4).Sort("type", Ascending).Filter("status", "Registered").Limit(16).Sort("assignee", Descending),
 			Query: url.Values{
 				"filter": {"type:LPA,status:Registered"},

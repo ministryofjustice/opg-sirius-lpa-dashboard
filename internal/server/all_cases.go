@@ -32,7 +32,7 @@ func allCases(client AllCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, sirius.Criteria{}.Page(getPage(r)))
+		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, sirius.Criteria{}.Page(getPage(r)).Sort("receiptDate", sirius.Ascending))
 		if err != nil {
 			return err
 		}
