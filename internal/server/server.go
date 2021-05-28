@@ -16,8 +16,9 @@ type Logger interface {
 }
 
 type Client interface {
+	AllCasesClient
+	CasesClient
 	CentralCasesClient
-	DashboardClient
 	RequestNextCasesClient
 	TasksClient
 }
@@ -35,7 +36,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux.Handle("/pending-cases",
 		wrap(
-			dashboard(client, templates["dashboard.gotmpl"])))
+			cases(client, templates["cases.gotmpl"])))
 
 	mux.Handle("/tasks",
 		wrap(
