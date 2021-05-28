@@ -27,6 +27,13 @@ type mockDashboardClient struct {
 		pagination *sirius.Pagination
 		err        error
 	}
+	hasWorkableCase struct {
+		count   int
+		lastCtx sirius.Context
+		lastId  int
+		data    bool
+		err     error
+	}
 }
 
 func (m *mockDashboardClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
@@ -46,6 +53,14 @@ func (m *mockDashboardClient) CasesByAssignee(ctx sirius.Context, id int, status
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
 
+func (m *mockDashboardClient) HasWorkableCase(ctx sirius.Context, id int) (bool, error) {
+	m.hasWorkableCase.count += 1
+	m.hasWorkableCase.lastCtx = ctx
+	m.hasWorkableCase.lastId = id
+
+	return m.hasWorkableCase.data, m.hasWorkableCase.err
+}
+
 func TestGetDashboard(t *testing.T) {
 	assert := assert.New(t)
 
@@ -62,6 +77,7 @@ func TestGetDashboard(t *testing.T) {
 	client.casesByAssignee.pagination = &sirius.Pagination{
 		TotalItems: 20,
 	}
+	client.hasWorkableCase.data = true
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()

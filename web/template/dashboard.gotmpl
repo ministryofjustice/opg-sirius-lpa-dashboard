@@ -24,44 +24,65 @@
     </ul>
   </div>
 
-  {{ template "pagination" .Pagination }}
+  <form action="{{ prefix "/mark-worked" }}" method="post">
+    <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
 
-  <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
+    <div style="text-align:right">
+      <button data-enable-when-selection class="govuk-button govuk-button--secondary" type="submit">Progress worked cases</button>
+    </div>
 
-  <table class="govuk-table">
-    <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <th scope="col" class="govuk-table__header">Donor</th>
-        <th scope="col" class="govuk-table__header">Case</th>
-        <th scope="col" class="govuk-table__header">LPA type</th>
-        <th scope="col" class="govuk-table__header">Received</th>
-        <th scope="col" class="govuk-table__header">Worked</th>
-      </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-      {{ range .Cases }}
+    {{ template "pagination" .Pagination }}
+
+    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
+
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">{{ .Donor.DisplayName }}</th>
-          <td class="govuk-table__cell">
-            <a href="{{ sirius (printf "/lpa/person/%d/%d" .Donor.ID .ID) }}" class="govuk-link">
-              {{ .Uid }}
-            </a>
-          </td>
-          <td class="govuk-table__cell">
-            {{ upper .SubType }}
-          </td>
-          <td class="govuk-table__cell">
-            {{ formatDate .ReceiptDate }}
-          </td>
-          <td class="govuk-table__cell">
-          </td>
+          <th scope="col" class="govuk-table__header">Donor</th>
+          <th scope="col" class="govuk-table__header">Case</th>
+          <th scope="col" class="govuk-table__header">LPA type</th>
+          <th scope="col" class="govuk-table__header">Received</th>
+          <th scope="col" class="govuk-table__header">Worked</th>
         </tr>
-      {{ else }}
-        <tr>
-          <td colspan="5">You currently have no cases assigned</td>
-        </tr>
-      {{ end }}
-    </tbody>
-  </table>
-
+      </thead>
+      <tbody class="govuk-table__body">
+        {{ range .Cases }}
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">{{ .Donor.DisplayName }}</th>
+            <td class="govuk-table__cell">
+              <a href="{{ sirius (printf "/lpa/person/%d/%d" .Donor.ID .ID) }}" class="govuk-link">
+                {{ .Uid }}
+              </a>
+            </td>
+            <td class="govuk-table__cell">
+              {{ upper .SubType }}
+            </td>
+            <td class="govuk-table__cell">
+              {{ formatDate .ReceiptDate }}
+            </td>
+            <td class="govuk-table__cell">
+              {{ if .IsWorked }}
+                <svg class="moj-banner__icon" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="-5 -5 35 35">
+                  <circle fill="green" cx="12.5" cy="12.5" r="17.5"></circle>
+                  <path d="M25,6.2L8.7,23.2L0,14.1l4-4.2l4.7,4.9L21,2L25,6.2z" fill="white"></path>
+                </svg>
+                <span class="moj-banner__assistive">Worked</span>
+              {{ else }}
+                <div class="govuk-checkboxes__item govuk-checkboxes--small moj-multi-select__checkbox">
+                  <input type="checkbox" class="govuk-checkboxes__input" name="worked" id="{{ .ID }}" value="{{ .ID }}">
+                  <label class="govuk-label govuk-checkboxes__label" for="{{ .ID }}">
+                    <span class="govuk-visually-hidden">Select case {{ .Uid }}</span>
+                  </label>
+                </div>
+              {{ end }}
+            </td>
+          </tr>
+        {{ else }}
+          <tr>
+            <td colspan="5">You currently have no cases assigned</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </form>
 {{ end }}

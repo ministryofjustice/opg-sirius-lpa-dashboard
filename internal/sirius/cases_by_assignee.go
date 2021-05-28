@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type Case struct {
@@ -14,6 +15,13 @@ type Case struct {
 	ReceiptDate SiriusDate `json:"receiptDate"`
 	Status      string     `json:"status"`
 	TaskCount   int        `json:"taskCount"`
+	WorkedDate  SiriusDate `json:"workedDate"`
+}
+
+func (c Case) IsWorked() bool {
+	day := 24 * 60 * time.Minute
+
+	return c.WorkedDate.Truncate(day).Equal(time.Now().Truncate(day))
 }
 
 type Donor struct {
@@ -72,7 +80,7 @@ func (c *Client) CasesByAssignee(ctx Context, id int, status string, page int) (
 }
 
 func (c *Client) HasWorkableCase(ctx Context, id int) (bool, error) {
-	_, pagination, err := c.CasesByAssignee(ctx, id, "Pending", 1)
+	_, pagination, err := c.CasesByAssignee(ctx, id, "Pending,worked:true", 1)
 
 	return pagination.TotalItems > 0, err
 }
