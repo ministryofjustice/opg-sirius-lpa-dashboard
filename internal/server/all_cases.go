@@ -6,7 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
-type CasesClient interface {
+type AllCasesClient interface {
 	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
 	HasWorkableCase(sirius.Context, int) (bool, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
@@ -19,7 +19,7 @@ type allCasesVars struct {
 	XSRFToken       string
 }
 
-func cases(client CasesClient, tmpl Template) Handler {
+func allCases(client AllCasesClient, tmpl Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)

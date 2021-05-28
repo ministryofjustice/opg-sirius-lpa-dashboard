@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockCasesClient struct {
+type mockAllCasesClient struct {
 	myDetails struct {
 		count   int
 		lastCtx sirius.Context
@@ -36,14 +36,14 @@ type mockCasesClient struct {
 	}
 }
 
-func (m *mockCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
+func (m *mockAllCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
 	m.myDetails.count += 1
 	m.myDetails.lastCtx = ctx
 
 	return m.myDetails.data, m.myDetails.err
 }
 
-func (m *mockCasesClient) CasesByAssignee(ctx sirius.Context, id int, status string, page int) ([]sirius.Case, *sirius.Pagination, error) {
+func (m *mockAllCasesClient) CasesByAssignee(ctx sirius.Context, id int, status string, page int) ([]sirius.Case, *sirius.Pagination, error) {
 	m.casesByAssignee.count += 1
 	m.casesByAssignee.lastCtx = ctx
 	m.casesByAssignee.lastId = id
@@ -53,7 +53,7 @@ func (m *mockCasesClient) CasesByAssignee(ctx sirius.Context, id int, status str
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
 
-func (m *mockCasesClient) HasWorkableCase(ctx sirius.Context, id int) (bool, error) {
+func (m *mockAllCasesClient) HasWorkableCase(ctx sirius.Context, id int) (bool, error) {
 	m.hasWorkableCase.count += 1
 	m.hasWorkableCase.lastCtx = ctx
 	m.hasWorkableCase.lastId = id
@@ -61,10 +61,10 @@ func (m *mockCasesClient) HasWorkableCase(ctx sirius.Context, id int) (bool, err
 	return m.hasWorkableCase.data, m.hasWorkableCase.err
 }
 
-func TestGetCases(t *testing.T) {
+func TestGetAllCases(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockCasesClient{}
+	client := &mockAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		ID: 14,
 	}
@@ -80,7 +80,7 @@ func TestGetCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := cases(client, template)(w, r)
+	err := allCases(client, template)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -104,10 +104,10 @@ func TestGetCases(t *testing.T) {
 	}, template.lastVars)
 }
 
-func TestGetCasesPage(t *testing.T) {
+func TestGetAllCasesPage(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockCasesClient{}
+	client := &mockAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		ID: 14,
 	}
@@ -122,7 +122,7 @@ func TestGetCasesPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path?page=4", nil)
 
-	err := cases(client, template)(w, r)
+	err := allCases(client, template)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -141,19 +141,19 @@ func TestGetCasesPage(t *testing.T) {
 	}, template.lastVars)
 }
 
-func TestGetCasesMyDetailsError(t *testing.T) {
+func TestGetAllCasesMyDetailsError(t *testing.T) {
 	assert := assert.New(t)
 
 	expectedError := errors.New("oops")
 
-	client := &mockCasesClient{}
+	client := &mockAllCasesClient{}
 	client.myDetails.err = expectedError
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := cases(client, template)(w, r)
+	err := allCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -162,12 +162,12 @@ func TestGetCasesMyDetailsError(t *testing.T) {
 	assert.Equal(0, client.casesByAssignee.count)
 }
 
-func TestGetCasesQueryError(t *testing.T) {
+func TestGetAllCasesQueryError(t *testing.T) {
 	assert := assert.New(t)
 
 	expectedError := errors.New("oops")
 
-	client := &mockCasesClient{}
+	client := &mockAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		ID: 14,
 	}
@@ -177,7 +177,7 @@ func TestGetCasesQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := cases(client, template)(w, r)
+	err := allCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -189,16 +189,16 @@ func TestGetCasesQueryError(t *testing.T) {
 	assert.Equal("", client.casesByAssignee.lastStatus)
 }
 
-func TestBadMethodCases(t *testing.T) {
+func TestBadMethodAllCases(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockCasesClient{}
+	client := &mockAllCasesClient{}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/path", nil)
 
-	err := cases(client, template)(w, r)
+	err := allCases(client, template)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 
