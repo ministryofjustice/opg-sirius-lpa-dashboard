@@ -31,7 +31,8 @@ func TestCasesByAssignee(t *testing.T) {
 		expectedError      error
 	}{
 		{
-			name: "OK",
+			name:     "OK",
+			criteria: Criteria{}.Page(1),
 			setup: func() {
 				pact.
 					AddInteraction().
@@ -41,6 +42,7 @@ func TestCasesByAssignee(t *testing.T) {
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
+							"page":   dsl.String("1"),
 							"filter": dsl.String("caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
 						},
@@ -102,7 +104,7 @@ func TestCasesByAssignee(t *testing.T) {
 		},
 		{
 			name:     "OK by status",
-			criteria: Criteria{}.Filter("status", "Pending"),
+			criteria: Criteria{}.Filter("status", "Pending").Page(1),
 			setup: func() {
 				pact.
 					AddInteraction().
@@ -112,6 +114,7 @@ func TestCasesByAssignee(t *testing.T) {
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
+							"page":   dsl.String("1"),
 							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
 						},
@@ -173,7 +176,7 @@ func TestCasesByAssignee(t *testing.T) {
 		},
 		{
 			name:     "OK with criteria",
-			criteria: Criteria{}.Filter("status", "Pending").Limit(1).Sort("receiptDate", Ascending),
+			criteria: Criteria{}.Filter("status", "Pending").Page(1).Limit(1).Sort("receiptDate", Ascending),
 			setup: func() {
 				pact.
 					AddInteraction().
@@ -183,9 +186,10 @@ func TestCasesByAssignee(t *testing.T) {
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/assignees/47/cases"),
 						Query: dsl.MapMatcher{
+							"page":   dsl.String("1"),
+							"limit":  dsl.String("1"),
 							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
 							"sort":   dsl.String("receiptDate:asc"),
-							"limit":  dsl.String("1"),
 						},
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
