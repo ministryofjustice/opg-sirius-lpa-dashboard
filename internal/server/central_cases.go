@@ -7,14 +7,15 @@ import (
 )
 
 type CentralCasesClient interface {
-	CasesByAssignee(sirius.Context, int, string, int) ([]sirius.Case, *sirius.Pagination, error)
+	CasesByAssignee(sirius.Context, int, sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 	UserByEmail(sirius.Context, string) (sirius.User, error)
 }
 
 type centralCasesVars struct {
-	Cases      []sirius.Case
-	Pagination *sirius.Pagination
+	Cases          []sirius.Case
+	OldestCaseDate sirius.SiriusDate
+	Pagination     *sirius.Pagination
 }
 
 func centralCases(client CentralCasesClient, tmpl Template) Handler {
@@ -39,7 +40,16 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		teamCases, pagination, err := client.CasesByAssignee(ctx, centralPotUser.ID, "Pending", getPage(r))
+		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r))
+		teamCases, pagination, err := client.CasesByAssignee(ctx, centralPotUser.ID, criteria)
+
+		if err != nil {
+			return err
+		}
+
+		criteria = sirius.Criteria{}.Filter("status", "Pending").Sort("receiptDate", sirius.Ascending).Limit(1).Page(1)
+		oldestCases, _, err := client.CasesByAssignee(ctx, centralPotUser.ID, criteria)
+
 		if err != nil {
 			return err
 		}
@@ -47,6 +57,10 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 		vars := centralCasesVars{
 			Cases:      teamCases,
 			Pagination: pagination,
+		}
+
+		if len(oldestCases) > 0 {
+			vars.OldestCaseDate = oldestCases[0].ReceiptDate
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
