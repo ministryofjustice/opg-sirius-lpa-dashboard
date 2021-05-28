@@ -1,4 +1,4 @@
-describe("Dashboard", () => {
+describe("Pending cases", () => {
     beforeEach(() => {
         cy.setCookie("Other", "other");
         cy.setCookie("XSRF-TOKEN", "abcde");
