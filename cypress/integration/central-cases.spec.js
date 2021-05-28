@@ -12,6 +12,8 @@ describe("Central pot pending cases", () => {
         cy.get('.govuk-tabs__list-item--selected').should('contain', 'Central pot - pending cases');
         cy.get('.moj-ticket-panel .govuk-heading-xl').invoke('text').should('equal', '1')
 
+        cy.get('.moj-ticket-panel').should('contain', 'Oldest case date: 28 Nov 2017');
+
         const $row = cy.get('table > tbody > tr');
         $row.should('contain', 'Wilma Ruthman');
         $row.should('contain', 'HW');

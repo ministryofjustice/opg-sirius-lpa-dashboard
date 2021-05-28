@@ -25,11 +25,13 @@
             <strong class="govuk-!-display-inline-block">Pending<br>cases</strong>
           </p>
         </div>
-        <div class="govuk-grid-column-one-half" style="text-align:right">
-          <p class="govuk-body">
-            <!--<strong>Oldest case date: ???</strong>-->
-          </p>
-        </div>
+        {{ if .OldestCaseDate }}
+          <div class="govuk-grid-column-one-half" style="text-align:right">
+            <p class="govuk-body">
+              <strong>Oldest case date: {{ .OldestCaseDate | formatDate }}</strong>
+            </p>
+          </div>
+        {{ end }}
       </div>
     </div>
   </div>
