@@ -27,14 +27,10 @@ func (d Donor) DisplayName() string {
 	return d.Firstname + " " + d.Surname
 }
 
-func (c *Client) CasesByAssignee(ctx Context, id int, status string, page int) ([]Case, *Pagination, error) {
-	filter := "caseType:lpa,active:true"
+func (c *Client) CasesByAssignee(ctx Context, id int, criteria Criteria) ([]Case, *Pagination, error) {
+	criteria = criteria.Filter("caseType", "lpa").Filter("active", "true").Sort("receiptDate", Ascending)
 
-	if status != "" {
-		filter = fmt.Sprintf("%s,status:%s", filter, status)
-	}
-
-	url := fmt.Sprintf("/api/v1/assignees/%d/cases?page=%d&filter=%s&sort=caseSubType:asc", id, page, filter)
+	url := fmt.Sprintf("/api/v1/assignees/%d/cases?%s", id, criteria.String())
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -72,7 +68,7 @@ func (c *Client) CasesByAssignee(ctx Context, id int, status string, page int) (
 }
 
 func (c *Client) HasWorkableCase(ctx Context, id int) (bool, error) {
-	_, pagination, err := c.CasesByAssignee(ctx, id, "Pending", 1)
+	_, pagination, err := c.CasesByAssignee(ctx, id, Criteria{}.Filter("status", "Pending").Page(1))
 
 	return pagination.TotalItems > 0, err
 }
