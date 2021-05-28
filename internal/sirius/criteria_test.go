@@ -14,36 +14,30 @@ func TestCriteria(t *testing.T) {
 	}{
 		"defaultValues": {
 			Input: Criteria{},
-			Query: url.Values{
-				"sort": {"receiptDate:asc"},
-			},
+			Query: url.Values{},
 		},
 		"filter": {
 			Input: Criteria{}.Filter("type", "LPA"),
 			Query: url.Values{
 				"filter": {"type:LPA"},
-				"sort":   {"receiptDate:asc"},
 			},
 		},
 		"multiple-filters": {
 			Input: Criteria{}.Filter("type", "LPA").Filter("status", "Registered"),
 			Query: url.Values{
 				"filter": {"type:LPA,status:Registered"},
-				"sort":   {"receiptDate:asc"},
 			},
 		},
 		"limit": {
 			Input: Criteria{}.Limit(16),
 			Query: url.Values{
 				"limit": {"16"},
-				"sort":  {"receiptDate:asc"},
 			},
 		},
 		"page": {
 			Input: Criteria{}.Page(4),
 			Query: url.Values{
 				"page": {"4"},
-				"sort": {"receiptDate:asc"},
 			},
 		},
 		"sort": {

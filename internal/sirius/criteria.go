@@ -23,20 +23,11 @@ func (f filter) String() string {
 	return fmt.Sprintf("%s:%s", f.field, f.value)
 }
 
-type sort struct {
-	field string
-	order sortOrder
-}
-
-func (s sort) String() string {
-	return fmt.Sprintf("%s:%s", s.field, s.order)
-}
-
 type Criteria struct {
 	page   int
 	limit  int
 	filter []filter
-	sort   []sort
+	sort   map[string]sortOrder
 }
 
 func (c Criteria) Page(id int) Criteria {
@@ -58,10 +49,11 @@ func (c Criteria) Filter(field string, value string) Criteria {
 }
 
 func (c Criteria) Sort(field string, order sortOrder) Criteria {
-	c.sort = append(c.sort, sort{
-		field: field,
-		order: order,
-	})
+	if c.sort == nil {
+		c.sort = map[string]sortOrder{}
+	}
+
+	c.sort[field] = order
 	return c
 }
 
@@ -78,12 +70,10 @@ func (c *Criteria) String() string {
 
 	if len(c.sort) > 0 {
 		var sorts []string
-		for _, sort := range c.sort {
-			sorts = append(sorts, sort.String())
+		for field, order := range c.sort {
+			sorts = append(sorts, fmt.Sprintf("%s:%s", field, order))
 		}
 		params.Add("sort", strings.Join(sorts, ","))
-	} else {
-		params.Add("sort", fmt.Sprintf("receiptDate:%s", Ascending))
 	}
 
 	if c.page != 0 {
