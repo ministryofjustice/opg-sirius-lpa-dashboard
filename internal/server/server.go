@@ -43,7 +43,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux.Handle("/all-cases",
 		wrap(
-			cases(client, templates["all-cases.gotmpl"])))
+			allCases(client, templates["all-cases.gotmpl"])))
 
 	mux.Handle("/teams/central",
 		wrap(
