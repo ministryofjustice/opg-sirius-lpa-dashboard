@@ -40,7 +40,7 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r))
+		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r)).Sort("receiptDate", sirius.Ascending)
 		teamCases, pagination, err := client.CasesByAssignee(ctx, centralPotUser.ID, criteria)
 
 		if err != nil {

@@ -15,4 +15,10 @@ describe("Pending cases", () => {
         $row.should('contain', '14 May 2021');
         $row.contains('7000-2830-9492').should('have.attr', 'href').should('contain', '/person/17/58');
     });
+
+    it("enables the 'Progress worked cases' button on selection", () => {
+        cy.contains('button', 'Progress worked cases').should('have.attr', 'disabled');
+        cy.get('input[type=checkbox]').check();
+        cy.contains('button', 'Progress worked cases').should('not.have.attr', 'disabled');
+    });
 });
