@@ -87,7 +87,7 @@ func TestGetAllCases(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Page(1), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, client.hasWorkableCase.count)
 	assert.Equal(getContext(r), client.hasWorkableCase.lastCtx)
@@ -128,7 +128,7 @@ func TestGetAllCasesPage(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Page(4), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -182,7 +182,7 @@ func TestGetAllCasesQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Page(1), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 }
 
 func TestBadMethodAllCases(t *testing.T) {

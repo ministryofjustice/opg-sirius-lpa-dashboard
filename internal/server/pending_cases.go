@@ -8,6 +8,7 @@ import (
 
 type PendingCasesClient interface {
 	CasesByAssignee(sirius.Context, int, sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error)
+	HasWorkableCase(sirius.Context, int) (bool, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
@@ -31,9 +32,14 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r))
+		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r)).Sort("receiptDate", sirius.Ascending)
 		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, criteria)
 
+		if err != nil {
+			return err
+		}
+
+		hasWorkableCase, err := client.HasWorkableCase(ctx, myDetails.ID)
 		if err != nil {
 			return err
 		}
@@ -41,7 +47,7 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 		vars := pendingCasesVars{
 			Cases:           myCases,
 			Pagination:      pagination,
-			HasWorkableCase: pagination.TotalItems > 0,
+			HasWorkableCase: hasWorkableCase,
 			XSRFToken:       ctx.XSRFToken,
 		}
 
