@@ -93,7 +93,7 @@ func TestGetCentralCases(t *testing.T) {
 	assert.Equal(2, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1), client.casesByAssignee.criteria[0])
+	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.criteria[0])
 	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending).Limit(1), client.casesByAssignee.criteria[1])
 
 	assert.Equal(1, template.count)
@@ -137,7 +137,7 @@ func TestGetCentralCasesPage(t *testing.T) {
 	assert.Equal(2, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(4), client.casesByAssignee.criteria[0])
+	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.criteria[0])
 	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending).Limit(1), client.casesByAssignee.criteria[1])
 
 	assert.Equal(1, template.count)
@@ -250,7 +250,7 @@ func TestGetCentralCasesQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(14, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1), client.casesByAssignee.criteria[0])
+	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.criteria[0])
 }
 
 func TestBadMethodCentralCases(t *testing.T) {
