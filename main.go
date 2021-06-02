@@ -46,8 +46,15 @@ func main() {
 			"sirius": func(s string) string {
 				return siriusPublicURL + s
 			},
-			"formatDate": func(d sirius.SiriusDate) string {
-				return d.Format("02 Jan 2006")
+			"formatDate": func(d interface{}) string {
+				switch t := d.(type) {
+				case time.Time:
+					return t.Format("02 Jan 2006")
+				case sirius.SiriusDate:
+					return t.Format("02 Jan 2006")
+				default:
+					panic("can't format date")
+				}
 			},
 			"upper": func(s string) string {
 				return strings.ToUpper(s)
