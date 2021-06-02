@@ -10,33 +10,35 @@
       Contents
     </h2>
     <ul class="govuk-tabs__list">
-      <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+      <li class="govuk-tabs__list-item">
         <a class="govuk-tabs__tab" href="{{prefix "/teams/central-pot" }}"><strong>Central pot</strong> - pending cases</a>
       </li>
-      {{ if .TeamName }}
-        <li class="govuk-tabs__list-item">
-          <a class="govuk-tabs__tab" href="{{prefix "/teams/work-in-progress" }}"><strong>{{ .TeamName }}</strong> - work in progress</a>
-        </li>
-      {{ end }}
+      <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+        <a class="govuk-tabs__tab" href="{{prefix "/teams/work-in-progress" }}"><strong>{{ .TeamName }}</strong> - work in progress</a>
+      </li>
     </ul>
   </div>
 
-  <div class="moj-ticket-panel">
-    <div class="moj-ticket-panel__content">
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-quarter">
+      <div class="moj-ticket-panel">
+        <div class="moj-ticket-panel__content">
+          <p class="govuk-body">
+            <a class="govuk-link govuk-link--no-underline govuk-heading-l" href="#">{{ .TeamName }}</a>
+          </p>
           <p class="govuk-body">
             <span class="govuk-heading-xl govuk-!-margin-bottom-0 govuk-!-display-inline-block">{{ .Pagination.TotalItems }}</span>
-            <strong class="govuk-!-display-inline-block">Pending<br>cases</strong>
+            <strong class="govuk-!-display-inline-block">Worked<br>cases</strong>
           </p>
+          <p class="govuk-body"><strong>Today: </strong> {{ .Today | formatDate }}</p>
         </div>
-        {{ if .OldestCaseDate }}
-          <div class="govuk-grid-column-one-half" style="text-align:right">
-            <p class="govuk-body">
-              <strong>Oldest case date: {{ .OldestCaseDate | formatDate }}</strong>
-            </p>
-          </div>
-        {{ end }}
+      </div>
+    </div>
+    <div class="govuk-grid-column-three-quarters">
+      <div class="moj-ticket-panel">
+        <div class="moj-ticket-panel__content">
+          <p class="govuk-body"></p>
+        </div>
       </div>
     </div>
   </div>
@@ -52,6 +54,8 @@
         <th scope="col" class="govuk-table__header">Case</th>
         <th scope="col" class="govuk-table__header">LPA type</th>
         <th scope="col" class="govuk-table__header">Received</th>
+        <th scope="col" class="govuk-table__header">Allocation</th>
+        <th scope="col" class="govuk-table__header">Status</th>
       </tr>
     </thead>
     <tbody class="govuk-table__body">
@@ -69,10 +73,18 @@
           <td class="govuk-table__cell">
             {{ formatDate .ReceiptDate }}
           </td>
+          <td class="govuk-table__cell">
+            <strong>{{ .Assignee.DisplayName }}</strong>
+          </td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+              {{ .Status }}
+            </strong>
+          </td>
         </tr>
       {{ else }}
         <tr>
-          <td colspan="5">There are currently no cases in the central pot</td>
+          <td colspan="6">There are currently no cases assigned to the members of {{ .TeamName }}</td>
         </tr>
       {{ end }}
     </tbody>

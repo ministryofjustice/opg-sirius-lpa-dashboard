@@ -147,7 +147,7 @@ func TestGetCentralCasesPage(t *testing.T) {
 	}, template.lastVars)
 }
 
-func TestGetCentralCasesUnauthorized(t *testing.T) {
+func TestGetCentralCasesForbidden(t *testing.T) {
 	assert := assert.New(t)
 
 	client := &mockCentralCasesClient{}
@@ -160,7 +160,7 @@ func TestGetCentralCasesUnauthorized(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/path", nil)
 
 	err := centralCases(client, template)(w, r)
-	assert.Equal(StatusError(http.StatusUnauthorized), err)
+	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
 	assert.Equal(getContext(r), client.myDetails.lastCtx)

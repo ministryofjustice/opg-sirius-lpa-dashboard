@@ -15,6 +15,12 @@ type Case struct {
 	Status      string     `json:"status"`
 	TaskCount   int        `json:"taskCount"`
 	Worked      bool       `json:"worked"`
+	Assignee    Assignee   `json:"assignee"`
+}
+
+type Assignee struct {
+	ID          int    `json:"id"`
+	DisplayName string `json:"displayName"`
 }
 
 type Donor struct {

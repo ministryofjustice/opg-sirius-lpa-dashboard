@@ -16,6 +16,7 @@ type centralCasesVars struct {
 	Cases          []sirius.Case
 	OldestCaseDate sirius.SiriusDate
 	Pagination     *sirius.Pagination
+	TeamName       string
 }
 
 func centralCases(client CentralCasesClient, tmpl Template) Handler {
@@ -32,7 +33,7 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 		}
 
 		if !myDetails.IsManager() {
-			return StatusError(http.StatusUnauthorized)
+			return StatusError(http.StatusForbidden)
 		}
 
 		centralPotUser, err := client.UserByEmail(ctx, "manager@opgtest.com")
@@ -61,6 +62,10 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 
 		if len(oldestCases) > 0 {
 			vars.OldestCaseDate = oldestCases[0].ReceiptDate
+		}
+
+		if len(myDetails.Teams) > 0 {
+			vars.TeamName = myDetails.Teams[0].DisplayName
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
