@@ -49,6 +49,10 @@ func TestMyDetails(t *testing.T) {
 						Body: dsl.Like(map[string]interface{}{
 							"id":    dsl.Like(47),
 							"roles": dsl.EachLike("Manager", 1),
+							"teams": dsl.EachLike(map[string]interface{}{
+								"id":          dsl.Like(66),
+								"displayName": dsl.Like("my team"),
+							}, 1),
 						}),
 					})
 			},
@@ -59,6 +63,7 @@ func TestMyDetails(t *testing.T) {
 			expectedMyDetails: MyDetails{
 				ID:    47,
 				Roles: []string{"Manager"},
+				Teams: []MyDetailsTeam{{ID: 66, DisplayName: "my team"}},
 			},
 		},
 

@@ -31,6 +31,7 @@ func (md *MyDetails) IsManager() bool {
 }
 
 type MyDetailsTeam struct {
+	ID          int    `json:"id"`
 	DisplayName string `json:"displayName"`
 }
 
