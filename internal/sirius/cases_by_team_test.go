@@ -22,13 +22,12 @@ func TestCasesByTeam(t *testing.T) {
 	defer pact.Teardown()
 
 	testCases := []struct {
-		name               string
-		criteria           Criteria
-		setup              func()
-		cookies            []*http.Cookie
-		expectedCases      []Case
-		expectedPagination *Pagination
-		expectedError      error
+		name           string
+		criteria       Criteria
+		setup          func()
+		cookies        []*http.Cookie
+		expectedResult *CasesByTeam
+		expectedError  error
 	}{
 		{
 			name:     "OK",
@@ -60,6 +59,16 @@ func TestCasesByTeam(t *testing.T) {
 								"current": dsl.Like(1),
 								"total":   dsl.Like(1),
 							}),
+							"metadata": dsl.Like(map[string]interface{}{
+								"workedTotal": dsl.Like(1),
+								"worked": dsl.EachLike(map[string]interface{}{
+									"assignee": dsl.Like(map[string]interface{}{
+										"id":          dsl.Like(17),
+										"displayName": dsl.Like("John Smith"),
+									}),
+									"total": dsl.Like(1),
+								}, 1),
+							}),
 							"cases": dsl.EachLike(map[string]interface{}{
 								"id":  dsl.Like(36),
 								"uId": dsl.Term("7000-8548-8461", `\d{4}-\d{4}-\d{4}`),
@@ -84,28 +93,40 @@ func TestCasesByTeam(t *testing.T) {
 				{Name: "XSRF-TOKEN", Value: "abcde"},
 				{Name: "Other", Value: "other"},
 			},
-			expectedCases: []Case{{
-				ID:  36,
-				Uid: "7000-8548-8461",
-				Donor: Donor{
-					ID:        23,
-					Uid:       "7000-5382-4438",
-					Firstname: "Adrian",
-					Surname:   "Kurkjian",
+			expectedResult: &CasesByTeam{
+				Cases: []Case{{
+					ID:  36,
+					Uid: "7000-8548-8461",
+					Donor: Donor{
+						ID:        23,
+						Uid:       "7000-5382-4438",
+						Firstname: "Adrian",
+						Surname:   "Kurkjian",
+					},
+					Assignee: Assignee{
+						ID:          17,
+						DisplayName: "John Smith",
+					},
+					SubType:     "pf",
+					ReceiptDate: SiriusDate{time.Date(2021, 5, 12, 0, 0, 0, 0, time.UTC)},
+					Status:      "Perfect",
+				}},
+				Pagination: &Pagination{
+					TotalItems:  1,
+					CurrentPage: 1,
+					TotalPages:  1,
+					PageSize:    25,
 				},
-				Assignee: Assignee{
-					ID:          17,
-					DisplayName: "John Smith",
+				Stats: CasesByTeamMetadata{
+					WorkedTotal: 1,
+					Worked: []CasesByTeamMetadataWorked{{
+						Assignee: Assignee{
+							ID:          17,
+							DisplayName: "John Smith",
+						},
+						Total: 1,
+					}},
 				},
-				SubType:     "pf",
-				ReceiptDate: SiriusDate{time.Date(2021, 5, 12, 0, 0, 0, 0, time.UTC)},
-				Status:      "Perfect",
-			}},
-			expectedPagination: &Pagination{
-				TotalItems:  1,
-				CurrentPage: 1,
-				TotalPages:  1,
-				PageSize:    25,
 			},
 		},
 		{
@@ -134,9 +155,8 @@ func TestCasesByTeam(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				cases, pagination, err := client.CasesByTeam(getContext(tc.cookies), 66, tc.criteria)
-				assert.Equal(t, tc.expectedCases, cases)
-				assert.Equal(t, tc.expectedPagination, pagination)
+				result, err := client.CasesByTeam(getContext(tc.cookies), 66, tc.criteria)
+				assert.Equal(t, tc.expectedResult, result)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
 			}))
@@ -150,7 +170,7 @@ func TestCasesByTeamStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, _, err := client.CasesByTeam(getContext(nil), 66, Criteria{}.Page(2))
+	_, err := client.CasesByTeam(getContext(nil), 66, Criteria{}.Page(2))
 	assert.Equal(t, StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/teams/66/cases?page=2",
