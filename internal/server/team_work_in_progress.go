@@ -8,7 +8,7 @@ import (
 )
 
 type TeamWorkInProgressClient interface {
-	CasesByTeam(sirius.Context, int, sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error)
+	CasesByTeam(sirius.Context, int, sirius.Criteria) (*sirius.CasesByTeam, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
@@ -18,6 +18,7 @@ type teamWorkInProgressVars struct {
 	Pagination     *sirius.Pagination
 	TeamName       string
 	Today          time.Time
+	Stats          sirius.CasesByTeamMetadata
 }
 
 func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler {
@@ -41,14 +42,15 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 			return StatusError(http.StatusBadRequest)
 		}
 
-		teamCases, pagination, err := client.CasesByTeam(ctx, myDetails.Teams[0].ID, sirius.Criteria{}.Page(getPage(r)))
+		result, err := client.CasesByTeam(ctx, myDetails.Teams[0].ID, sirius.Criteria{}.Page(getPage(r)))
 		if err != nil {
 			return err
 		}
 
 		vars := teamWorkInProgressVars{
-			Cases:      teamCases,
-			Pagination: pagination,
+			Cases:      result.Cases,
+			Stats:      result.Stats,
+			Pagination: result.Pagination,
 			TeamName:   myDetails.Teams[0].DisplayName,
 			Today:      time.Now(),
 		}

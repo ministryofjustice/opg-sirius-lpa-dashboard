@@ -22,4 +22,11 @@ describe("Team work in progress", () => {
         $row.should('contain', 'Perfect');
         $row.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/36');
     });
+
+    it('shows statistics for each team member', () => {
+        const $row = cy.get('.app-name-grid');
+
+        $row.should('contain', 'John Smith');
+        $row.should('contain', '1');
+    });
 });
