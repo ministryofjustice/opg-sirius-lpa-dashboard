@@ -59,6 +59,12 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 				ID: 79,
 			},
 		}},
+		Pagination: &sirius.Pagination{
+			TotalItems: 1,
+		},
+		Stats: sirius.CasesByTeamMetadata{
+			WorkedTotal: 1,
+		},
 	}
 	template := &mockTemplate{}
 
@@ -84,8 +90,10 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 	vars.Today = time.Time{}
 
 	assert.Equal(teamWorkInProgressVars{
-		Cases:    client.casesByTeam.data.Cases,
-		TeamName: "team",
+		Cases:      client.casesByTeam.data.Cases,
+		TeamName:   "team",
+		Pagination: client.casesByTeam.data.Pagination,
+		Stats:      client.casesByTeam.data.Stats,
 	}, vars)
 }
 
