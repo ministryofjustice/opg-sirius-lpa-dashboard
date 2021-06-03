@@ -24,7 +24,7 @@ describe("Team work in progress", () => {
     });
 
     it('shows statistics for each team member', () => {
-        const $row = cy.get('.name-grid');
+        const $row = cy.get('.app-name-grid');
 
         $row.should('contain', 'John Smith');
         $row.should('contain', '1');
