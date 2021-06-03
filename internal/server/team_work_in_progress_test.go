@@ -17,8 +17,7 @@ type mockTeamWorkInProgressClient struct {
 		lastCtx      sirius.Context
 		lastId       int
 		lastCriteria sirius.Criteria
-		data         []sirius.Case
-		pagination   *sirius.Pagination
+		data         *sirius.CasesByTeam
 		err          error
 	}
 	myDetails struct {
@@ -29,13 +28,13 @@ type mockTeamWorkInProgressClient struct {
 	}
 }
 
-func (m *mockTeamWorkInProgressClient) CasesByTeam(ctx sirius.Context, id int, criteria sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error) {
+func (m *mockTeamWorkInProgressClient) CasesByTeam(ctx sirius.Context, id int, criteria sirius.Criteria) (*sirius.CasesByTeam, error) {
 	m.casesByTeam.count += 1
 	m.casesByTeam.lastCtx = ctx
 	m.casesByTeam.lastId = id
 	m.casesByTeam.lastCriteria = criteria
 
-	return m.casesByTeam.data, m.casesByTeam.pagination, m.casesByTeam.err
+	return m.casesByTeam.data, m.casesByTeam.err
 }
 
 func (m *mockTeamWorkInProgressClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
@@ -53,12 +52,20 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 		Roles: []string{"Manager"},
 		Teams: []sirius.MyDetailsTeam{{ID: 123, DisplayName: "team"}},
 	}
-	client.casesByTeam.data = []sirius.Case{{
-		ID: 78,
-		Donor: sirius.Donor{
-			ID: 79,
+	client.casesByTeam.data = &sirius.CasesByTeam{
+		Cases: []sirius.Case{{
+			ID: 78,
+			Donor: sirius.Donor{
+				ID: 79,
+			},
+		}},
+		Pagination: &sirius.Pagination{
+			TotalItems: 1,
 		},
-	}}
+		Stats: sirius.CasesByTeamMetadata{
+			WorkedTotal: 1,
+		},
+	}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
@@ -83,8 +90,10 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 	vars.Today = time.Time{}
 
 	assert.Equal(teamWorkInProgressVars{
-		Cases:    client.casesByTeam.data,
-		TeamName: "team",
+		Cases:      client.casesByTeam.data.Cases,
+		TeamName:   "team",
+		Pagination: client.casesByTeam.data.Pagination,
+		Stats:      client.casesByTeam.data.Stats,
 	}, vars)
 }
 
@@ -96,12 +105,14 @@ func TestGetTeamWorkInProgressPage(t *testing.T) {
 		Roles: []string{"Case Manager", "Manager", "System Admin"},
 		Teams: []sirius.MyDetailsTeam{{ID: 123, DisplayName: "team"}},
 	}
-	client.casesByTeam.data = []sirius.Case{{
-		ID: 78,
-		Donor: sirius.Donor{
-			ID: 79,
-		},
-	}}
+	client.casesByTeam.data = &sirius.CasesByTeam{
+		Cases: []sirius.Case{{
+			ID: 78,
+			Donor: sirius.Donor{
+				ID: 79,
+			},
+		}},
+	}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
@@ -126,7 +137,7 @@ func TestGetTeamWorkInProgressPage(t *testing.T) {
 	vars.Today = time.Time{}
 
 	assert.Equal(teamWorkInProgressVars{
-		Cases:    client.casesByTeam.data,
+		Cases:    client.casesByTeam.data.Cases,
 		TeamName: "team",
 	}, vars)
 }
