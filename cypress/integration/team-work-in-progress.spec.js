@@ -14,19 +14,29 @@ describe("Team work in progress", () => {
 
         cy.get('.moj-ticket-panel').should('contain', 'my team');
 
-        const $row = cy.get('table > tbody > tr');
-        $row.should('contain', 'Adrian Kurkjian');
-        $row.should('contain', 'PF');
-        $row.should('contain', '12 May 2021');
-        $row.should('contain', 'John Smith');
-        $row.should('contain', 'Perfect');
-        $row.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/36');
+        cy.get('table > tbody > tr').within(() => {
+            cy.contains('Adrian Kurkjian');
+            cy.contains('PF');
+            cy.contains('12 May 2021');
+            cy.contains('John Smith');
+            cy.contains('Perfect');
+            cy.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/36');
+        });
     });
 
-    it('shows statistics for each team member', () => {
-        const $row = cy.get('.app-name-grid');
+    it('shows worked cases for each team member', () => {
+        cy.get('.app-name-grid').within(() => {
+            cy.contains('John Smith');
+            cy.contains('1').should('be.visible');
+        });
+    });
 
-        $row.should('contain', 'John Smith');
-        $row.should('contain', '1');
+    it('shows tasks completed for each team member', () => {
+        cy.get('select').select('Tasks completed today');
+
+        cy.get('.app-name-grid').within(() => {
+            cy.contains('John Smith');
+            cy.contains('3').should('be.visible');
+        });
     });
 });
