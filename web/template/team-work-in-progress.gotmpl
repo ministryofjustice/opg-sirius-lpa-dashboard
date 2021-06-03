@@ -27,7 +27,7 @@
             <a class="govuk-link govuk-link--no-underline govuk-heading-l" href="#">{{ .TeamName }}</a>
           </p>
           <p class="govuk-body">
-            <span class="govuk-heading-xl govuk-!-margin-bottom-0 govuk-!-display-inline-block">{{ .Pagination.TotalItems }}</span>
+            <span class="govuk-heading-xl govuk-!-margin-bottom-0 govuk-!-display-inline-block">{{ .Stats.WorkedTotal }}</span>
             <strong class="govuk-!-display-inline-block">Worked<br>cases</strong>
           </p>
           <p class="govuk-body"><strong>Today: </strong> {{ .Today | formatDate }}</p>
@@ -37,7 +37,27 @@
     <div class="govuk-grid-column-three-quarters">
       <div class="moj-ticket-panel">
         <div class="moj-ticket-panel__content">
-          <p class="govuk-body"></p>
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-quarter">
+              <div class="govuk-form-group">
+                <label class="govuk-label" for="sort">
+                  Show caseworker data for
+                </label>
+                <select class="govuk-select">
+                  <option>New cases worked today</option>
+                </select>
+              </div>
+            </div>
+            <div class="govuk-grid-column-three-quarters">
+              <ul class="govuk-list name-grid">
+                {{ range .Stats.Worked }}
+                  <li class="govuk-body">
+                    <a class="govuk-link govuk-link--no-visited-state" href="#">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
+                  </li>
+                {{ end }}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
