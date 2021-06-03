@@ -13,11 +13,12 @@ type CasesByTeam struct {
 }
 
 type CasesByTeamMetadata struct {
-	WorkedTotal int                         `json:"workedTotal"`
-	Worked      []CasesByTeamMetadataWorked `json:"worked"`
+	WorkedTotal    int                         `json:"workedTotal"`
+	Worked         []CasesByTeamMetadataMember `json:"worked"`
+	TasksCompleted []CasesByTeamMetadataMember `json:"tasksCompleted"`
 }
 
-type CasesByTeamMetadataWorked struct {
+type CasesByTeamMetadataMember struct {
 	Assignee Assignee `json:"assignee"`
 	Total    int      `json:"total"`
 }

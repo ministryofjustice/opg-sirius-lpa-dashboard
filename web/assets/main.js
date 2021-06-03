@@ -16,9 +16,26 @@ function initEnableWhenSelection() {
     }
 }
 
+function initSelectShow() {
+    const select = document.querySelector('select[data-select-show]');
+    if (select) {
+        function update() {
+            const selectIds = Array.from(document.querySelectorAll('[data-select-id]'));
+            selectIds.forEach(x => x.classList.add('govuk-!-display-none'));
+
+            const show = document.querySelector(`[data-select-id='${select.value}']`);
+            show.classList.remove('govuk-!-display-none');
+        }
+
+        select.onchange = update;
+        update();
+    }
+}
+
 // we aren't using the JS tabs, but they try to initialise this will stop them breaking
 GOVUKFrontend.Tabs.prototype.setup = () => { };
 
 GOVUKFrontend.initAll();
 MOJFrontend.initAll();
 initEnableWhenSelection();
+initSelectShow();
