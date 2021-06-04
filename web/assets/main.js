@@ -32,6 +32,15 @@ function initSelectShow() {
     }
 }
 
+function initSelectNavigate() {
+    const select = document.querySelector('select[data-select-navigate]');
+    if (select) {
+        select.onchange = () => {
+            window.location.href = select.value;
+        };
+    }
+}
+
 // we aren't using the JS tabs, but they try to initialise this will stop them breaking
 GOVUKFrontend.Tabs.prototype.setup = () => { };
 
@@ -39,3 +48,4 @@ GOVUKFrontend.initAll();
 MOJFrontend.initAll();
 initEnableWhenSelection();
 initSelectShow();
+initSelectNavigate();
