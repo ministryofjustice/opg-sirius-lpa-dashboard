@@ -6,8 +6,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/pact-foundation/pact-go/dsl"
 	"github.com/stretchr/testify/assert"
 )
+
+func newPact() *dsl.Pact {
+	return &dsl.Pact{
+		Consumer:          "sirius-lpa-dashboard",
+		Provider:          "sirius",
+		Host:              "localhost",
+		PactFileWriteMode: "merge",
+		LogDir:            "../../logs",
+		PactDir:           "../../pacts",
+	}
+}
 
 func teapotServer() *httptest.Server {
 	return httptest.NewServer(

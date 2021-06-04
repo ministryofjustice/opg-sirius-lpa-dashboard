@@ -11,14 +11,7 @@ import (
 )
 
 func TestCasesWithOpenTasksByAssignee(t *testing.T) {
-	pact := &dsl.Pact{
-		Consumer:          "sirius-lpa-dashboard",
-		Provider:          "sirius",
-		Host:              "localhost",
-		PactFileWriteMode: "merge",
-		LogDir:            "../../logs",
-		PactDir:           "../../pacts",
-	}
+	pact := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {

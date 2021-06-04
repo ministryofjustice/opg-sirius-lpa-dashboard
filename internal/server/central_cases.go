@@ -16,6 +16,7 @@ type centralCasesVars struct {
 	Cases          []sirius.Case
 	OldestCaseDate sirius.SiriusDate
 	Pagination     *sirius.Pagination
+	TeamID         int
 	TeamName       string
 }
 
@@ -65,6 +66,7 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 		}
 
 		if len(myDetails.Teams) > 0 {
+			vars.TeamID = myDetails.Teams[0].ID
 			vars.TeamName = myDetails.Teams[0].DisplayName
 		}
 
