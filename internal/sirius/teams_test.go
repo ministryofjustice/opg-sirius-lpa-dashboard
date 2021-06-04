@@ -9,32 +9,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserByEmail(t *testing.T) {
+func TestTeams(t *testing.T) {
 	pact := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
-		name          string
-		setup         func()
-		cookies       []*http.Cookie
-		email         string
-		expectedUser  User
-		expectedError error
+		name             string
+		setup            func()
+		cookies          []*http.Cookie
+		expectedResponse []Team
+		expectedError    error
 	}{
 		{
-			name:  "OK",
-			email: "manager@opgtest.com",
+			name: "OK",
 			setup: func() {
 				pact.
 					AddInteraction().
-					Given("!Manager user exists").
-					UponReceiving("A request to get !Manager's ID").
+					Given("User exists and teams have no type").
+					UponReceiving("A request for teams").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users"),
-						Query: dsl.MapMatcher{
-							"email": dsl.String("manager@opgtest.com"),
-						},
+						Path:   dsl.String("/api/v1/teams"),
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
 							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
@@ -44,34 +39,33 @@ func TestUserByEmail(t *testing.T) {
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
 						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"id": dsl.Like(47),
-						}),
+						Body: dsl.EachLike(map[string]interface{}{
+							"id":          dsl.Like(66),
+							"displayName": dsl.Like("Cool Team"),
+						}, 1),
 					})
 			},
 			cookies: []*http.Cookie{
 				{Name: "XSRF-TOKEN", Value: "abcde"},
 				{Name: "Other", Value: "other"},
 			},
-			expectedUser: User{
-				ID: 47,
+			expectedResponse: []Team{
+				{
+					ID:          66,
+					DisplayName: "Cool Team",
+				},
 			},
 		},
-
 		{
-			name:  "Unauthorized",
-			email: "manager@opgtest.com",
+			name: "Unauthorized",
 			setup: func() {
 				pact.
 					AddInteraction().
-					Given("!Manager user exists").
-					UponReceiving("A request to get !Manager's ID without cookies").
+					Given("User exists").
+					UponReceiving("A request for teams without cookies").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users"),
-						Query: dsl.MapMatcher{
-							"email": dsl.String("manager@opgtest.com"),
-						},
+						Path:   dsl.String("/api/v1/teams"),
 						Headers: dsl.MapMatcher{
 							"OPG-Bypass-Membrane": dsl.String("1"),
 						},
@@ -91,8 +85,8 @@ func TestUserByEmail(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				user, err := client.UserByEmail(getContext(tc.cookies), tc.email)
-				assert.Equal(t, tc.expectedUser, user)
+				users, err := client.Teams(getContext(tc.cookies))
+				assert.Equal(t, tc.expectedResponse, users)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
 			}))
@@ -100,16 +94,16 @@ func TestUserByEmail(t *testing.T) {
 	}
 }
 
-func TestUserByEmailStatusError(t *testing.T) {
+func TestTeamsStatusError(t *testing.T) {
 	s := teapotServer()
 	defer s.Close()
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, err := client.UserByEmail(getContext(nil), "someone@opgtest.com")
+	_, err := client.Teams(getContext(nil))
 	assert.Equal(t, StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/users?email=someone@opgtest.com",
+		URL:    s.URL + "/api/v1/teams",
 		Method: http.MethodGet,
 	}, err)
 }

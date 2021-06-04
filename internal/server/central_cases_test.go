@@ -65,6 +65,7 @@ func TestGetCentralCases(t *testing.T) {
 	client := &mockCentralCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		Roles: []string{"Manager"},
+		Teams: []sirius.MyDetailsTeam{{ID: 123, DisplayName: "team"}},
 	}
 	client.userByEmail.data = sirius.User{
 		ID: 14,
@@ -99,7 +100,9 @@ func TestGetCentralCases(t *testing.T) {
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(centralCasesVars{
-		Cases: client.casesByAssignee.data,
+		Cases:    client.casesByAssignee.data,
+		TeamID:   123,
+		TeamName: "team",
 	}, template.lastVars)
 }
 
