@@ -40,17 +40,25 @@
           <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-quarter">
               <div class="govuk-form-group">
-                <label class="govuk-label" for="sort">
+                <label class="govuk-label" for="data-select">
                   Show caseworker data for
                 </label>
-                <select class="govuk-select">
-                  <option>New cases worked today</option>
+                <select class="govuk-select" id="data-select" aria-controls="selected-content" data-select-show>
+                  <option value="cases-worked">New cases worked today</option>
+                  <option value="tasks-completed">Tasks completed today</option>
                 </select>
               </div>
             </div>
-            <div class="govuk-grid-column-three-quarters">
-              <ul class="govuk-list app-name-grid">
+            <div class="govuk-grid-column-three-quarters" id="selected-content" role="region" aria-live="polite">
+              <ul class="govuk-list app-name-grid" data-select-id="cases-worked">
                 {{ range .Stats.Worked }}
+                  <li class="govuk-body">
+                    <a class="govuk-link govuk-link--no-visited-state" href="#">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
+                  </li>
+                {{ end }}
+              </ul>
+              <ul class="govuk-list app-name-grid" data-select-id="tasks-completed">
+                {{ range .Stats.TasksCompleted }}
                   <li class="govuk-body">
                     <a class="govuk-link govuk-link--no-visited-state" href="#">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
                   </li>

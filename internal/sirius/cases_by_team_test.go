@@ -68,6 +68,13 @@ func TestCasesByTeam(t *testing.T) {
 									}),
 									"total": dsl.Like(1),
 								}, 1),
+								"tasksCompleted": dsl.EachLike(map[string]interface{}{
+									"assignee": dsl.Like(map[string]interface{}{
+										"id":          dsl.Like(17),
+										"displayName": dsl.Like("John Smith"),
+									}),
+									"total": dsl.Like(3),
+								}, 1),
 							}),
 							"cases": dsl.EachLike(map[string]interface{}{
 								"id":  dsl.Like(36),
@@ -119,12 +126,19 @@ func TestCasesByTeam(t *testing.T) {
 				},
 				Stats: CasesByTeamMetadata{
 					WorkedTotal: 1,
-					Worked: []CasesByTeamMetadataWorked{{
+					Worked: []CasesByTeamMetadataMember{{
 						Assignee: Assignee{
 							ID:          17,
 							DisplayName: "John Smith",
 						},
 						Total: 1,
+					}},
+					TasksCompleted: []CasesByTeamMetadataMember{{
+						Assignee: Assignee{
+							ID:          17,
+							DisplayName: "John Smith",
+						},
+						Total: 3,
 					}},
 				},
 			},
