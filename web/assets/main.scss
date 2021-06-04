@@ -9,3 +9,17 @@ $moj-page-width: 1220px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
+
+.app-background-blue {
+    background: $govuk-brand-colour;
+}
+
+.app-color-white {
+    color: white !important;
+}
+
+.app-full-bleed {
+    width: 100vw;
+    margin-left: 50%;
+    transform: translateX(-50%);
+}

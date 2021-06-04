@@ -52,7 +52,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 		wrap(
 			centralCases(client, templates["central-cases.gotmpl"])))
 
-	mux.Handle("/teams/work-in-progress",
+	mux.Handle("/teams/work-in-progress/",
 		wrap(
 			teamWorkInProgress(client, templates["team-work-in-progress.gotmpl"])))
 

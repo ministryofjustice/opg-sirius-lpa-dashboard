@@ -15,7 +15,7 @@
       </li>
       {{ if .TeamName }}
         <li class="govuk-tabs__list-item">
-          <a class="govuk-tabs__tab" href="{{prefix "/teams/work-in-progress" }}"><strong>{{ .TeamName }}</strong> - work in progress</a>
+          <a class="govuk-tabs__tab" href="{{prefix (printf "/teams/work-in-progress/%d" .TeamID) }}"><strong>{{ .TeamName }}</strong> - work in progress</a>
         </li>
       {{ end }}
     </ul>
