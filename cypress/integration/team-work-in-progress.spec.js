@@ -2,17 +2,17 @@ describe("Team work in progress", () => {
     beforeEach(() => {
         cy.setCookie("Other", "other");
         cy.setCookie("XSRF-TOKEN", "abcde");
-        cy.visit("/teams/work-in-progress");
+        cy.visit("/teams/work-in-progress/66");
     });
 
     it("shows cases for my team", () => {
         cy.title().should('contain', 'LPA Allocations');
         cy.get('h1').should('contain', 'LPA allocations');
 
-        cy.get('.govuk-tabs__list-item--selected').should('contain', 'my team - work in progress');
+        cy.get('.govuk-tabs__list-item--selected').should('contain', 'Cool Team - work in progress');
         cy.get('.moj-ticket-panel .govuk-heading-xl').invoke('text').should('equal', '1')
 
-        cy.get('.moj-ticket-panel').should('contain', 'my team');
+        cy.get('.moj-ticket-panel').should('contain', 'Cool Team');
 
         cy.get('table > tbody > tr').within(() => {
             cy.contains('Adrian Kurkjian');
@@ -32,7 +32,7 @@ describe("Team work in progress", () => {
     });
 
     it('shows tasks completed for each team member', () => {
-        cy.get('select').select('Tasks completed today');
+        cy.get('#data-select').select('Tasks completed today');
 
         cy.get('.app-name-grid').within(() => {
             cy.contains('John Smith');
