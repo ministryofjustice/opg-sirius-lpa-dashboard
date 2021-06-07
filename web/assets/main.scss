@@ -4,6 +4,16 @@ $moj-page-width: 1220px;
 
 @import "node_modules/govuk-frontend/govuk/all";
 @import "node_modules/@ministryofjustice/frontend/moj/all";
+@import "filters";
+
+.moj-filter-layout__content .moj-pagination {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.app-body-class {
+    overflow-x: hidden;
+}
 
 .app-name-grid {
     display: grid;

@@ -15,7 +15,7 @@ type CentralCasesClient interface {
 type centralCasesVars struct {
 	Cases          []sirius.Case
 	OldestCaseDate sirius.SiriusDate
-	Pagination     *sirius.Pagination
+	Pagination     *Pagination
 	TeamID         int
 	TeamName       string
 }
@@ -58,7 +58,7 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 
 		vars := centralCasesVars{
 			Cases:      teamCases,
-			Pagination: pagination,
+			Pagination: newPagination(pagination),
 		}
 
 		if len(oldestCases) > 0 {
