@@ -1,5 +1,14 @@
 {{ template "page" . }}
 
+{{ define "option-svgs" }}
+  <svg version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" class="app-c-option-select__icon app-c-option-select__icon--up" aria-hidden="true" focusable="false">
+    <path d="m798.16 609.84l-256-256c-16.683-16.683-43.691-16.683-60.331 0l-256 256c-16.683 16.683-16.683 43.691 0 60.331s43.691 16.683 60.331 0l225.84-225.84 225.84 225.84c16.683 16.683 43.691 16.683 60.331 0s16.683-43.691 0-60.331z"></path>
+  </svg>
+  <svg version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" class="app-c-option-select__icon app-c-option-select__icon--down" aria-hidden="true" focusable="false">
+    <path d="m225.84 414.16l256 256c16.683 16.683 43.691 16.683 60.331 0l256-256c16.683-16.683 16.683-43.691 0-60.331s-43.691-16.683-60.331 0l-225.84 225.84-225.84-225.84c-16.683-16.683-43.691-16.683-60.331 0s-16.683 43.691 0 60.331z"></path>
+  </svg>
+{{ end }}
+
 {{ define "title" }}LPA Allocations{{ end }}
 
 {{ define "main" }}
@@ -9,7 +18,7 @@
     <div class="govuk-width-container">
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-          <h2 class="govuk-heading-m govuk-!-margin-bottom-0 app-color-white">{{ .TeamName }}</h2>
+          <h2 class="govuk-heading-m govuk-!-margin-bottom-0 app-color-white">{{ .Team.DisplayName }}</h2>
         </div>
         <div class="govuk-grid-column-one-half">
           <div class="govuk-form-group govuk-!-margin-bottom-0" style="text-align: right">
@@ -18,7 +27,7 @@
             </label>
             <select class="govuk-select" id="team-select" data-select-navigate>
               {{ range .Teams }}
-                <option value="{{prefix (printf "/teams/work-in-progress/%d" .ID) }}" {{ if eq .ID $.TeamID }}selected{{ end }}>{{ .DisplayName }}</option>
+                <option value="{{prefix (printf "/teams/work-in-progress/%d" .ID) }}" {{ if eq .ID $.Team.ID }}selected{{ end }}>{{ .DisplayName }}</option>
               {{ end }}
             </select>
           </div>
@@ -38,7 +47,7 @@
             <a class="govuk-tabs__tab" href="{{prefix "/teams/central-pot" }}"><strong>Central pot</strong> - pending cases</a>
           </li>
           <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-            <a class="govuk-tabs__tab" href="{{prefix (printf "/teams/work-in-progress/%d" .TeamID) }}"><strong>{{ .TeamName }}</strong> - work in progress</a>
+            <a class="govuk-tabs__tab" href="{{prefix (printf "/teams/work-in-progress/%d" .Team.ID) }}"><strong>{{ .Team.DisplayName }}</strong> - work in progress</a>
           </li>
         </ul>
       </div>
@@ -50,7 +59,7 @@
       <div class="moj-ticket-panel">
         <div class="moj-ticket-panel__content">
           <p class="govuk-body">
-            <a class="govuk-link govuk-link--no-underline govuk-heading-l" href="#">{{ .TeamName }}</a>
+            <a class="govuk-link govuk-link--no-underline govuk-heading-l" href="#">{{ .Team.DisplayName }}</a>
           </p>
           <p class="govuk-body">
             <span class="govuk-heading-xl govuk-!-margin-bottom-0 govuk-!-display-inline-block">{{ .Stats.WorkedTotal }}</span>
@@ -97,51 +106,196 @@
     </div>
   </div>
 
-  {{ template "pagination" .Pagination }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <button class="govuk-button govuk-button--secondary" data-filter-toggle>
+        {{ if .Filters.Set }}Hide{{ else }}Show{{ end }} filters
+      </button>
+    </div>
+  </div>
 
-  <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
+  <div class="moj-filter-layout">
+    <div class="moj-filter-layout__filter {{ if not .Filters.Set }}govuk-!-display-none{{ end }}">
+      <div class="moj-filter">
+        <div class="moj-filter__header">
+          <div class="moj-filter__header-title">
+            <h2 class="govuk-heading-m">Filter</h2>
+          </div>
+        </div>
 
-  <table class="govuk-table">
-    <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <th scope="col" class="govuk-table__header">Donor</th>
-        <th scope="col" class="govuk-table__header">Case</th>
-        <th scope="col" class="govuk-table__header">LPA type</th>
-        <th scope="col" class="govuk-table__header">Received</th>
-        <th scope="col" class="govuk-table__header">Allocation</th>
-        <th scope="col" class="govuk-table__header">Status</th>
-      </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-      {{ range .Cases }}
-        <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">{{ .Donor.DisplayName }}</th>
-          <td class="govuk-table__cell">
-            <a href="{{ sirius (printf "/lpa/person/%d/%d" .Donor.ID .ID) }}" class="govuk-link">
-              {{ .Uid }}
-            </a>
-          </td>
-          <td class="govuk-table__cell">
-            {{ upper .SubType }}
-          </td>
-          <td class="govuk-table__cell">
-            {{ formatDate .ReceiptDate }}
-          </td>
-          <td class="govuk-table__cell">
-            <strong>{{ .Assignee.DisplayName }}</strong>
-          </td>
-          <td class="govuk-table__cell">
-            <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
-              {{ .Status }}
-            </strong>
-          </td>
-        </tr>
-      {{ else }}
-        <tr>
-          <td colspan="6">There are currently no cases assigned to the members of {{ .TeamName }}</td>
-        </tr>
-      {{ end }}
-    </tbody>
-  </table>
+        <form method="get">
+          <div class="moj-filter__content">
+            <div class="moj-filter__options">
+              <div class="app-c-option-select">
+                <h2 class="app-c-option-select__heading">
+                  <button class="app-c-option-select__title app-c-option-select__button" type="button" aria-expanded="true" id="allocation-label" aria-controls="allocation-content">Allocation</button>
+                  {{ template "option-svgs" . }}
+                </h2>
+
+                <div role="group" aria-labelledby="allocation-label" class="app-c-option-select__container" id="allocation-content" tabindex="-1">
+                  <div class="app-c-option-select__container-inner">
+                    <fieldset class="govuk-fieldset">
+                      <div class="govuk-checkboxes govuk-checkboxes--small">
+                        {{ range .Team.Members }}
+                          <div class="govuk-checkboxes__item">
+                            <input class="govuk-checkboxes__input" id="allocation-{{ .ID }}" name="allocation" type="checkbox" value="{{ .ID }}" {{ if contains $.Filters.Allocation .ID }}checked{{ end }}>
+                            <label class="govuk-label govuk-checkboxes__label" for="allocation-{{ .ID }}">
+                              {{ .DisplayName }}
+                            </label>
+                          </div>
+                        {{ end }}
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+
+              <div class="app-c-option-select">
+                <h2 class="app-c-option-select__heading">
+                  <button class="app-c-option-select__title app-c-option-select__button" type="button" aria-expanded="true" id="status-label" aria-controls="status-content">Status</button>
+                  {{ template "option-svgs" . }}
+                </h2>
+
+                <div role="group" aria-labelledby="status-label" class="app-c-option-select__container" id="status-content" tabindex="-1">
+                  <div class="app-c-option-select__container-inner">
+                    <fieldset class="govuk-fieldset">
+                      <div class="govuk-checkboxes govuk-checkboxes--small">
+                        <div class="govuk-checkboxes__item">
+                          <input class="govuk-checkboxes__input" id="status-1" name="status" type="checkbox" value="Pending" {{ if contains .Filters.Status "Pending" }}checked{{ end }}>
+                          <label class="govuk-label govuk-checkboxes__label" for="status-1">
+                            Pending
+                          </label>
+                        </div>
+                        <div class="govuk-checkboxes__item">
+                          <input class="govuk-checkboxes__input" id="status-2" name="status" type="checkbox" value="Pending, worked" {{ if contains .Filters.Status "Pending, worked" }}checked{{ end }}>
+                          <label class="govuk-label govuk-checkboxes__label" for="status-2">
+                            Pending, worked
+                          </label>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+
+              <div class="app-c-option-select">
+                <h2 class="app-c-option-select__heading">
+                  <button class="app-c-option-select__title app-c-option-select__button" type="button" aria-expanded="true" id="date-range-label" aria-controls="date-range-content">Date range</button>
+                  {{ template "option-svgs" . }}
+                </h2>
+
+                <div role="group" aria-labelledby="date-range-label" class="app-c-option-select__container" id="date-range-content" tabindex="-1">
+                  <div class="app-c-option-select__container-inner">
+                    <div class="govuk-form-group">
+                      <label class="govuk-label" for="date-from">Date from</label>
+                      <input class="govuk-input" id="date-from" name="date-from" type="date" value="{{ isoDate .Filters.DateFrom }}" />
+                    </div>
+
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
+                      <label class="govuk-label" for="date-to">Date to</label>
+                      <input class="govuk-input" id="date-to" name="date-to" type="date" value="{{ isoDate .Filters.DateTo }}" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="app-c-option-select">
+                <h2 class="app-c-option-select__heading">
+                  <button class="app-c-option-select__title app-c-option-select__button" type="button" aria-expanded="true" id="lpa-type-label" aria-controls="lpa-type-content">LPA type</button>
+                  {{ template "option-svgs" . }}
+                </h2>
+
+                <div role="group" aria-labelledby="lpa-type-label" class="app-c-option-select__container" id="lpa-type-content" tabindex="-1">
+                  <div class="app-c-option-select__container-inner">
+                    <div class="govuk-radios">
+                      <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="lpa-type-1" name="lpa-type" type="radio" value="pfa" {{ if eq .Filters.LpaType "pfa" }}checked{{ end }}>
+                        <label class="govuk-label govuk-radios__label" for="lpa-type-1">
+                          PFA
+                        </label>
+                      </div>
+                      <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="lpa-type-2" name="lpa-type" type="radio" value="hw" {{ if eq .Filters.LpaType "hw" }}checked{{ end }}>
+                        <label class="govuk-label govuk-radios__label" for="lpa-type-2">
+                          HW
+                        </label>
+                      </div>
+                      <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="lpa-type-3" name="lpa-type" type="radio" value="both" {{ if eq .Filters.LpaType "both" }}checked{{ end }}>
+                        <label class="govuk-label govuk-radios__label" for="lpa-type-3">
+                          Donor has PFA and HW
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="govuk-button-group  govuk-!-margin-top-4">
+                <button type="submit" class="govuk-button">Apply filters</button>
+                <a class="govuk-button govuk-button--secondary" href="?page={{ .Pagination.CurrentPage }}">Reset</a>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="moj-filter-layout__content">
+      {{ template "pagination" .Pagination }}
+
+      <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
+
+      <div class="moj-scrollable-pane">
+        <div class="moj-scrollable-pane__wrapper">
+
+          <table class="govuk-table">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Donor</th>
+                <th scope="col" class="govuk-table__header">Case</th>
+                <th scope="col" class="govuk-table__header">LPA type</th>
+                <th scope="col" class="govuk-table__header">Received</th>
+                <th scope="col" class="govuk-table__header">Allocation</th>
+                <th scope="col" class="govuk-table__header">Status</th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {{ range .Cases }}
+                <tr class="govuk-table__row">
+                  <th scope="row" class="govuk-table__header">{{ .Donor.DisplayName }}</th>
+                  <td class="govuk-table__cell">
+                    <a href="{{ sirius (printf "/lpa/person/%d/%d" .Donor.ID .ID) }}" class="govuk-link">
+                      {{ .Uid }}
+                    </a>
+                  </td>
+                  <td class="govuk-table__cell">
+                    {{ upper .SubType }}
+                  </td>
+                  <td class="govuk-table__cell">
+                    {{ formatDate .ReceiptDate }}
+                  </td>
+                  <td class="govuk-table__cell">
+                    <strong>{{ .Assignee.DisplayName }}</strong>
+                  </td>
+                  <td class="govuk-table__cell">
+                    <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+                      {{ .Status }}
+                    </strong>
+                  </td>
+                </tr>
+              {{ else }}
+                <tr>
+                  <td colspan="6">There are currently no cases assigned to the members of {{ .Team.DisplayName }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {{ template "duplicate-pagination" .Pagination }}
+    </div>
+  </div>
 
 {{ end }}
