@@ -27,15 +27,13 @@
 {{ end }}
 
 {{ define "pagination" }}
-  <nav class="moj-pagination" id="pagination-label">
-    <p class="govuk-visually-hidden" aria-labelledby="pagination-label">Pagination navigation</p>
+  <nav class="moj-pagination" aria-label="Pagination navigation">
     {{ template "pagination-inner" . }}
   </nav>
 {{ end }}
 
 {{ define "duplicate-pagination" }}
-  <nav class="moj-pagination" aria-labelledby="duplicated-pagination-label">
-    <p class="govuk-visually-hidden" id="duplicated-pagination-label">Pagination navigation</p>
+  <nav class="moj-pagination" aria-label="Pagination navigation (in footer)">
     {{ template "pagination-inner" . }}
   </nav>
 {{ end }}

@@ -108,14 +108,14 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      <button class="govuk-button govuk-button--secondary" data-filter-toggle>
+      <button class="govuk-button govuk-button--secondary" aria-controls="app-filters" data-filter-toggle>
         {{ if .Filters.Set }}Hide{{ else }}Show{{ end }} filters
       </button>
     </div>
   </div>
 
   <div class="moj-filter-layout">
-    <div class="moj-filter-layout__filter {{ if not .Filters.Set }}govuk-!-display-none{{ end }}">
+    <div class="moj-filter-layout__filter {{ if not .Filters.Set }}govuk-!-display-none{{ end }}" id="app-filters">
       <div class="moj-filter">
         <div class="moj-filter__header">
           <div class="moj-filter__header-title">
