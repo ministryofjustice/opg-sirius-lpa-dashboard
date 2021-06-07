@@ -14,7 +14,7 @@ type AllCasesClient interface {
 
 type allCasesVars struct {
 	Cases           []sirius.Case
-	Pagination      *sirius.Pagination
+	Pagination      *Pagination
 	HasWorkableCase bool
 	XSRFToken       string
 }
@@ -44,7 +44,7 @@ func allCases(client AllCasesClient, tmpl Template) Handler {
 
 		vars := allCasesVars{
 			Cases:           myCases,
-			Pagination:      pagination,
+			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
 			XSRFToken:       ctx.XSRFToken,
 		}

@@ -14,7 +14,7 @@ type TasksClient interface {
 
 type tasksVars struct {
 	Cases           []sirius.Case
-	Pagination      *sirius.Pagination
+	Pagination      *Pagination
 	HasWorkableCase bool
 	XSRFToken       string
 }
@@ -44,7 +44,7 @@ func tasks(client TasksClient, tmpl Template) Handler {
 
 		return tmpl.ExecuteTemplate(w, "page", tasksVars{
 			Cases:           cases,
-			Pagination:      pagination,
+			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
 			XSRFToken:       ctx.XSRFToken,
 		})

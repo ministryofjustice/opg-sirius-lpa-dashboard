@@ -14,7 +14,7 @@ type PendingCasesClient interface {
 
 type pendingCasesVars struct {
 	Cases           []sirius.Case
-	Pagination      *sirius.Pagination
+	Pagination      *Pagination
 	HasWorkableCase bool
 	XSRFToken       string
 }
@@ -46,7 +46,7 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 
 		vars := pendingCasesVars{
 			Cases:           myCases,
-			Pagination:      pagination,
+			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
 			XSRFToken:       ctx.XSRFToken,
 		}
