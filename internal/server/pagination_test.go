@@ -1,8 +1,9 @@
-package sirius
+package server
 
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -89,13 +90,14 @@ func TestPagination(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			pagination := Pagination{
+			pagination := newPagination(&sirius.Pagination{
 				TotalItems:  tc.TotalItems,
 				CurrentPage: tc.CurrentPage,
 				TotalPages:  tc.TotalPages,
 				PageSize:    tc.PageSize,
-			}
+			})
 
+			assert.Equal("?", pagination.Query)
 			assert.Equal(tc.Start, pagination.Start())
 			assert.Equal(tc.End, pagination.End())
 			assert.Equal(tc.HasPrevious, pagination.HasPrevious())
@@ -109,4 +111,12 @@ func TestPagination(t *testing.T) {
 			assert.Equal(tc.Pages, pagination.Pages())
 		})
 	}
+}
+
+func TestPaginationWithQuery(t *testing.T) {
+	assert := assert.New(t)
+
+	pagination := newPaginationWithQuery(&sirius.Pagination{}, "this-is-here")
+
+	assert.Equal("?this-is-here&", pagination.Query)
 }

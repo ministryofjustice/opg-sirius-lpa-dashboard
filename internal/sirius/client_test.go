@@ -21,6 +21,17 @@ func newPact() *dsl.Pact {
 	}
 }
 
+func newIgnoredPact() *dsl.Pact {
+	return &dsl.Pact{
+		Consumer:          "ignored",
+		Provider:          "ignored",
+		Host:              "localhost",
+		PactFileWriteMode: "merge",
+		LogDir:            "../../logs",
+		PactDir:           "../../pacts",
+	}
+}
+
 func teapotServer() *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

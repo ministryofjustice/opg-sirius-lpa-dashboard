@@ -7,7 +7,7 @@
       <ul class="moj-pagination__list">
         {{ if .HasPrevious }}
           <li class="moj-pagination__item  moj-pagination__item--prev">
-            <a class="moj-pagination__link" href="?page={{ .PreviousPage }}">Previous<span class="govuk-visually-hidden"> page</span></a>
+            <a class="moj-pagination__link" href="{{ .Query }}page={{ .PreviousPage }}">Previous<span class="govuk-visually-hidden"> page</span></a>
           </li>
         {{ end }}
 
@@ -15,13 +15,13 @@
           {{ if eq . $.CurrentPage }}
             <li class="moj-pagination__item moj-pagination__item--active"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></li>
           {{ else }}
-            <li class="moj-pagination__item"><a class="moj-pagination__link" href="?page={{ . }}"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></a></li>
+            <li class="moj-pagination__item"><a class="moj-pagination__link" href="{{ $.Query }}page={{ . }}"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></a></li>
           {{ end }}
         {{ end }}
 
         {{ if .HasNext }}
           <li class="moj-pagination__item  moj-pagination__item--next">
-            <a class="moj-pagination__link" href="?page={{ .NextPage }}">Next<span class="govuk-visually-hidden"> page</span></a>
+            <a class="moj-pagination__link" href="{{ .Query }}page={{ .NextPage }}">Next<span class="govuk-visually-hidden"> page</span></a>
           </li>
         {{ end }}
       </ul>
