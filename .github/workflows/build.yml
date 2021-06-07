@@ -112,6 +112,7 @@ jobs:
           name: pacts
           path: |
             ./pacts/sirius-lpa-dashboard-sirius.json
+            ./pacts/ignored-ignored.json
 
   lint:
     name: Lint
@@ -142,6 +143,7 @@ jobs:
       - name: Retrieve pact
         run: |
           docker container create --name temp -v pacts_data:/root hello-world
+          docker cp ./pacts/ignored-ignored.json temp:/root/ignored-ignored.json
           docker cp ./pacts/sirius-lpa-dashboard-sirius.json temp:/root/sirius-lpa-dashboard-sirius.json
 
       - name: Restore images
@@ -178,6 +180,7 @@ jobs:
       - name: Retrieve pact
         run: |
           docker container create --name temp -v pacts_data:/root hello-world
+          docker cp ./pacts/ignored-ignored.json temp:/root/ignored-ignored.json
           docker cp ./pacts/sirius-lpa-dashboard-sirius.json temp:/root/sirius-lpa-dashboard-sirius.json
       - name: Restore images
         run: |
