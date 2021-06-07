@@ -41,6 +41,41 @@ function initSelectNavigate() {
     }
 }
 
+function initFilterToggle() {
+    const button = document.querySelector('button[data-filter-toggle]');
+    const filters = document.querySelector('.moj-filter-layout__filter');
+
+    if (button && filters) {
+        button.onclick = () => {
+            if (button.innerText === 'Hide filters') {
+                button.innerText = 'Show filters';
+                filters.classList.add('govuk-!-display-none');
+            } else {
+                button.innerText = 'Hide filters';
+                filters.classList.remove('govuk-!-display-none');
+            }
+        };
+    }
+}
+
+function initFilterHeadings() {
+    const buttons = document.querySelectorAll('.app-c-option-select__button');
+
+    for (const button of buttons) {
+        button.onclick = () => {
+            const content = document.getElementById(button.getAttribute('aria-controls'));
+
+            content.classList.toggle('govuk-!-display-none');
+
+            if (content.classList.contains('govuk-!-display-none')) {
+                button.setAttribute('aria-expanded', 'false');
+            } else {
+                button.setAttribute('aria-expanded', 'true');
+            }
+        };
+    }
+}
+
 // we aren't using the JS tabs, but they try to initialise this will stop them breaking
 GOVUKFrontend.Tabs.prototype.setup = () => { };
 
@@ -49,3 +84,5 @@ MOJFrontend.initAll();
 initEnableWhenSelection();
 initSelectShow();
 initSelectNavigate();
+initFilterToggle();
+initFilterHeadings();
