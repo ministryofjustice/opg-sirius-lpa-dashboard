@@ -31,10 +31,20 @@ func main() {
 			"join": func(sep string, items []string) string {
 				return strings.Join(items, sep)
 			},
-			"contains": func(xs []string, needle string) bool {
-				for _, x := range xs {
-					if x == needle {
-						return true
+			"contains": func(xs interface{}, needle interface{}) bool {
+				switch need := needle.(type) {
+				case string:
+					for _, x := range xs.([]string) {
+						if x == need {
+							return true
+						}
+					}
+
+				case int:
+					for _, x := range xs.([]int) {
+						if x == need {
+							return true
+						}
 					}
 				}
 
@@ -55,6 +65,13 @@ func main() {
 				default:
 					panic("can't format date")
 				}
+			},
+			"isoDate": func(d time.Time) string {
+				if d.IsZero() {
+					return ""
+				}
+
+				return d.Format("2006-01-02")
 			},
 			"upper": func(s string) string {
 				return strings.ToUpper(s)
