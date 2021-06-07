@@ -39,4 +39,17 @@ describe("Team work in progress", () => {
             cy.contains('3').should('be.visible');
         });
     });
+
+    it('can be filtered', () => {
+        cy.contains('Apply filters').should('not.be.visible');
+
+        cy.contains('Show filters').click();
+        cy.contains('label', 'John').click();
+        cy.contains('Apply filters').click();
+        cy.url().should('contain', 'allocation=123');
+
+        cy.contains('Reset').click();
+        cy.url().should('not.contain', 'allocation=123');
+        cy.contains('Apply filters').should('not.be.visible');
+    });
 });

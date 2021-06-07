@@ -111,8 +111,7 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 
 	assert.Equal(teamWorkInProgressVars{
 		Cases:      client.casesByTeam.data.Cases,
-		TeamID:     1,
-		TeamName:   "my team",
+		Team:       client.teams.data[0],
 		Pagination: client.casesByTeam.data.Pagination,
 		Stats:      client.casesByTeam.data.Stats,
 		Teams:      client.teams.data,
@@ -185,10 +184,70 @@ func TestGetTeamWorkInProgressPage(t *testing.T) {
 	vars.Today = time.Time{}
 
 	assert.Equal(teamWorkInProgressVars{
-		Cases:    client.casesByTeam.data.Cases,
-		TeamID:   1,
-		TeamName: "my team",
-		Teams:    client.teams.data,
+		Cases: client.casesByTeam.data.Cases,
+		Team:  client.teams.data[0],
+		Teams: client.teams.data,
+	}, vars)
+}
+
+func TestGetTeamWorkInProgressFiltered(t *testing.T) {
+	assert := assert.New(t)
+
+	client := &mockTeamWorkInProgressClient{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Case Manager", "Manager", "System Admin"},
+		Teams: []sirius.MyDetailsTeam{{ID: 123, DisplayName: "team"}},
+	}
+	client.casesByTeam.data = &sirius.CasesByTeam{
+		Cases: []sirius.Case{{
+			ID: 78,
+			Donor: sirius.Donor{
+				ID: 79,
+			},
+		}},
+	}
+	client.teams.data = []sirius.Team{{
+		ID:          1,
+		DisplayName: "my team",
+	}}
+	template := &mockTemplate{}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1?allocation=123&allocation=456&status=Pending&date-from=2021-01-01&date-to=2021-02-01&lpa-type=both", nil)
+
+	err := teamWorkInProgress(client, template)(w, r)
+	assert.Nil(err)
+
+	assert.Equal(1, client.myDetails.count)
+	assert.Equal(getContext(r), client.myDetails.lastCtx)
+
+	assert.Equal(1, client.teams.count)
+	assert.Equal(getContext(r), client.teams.lastCtx)
+
+	assert.Equal(1, client.casesByTeam.count)
+	assert.Equal(getContext(r), client.casesByTeam.lastCtx)
+	assert.Equal(1, client.casesByTeam.lastId)
+	assert.Equal(sirius.Criteria{}.Page(1), client.casesByTeam.lastCriteria)
+
+	assert.Equal(1, template.count)
+	assert.Equal("page", template.lastName)
+
+	vars := template.lastVars.(teamWorkInProgressVars)
+	assert.WithinDuration(time.Now(), vars.Today, time.Second)
+	vars.Today = time.Time{}
+
+	assert.Equal(teamWorkInProgressVars{
+		Cases: client.casesByTeam.data.Cases,
+		Team:  client.teams.data[0],
+		Teams: client.teams.data,
+		Filters: teamWorkInProgressFilters{
+			Set:        true,
+			Allocation: []int{123, 456},
+			Status:     []string{"Pending"},
+			DateFrom:   time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC),
+			DateTo:     time.Date(2021, time.February, 1, 0, 0, 0, 0, time.UTC),
+			LpaType:    "both",
+		},
 	}, vars)
 }
 
