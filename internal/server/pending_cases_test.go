@@ -96,7 +96,7 @@ func TestGetPendingCases(t *testing.T) {
 	assert.Equal("page", template.lastName)
 	assert.Equal(pendingCasesVars{
 		Cases:           client.casesByAssignee.data,
-		Pagination:      client.casesByAssignee.pagination,
+		Pagination:      newPagination(client.casesByAssignee.pagination),
 		HasWorkableCase: true,
 	}, template.lastVars)
 }
@@ -135,7 +135,7 @@ func TestGetPendingCasesPage(t *testing.T) {
 	assert.Equal("page", template.lastName)
 	assert.Equal(pendingCasesVars{
 		Cases:      client.casesByAssignee.data,
-		Pagination: client.casesByAssignee.pagination,
+		Pagination: newPagination(client.casesByAssignee.pagination),
 	}, template.lastVars)
 }
 

@@ -118,7 +118,7 @@ func TestGetTasks(t *testing.T) {
 			assert.Equal("page", template.lastName)
 			assert.Equal(tasksVars{
 				Cases:           client.casesWithOpenTasksByAssignee.data,
-				Pagination:      client.casesWithOpenTasksByAssignee.pagination,
+				Pagination:      newPagination(client.casesWithOpenTasksByAssignee.pagination),
 				HasWorkableCase: true,
 			}, template.lastVars)
 		})
