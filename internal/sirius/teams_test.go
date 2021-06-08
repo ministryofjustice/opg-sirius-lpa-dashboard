@@ -129,7 +129,7 @@ func TestTeamsIgnored(t *testing.T) {
 							"id":          dsl.Like(66),
 							"displayName": dsl.Like("Cool Team"),
 							"members": dsl.EachLike(map[string]interface{}{
-								"id":          dsl.Like(123),
+								"id":          dsl.Like(47),
 								"displayName": dsl.Like("John"),
 							}, 1),
 						}, 1),
@@ -144,7 +144,7 @@ func TestTeamsIgnored(t *testing.T) {
 					ID:          66,
 					DisplayName: "Cool Team",
 					Members: []TeamMember{{
-						ID:          123,
+						ID:          47,
 						DisplayName: "John",
 					}},
 				},
