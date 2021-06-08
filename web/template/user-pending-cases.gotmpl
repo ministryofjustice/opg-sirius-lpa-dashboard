@@ -1,0 +1,82 @@
+{{ template "page" . }}
+
+{{ define "title" }}{{ .Assignee.DisplayName }}{{ end }}
+
+{{ define "main" }}
+  <h1 class="govuk-heading-xl">{{ .Assignee.DisplayName }}</h1>
+
+  <div class="govuk-tabs" data-module="govuk-tabs">
+    <h2 class="govuk-tabs__title">
+      Contents
+    </h2>
+    <ul class="govuk-tabs__list">
+      <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/user/%d" .Assignee.ID) }}">Pending cases</a>
+      </li>
+      <!--<li class="govuk-tabs__list-item">
+        <a class="govuk-tabs__tab" href="#">Tasks</a>
+      </li>
+      <li class="govuk-tabs__list-item">
+        <a class="govuk-tabs__tab" href="#">All cases</a>
+      </li>-->
+    </ul>
+  </div>
+
+  <form action="{{ prefix "/reassign" }}" method="get">
+    <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
+
+    {{ template "pagination" .Pagination }}
+
+    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
+
+    <table class="govuk-table" data-module="moj-multi-select" data-multi-select-checkbox="#select-all">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header" id="select-all"></th>
+          <th scope="col" class="govuk-table__header">Donor</th>
+          <th scope="col" class="govuk-table__header">Case</th>
+          <th scope="col" class="govuk-table__header">LPA type</th>
+          <th scope="col" class="govuk-table__header">Received</th>
+          <th scope="col" class="govuk-table__header">Status</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {{ range .Cases }}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+              <div class="govuk-checkboxes__item govuk-checkboxes--small moj-multi-select__checkbox">
+                <input type="checkbox" class="govuk-checkboxes__input" name="worked" id="{{ .ID }}" value="{{ .ID }}">
+                <label class="govuk-label govuk-checkboxes__label" for="{{ .ID }}">
+                  <span class="govuk-visually-hidden">Select case {{ .Uid }}</span>
+                </label>
+              </div>
+            </td>
+            <th scope="row" class="govuk-table__header">{{ .Donor.DisplayName }}</th>
+            <td class="govuk-table__cell">
+              <a href="{{ sirius (printf "/lpa/person/%d/%d" .Donor.ID .ID) }}" class="govuk-link">
+                {{ .Uid }}
+              </a>
+            </td>
+            <td class="govuk-table__cell">
+              {{ upper .SubType }}
+            </td>
+            <td class="govuk-table__cell">
+              {{ formatDate .ReceiptDate }}
+            </td>
+            <td class="govuk-table__cell">
+              <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+              {{ .Status }}
+            </strong>
+            </td>
+          </tr>
+        {{ else }}
+          <tr>
+            <td colspan="6">You currently have no cases assigned</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+
+    {{ template "duplicate-pagination" .Pagination }}
+  </form>
+{{ end }}
