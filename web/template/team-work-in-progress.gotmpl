@@ -161,13 +161,13 @@
                     <fieldset class="govuk-fieldset">
                       <div class="govuk-checkboxes govuk-checkboxes--small">
                         <div class="govuk-checkboxes__item">
-                          <input class="govuk-checkboxes__input" id="status-1" name="status" type="checkbox" value="Pending" {{ if contains .Filters.Status "Pending" }}checked{{ end }}>
+                          <input class="govuk-checkboxes__input" id="status-1" name="status" type="checkbox" value="pending" {{ if contains .Filters.Status "pending" }}checked{{ end }}>
                           <label class="govuk-label govuk-checkboxes__label" for="status-1">
                             Pending
                           </label>
                         </div>
                         <div class="govuk-checkboxes__item">
-                          <input class="govuk-checkboxes__input" id="status-2" name="status" type="checkbox" value="Pending, worked" {{ if contains .Filters.Status "Pending, worked" }}checked{{ end }}>
+                          <input class="govuk-checkboxes__input" id="status-2" name="status" type="checkbox" value="pending-worked" {{ if contains .Filters.Status "pending-worked" }}checked{{ end }}>
                           <label class="govuk-label govuk-checkboxes__label" for="status-2">
                             Pending, worked
                           </label>

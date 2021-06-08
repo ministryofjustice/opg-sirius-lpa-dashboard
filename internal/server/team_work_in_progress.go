@@ -61,6 +61,31 @@ func (f teamWorkInProgressFilters) Encode() string {
 	return form.Encode()
 }
 
+func (f teamWorkInProgressFilters) Criteria() sirius.Criteria {
+	c := sirius.Criteria{}
+	if !f.Set {
+		return c
+	}
+
+	for _, v := range f.Allocation {
+		c = c.Filter("allocation", strconv.Itoa(v))
+	}
+	for _, v := range f.Status {
+		c = c.Filter("status", v)
+	}
+	if !f.DateFrom.IsZero() {
+		c = c.Filter("date-from", f.DateFrom.Format("2006-01-02"))
+	}
+	if !f.DateTo.IsZero() {
+		c = c.Filter("date-to", f.DateTo.Format("2006-01-02"))
+	}
+	if f.LpaType != "" {
+		c = c.Filter("lpa-type", f.LpaType)
+	}
+
+	return c
+}
+
 func newTeamWorkInProgressFilters(form url.Values) teamWorkInProgressFilters {
 	filters := teamWorkInProgressFilters{}
 
@@ -75,7 +100,7 @@ func newTeamWorkInProgressFilters(form url.Values) teamWorkInProgressFilters {
 
 	if status, ok := form["status"]; ok {
 		for _, v := range status {
-			if v == "Pending" || v == "Pending, worked" {
+			if v == "pending" || v == "pending-worked" {
 				filters.Status = append(filters.Status, v)
 				filters.Set = true
 			}
@@ -132,12 +157,13 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 			return StatusError(http.StatusNotFound)
 		}
 
-		result, err := client.CasesByTeam(ctx, id, sirius.Criteria{}.Page(getPage(r)))
+		page := getPage(r)
+		filters := newTeamWorkInProgressFilters(r.Form)
+
+		result, err := client.CasesByTeam(ctx, id, filters.Criteria().Page(page))
 		if err != nil {
 			return err
 		}
-
-		filters := newTeamWorkInProgressFilters(r.Form)
 
 		vars := teamWorkInProgressVars{
 			Cases:      result.Cases,

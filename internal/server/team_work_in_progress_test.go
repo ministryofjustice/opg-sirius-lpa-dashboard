@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -213,7 +214,7 @@ func TestGetTeamWorkInProgressFiltered(t *testing.T) {
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1?allocation=123&allocation=456&status=Pending&date-from=2021-01-01&date-to=2021-02-01&lpa-type=both", nil)
+	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1?allocation=123", nil)
 
 	err := teamWorkInProgress(client, template)(w, r)
 	assert.Nil(err)
@@ -227,7 +228,7 @@ func TestGetTeamWorkInProgressFiltered(t *testing.T) {
 	assert.Equal(1, client.casesByTeam.count)
 	assert.Equal(getContext(r), client.casesByTeam.lastCtx)
 	assert.Equal(1, client.casesByTeam.lastId)
-	assert.Equal(sirius.Criteria{}.Page(1), client.casesByTeam.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Filter("allocation", "123").Page(1), client.casesByTeam.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
@@ -242,11 +243,7 @@ func TestGetTeamWorkInProgressFiltered(t *testing.T) {
 		Teams: client.teams.data,
 		Filters: teamWorkInProgressFilters{
 			Set:        true,
-			Allocation: []int{123, 456},
-			Status:     []string{"Pending"},
-			DateFrom:   time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC),
-			DateTo:     time.Date(2021, time.February, 1, 0, 0, 0, 0, time.UTC),
-			LpaType:    "both",
+			Allocation: []int{123},
 		},
 	}, vars)
 }
@@ -396,4 +393,65 @@ func TestBadMethodTeamWorkInProgress(t *testing.T) {
 
 	assert.Equal(0, client.casesByTeam.count)
 	assert.Equal(0, template.count)
+}
+
+func TestTeamWorkInProgressFilters(t *testing.T) {
+	testCases := map[string]struct {
+		Input    string
+		Encoded  string
+		Criteria sirius.Criteria
+	}{
+		"empty": {
+			Input:    "",
+			Encoded:  "",
+			Criteria: sirius.Criteria{},
+		},
+		"all": {
+			Input:   "allocation=123&allocation=456&date-from=2021-01-02&date-to=2021-01-03&lpa-type=both&status=pending&status=pending-worked",
+			Encoded: "allocation=123&allocation=456&date-from=2021-01-02&date-to=2021-01-03&lpa-type=both&status=pending&status=pending-worked",
+			Criteria: sirius.Criteria{}.
+				Filter("allocation", "123").
+				Filter("allocation", "456").
+				Filter("status", "pending").
+				Filter("status", "pending-worked").
+				Filter("date-from", "2021-01-02").
+				Filter("date-to", "2021-01-03").
+				Filter("lpa-type", "both"),
+		},
+		"date-range-bad": {
+			Input:    "date-from=what&date-to=huh",
+			Encoded:  "",
+			Criteria: sirius.Criteria{},
+		},
+		"lpa-type-hw": {
+			Input:    "lpa-type=hw",
+			Encoded:  "lpa-type=hw",
+			Criteria: sirius.Criteria{}.Filter("lpa-type", "hw"),
+		},
+		"lpa-type-pfa": {
+			Input:    "lpa-type=pfa",
+			Encoded:  "lpa-type=pfa",
+			Criteria: sirius.Criteria{}.Filter("lpa-type", "pfa"),
+		},
+		"lpa-type-unknown": {
+			Input:    "lpa-type=what",
+			Encoded:  "",
+			Criteria: sirius.Criteria{},
+		},
+		"status-bad": {
+			Input:    "status=what",
+			Encoded:  "",
+			Criteria: sirius.Criteria{},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			query, _ := url.ParseQuery(tc.Input)
+			filters := newTeamWorkInProgressFilters(query)
+
+			assert.Equal(t, tc.Encoded, filters.Encode())
+			assert.Equal(t, tc.Criteria, filters.Criteria())
+		})
+	}
 }
