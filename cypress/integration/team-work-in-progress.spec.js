@@ -46,7 +46,11 @@ describe("Team work in progress", () => {
         cy.contains('Show filters').click();
         cy.contains('label', 'John').click();
         cy.contains('Apply filters').click();
-        cy.url().should('contain', 'allocation=123');
+        cy.url().should('contain', 'allocation=47');
+
+        cy.get('table > tbody > tr').within(() => {
+            cy.contains('Someone Else');
+        });
 
         cy.contains('Reset').click();
         cy.url().should('not.contain', 'allocation=123');
