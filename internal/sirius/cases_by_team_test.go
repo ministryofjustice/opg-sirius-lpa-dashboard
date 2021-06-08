@@ -137,6 +137,53 @@ func TestCasesByTeam(t *testing.T) {
 			},
 		},
 		{
+			name: "Unauthorized",
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("I have a pending case assigned").
+					UponReceiving("A request to get my team's cases without cookies").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/teams/66/cases"),
+					}).
+					WillRespondWith(dsl.Response{
+						Status: http.StatusUnauthorized,
+					})
+			},
+			expectedError: ErrUnauthorized,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.setup()
+
+			assert.Nil(t, pact.Verify(func() error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+
+				result, err := client.CasesByTeam(getContext(tc.cookies), 66, tc.criteria)
+				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectedError, err)
+				return nil
+			}))
+		})
+	}
+}
+
+func TestCasesByTeamIgnored(t *testing.T) {
+	pact := newIgnoredPact()
+	defer pact.Teardown()
+
+	testCases := []struct {
+		name           string
+		criteria       Criteria
+		setup          func()
+		cookies        []*http.Cookie
+		expectedResult *CasesByTeam
+		expectedError  error
+	}{
+		{
 			name:     "OK with allocation",
 			criteria: Criteria{}.Filter("allocation", "47").Page(1),
 			setup: func() {
@@ -250,23 +297,6 @@ func TestCasesByTeam(t *testing.T) {
 					}},
 				},
 			},
-		},
-		{
-			name: "Unauthorized",
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("I have a pending case assigned").
-					UponReceiving("A request to get my team's cases without cookies").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/teams/66/cases"),
-					}).
-					WillRespondWith(dsl.Response{
-						Status: http.StatusUnauthorized,
-					})
-			},
-			expectedError: ErrUnauthorized,
 		},
 	}
 
