@@ -1,0 +1,70 @@
+{{ template "page" . }}
+
+{{ define "title" }}Tasks - {{ .Assignee.DisplayName }}{{ end }}
+
+{{ define "main" }}
+  <h1 class="govuk-heading-xl">{{ .Assignee.DisplayName }}</h1>
+
+  <div class="govuk-tabs" data-module="govuk-tabs">
+    <h2 class="govuk-tabs__title">
+      Contents
+    </h2>
+    <ul class="govuk-tabs__list">
+      <li class="govuk-tabs__list-item">
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}">Pending cases</a>
+      </li>
+      <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/users/tasks/%d" .Assignee.ID) }}">Tasks</a>
+      </li>
+      <li class="govuk-tabs__list-item">
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/users/all-cases/%d" .Assignee.ID) }}">All cases</a>
+      </li>
+    </ul>
+  </div>
+
+  {{ template "pagination" .Pagination }}
+
+  <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-5">
+
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Donor</th>
+        <th scope="col" class="govuk-table__header">Case</th>
+        <th scope="col" class="govuk-table__header">LPA type</th>
+        <th scope="col" class="govuk-table__header">Open tasks per case</th>
+        <th scope="col" class="govuk-table__header">Case status</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {{ range .Cases }}
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">{{ .Donor.DisplayName }}</th>
+          <td class="govuk-table__cell">
+            <a href="{{ sirius (printf "/lpa/person/%d/%d" .Donor.ID .ID) }}" class="govuk-link">
+              {{ .Uid }}
+            </a>
+          </td>
+          <td class="govuk-table__cell">
+            {{ upper .SubType }}
+          </td>
+          <td class="govuk-table__cell">
+            {{ .TaskCount }} {{ if eq .TaskCount 1 }}task{{ else }}tasks{{ end }}
+          </td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+              {{ .Status }}
+            </strong>
+          </td>
+        </tr>
+      {{ else }}
+        <tr>
+          <td colspan="5">You currently have no cases assigned</td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+
+  {{ template "duplicate-pagination" .Pagination }}
+
+{{ end }}
