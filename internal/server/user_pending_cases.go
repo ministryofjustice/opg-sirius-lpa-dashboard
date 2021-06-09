@@ -10,14 +10,15 @@ import (
 
 type UserPendingCasesClient interface {
 	CasesByAssignee(sirius.Context, int, sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error)
+	MyDetails(sirius.Context) (sirius.MyDetails, error)
 	User(sirius.Context, int) (sirius.Assignee, error)
 }
 
 type userPendingCasesVars struct {
-	Assignee        sirius.Assignee
-	Cases           []sirius.Case
-	Pagination      *Pagination
-	XSRFToken       string
+	Assignee   sirius.Assignee
+	Cases      []sirius.Case
+	Pagination *Pagination
+	XSRFToken  string
 }
 
 func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
@@ -27,6 +28,15 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 		}
 
 		ctx := getContext(r)
+
+		myDetails, err := client.MyDetails(ctx)
+		if err != nil {
+			return err
+		}
+
+		if !myDetails.IsManager() {
+			return StatusError(http.StatusForbidden)
+		}
 
 		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/users/pending-cases/"))
 		if err != nil {
@@ -47,10 +57,10 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 		}
 
 		vars := userPendingCasesVars{
-			Assignee:        assignee,
-			Cases:           myCases,
-			Pagination:      newPagination(pagination),
-			XSRFToken:       ctx.XSRFToken,
+			Assignee:   assignee,
+			Cases:      myCases,
+			Pagination: newPagination(pagination),
+			XSRFToken:  ctx.XSRFToken,
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
