@@ -9,6 +9,8 @@ describe("Another user's pending cases", () => {
         cy.title().should('contain', 'John');
         cy.get('h1').should('contain', 'John');
 
+        cy.get('.govuk-back-link').should('contain', 'Cool Team');
+
         cy.get('.govuk-tabs__list-item--selected').should('contain', 'Pending cases');
 
         const $row = cy.get('table > tbody > tr');

@@ -2,6 +2,12 @@
 
 {{ define "title" }}Tasks - {{ .Assignee.DisplayName }}{{ end }}
 
+{{ define "backlink" }}
+  {{ if .Team.ID }}
+    <a href="{{ prefix (printf "/teams/work-in-progress/%d" .Team.ID) }}" class="govuk-back-link">{{ .Team.DisplayName }}</a>
+  {{ end }}
+{{ end }}
+
 {{ define "main" }}
   <h1 class="govuk-heading-xl">{{ .Assignee.DisplayName }}</h1>
 

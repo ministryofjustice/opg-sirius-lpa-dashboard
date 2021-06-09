@@ -9,6 +9,8 @@ describe("Another user's tasks", () => {
       cy.title().should('contain', 'John');
       cy.get('h1').should('contain', 'John');
 
+      cy.get('.govuk-back-link').should('contain', 'Cool Team');
+
       cy.get('.govuk-tabs__list-item--selected').should('contain', 'Tasks');
 
       const $row = cy.get('table > tbody > tr');

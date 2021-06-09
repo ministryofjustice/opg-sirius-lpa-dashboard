@@ -16,6 +16,7 @@ type UserTasksClient interface {
 
 type userTasksVars struct {
 	Assignee   sirius.Assignee
+	Team       sirius.Team
 	Cases      []sirius.Case
 	Pagination *Pagination
 	XSRFToken  string
@@ -58,8 +59,14 @@ func userTasks(client UserTasksClient, tmpl Template) Handler {
 			return err
 		}
 
+		var team sirius.Team
+		if len(assignee.Teams) > 0 {
+			team = assignee.Teams[0]
+		}
+
 		vars := userTasksVars{
 			Assignee:   assignee,
+			Team:       team,
 			Cases:      cases,
 			Pagination: newPagination(pagination),
 			XSRFToken:  ctx.XSRFToken,

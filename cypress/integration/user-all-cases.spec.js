@@ -9,6 +9,8 @@ describe("All of another user's cases", () => {
       cy.title().should('contain', 'John');
       cy.get('h1').should('contain', 'John');
 
+      cy.get('.govuk-back-link').should('contain', 'Cool Team');
+
       cy.get('.govuk-tabs__list-item--selected').should('contain', 'All cases');
 
       const $row = cy.get('table > tbody > tr');

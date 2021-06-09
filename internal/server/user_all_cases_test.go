@@ -118,6 +118,10 @@ func TestGetUserAllCasesPage(t *testing.T) {
 	client.user.data = sirius.Assignee{
 		ID:          74,
 		DisplayName: "Elfriede Giesing",
+		Teams: []sirius.Team{{
+			ID:          281,
+			DisplayName: "Casework Team 6",
+		}},
 	}
 	client.casesByAssignee.data = []sirius.Case{{
 		ID: 78,
@@ -150,6 +154,7 @@ func TestGetUserAllCasesPage(t *testing.T) {
 	assert.Equal("page", template.lastName)
 	assert.Equal(userAllCasesVars{
 		Assignee:   client.user.data,
+		Team:       client.user.data.Teams[0],
 		Cases:      client.casesByAssignee.data,
 		Pagination: newPagination(client.casesByAssignee.pagination),
 	}, template.lastVars)

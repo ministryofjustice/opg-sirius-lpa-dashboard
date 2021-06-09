@@ -16,6 +16,7 @@ type UserPendingCasesClient interface {
 
 type userPendingCasesVars struct {
 	Assignee   sirius.Assignee
+	Team       sirius.Team
 	Cases      []sirius.Case
 	Pagination *Pagination
 	XSRFToken  string
@@ -56,8 +57,14 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 			return err
 		}
 
+		var team sirius.Team
+		if len(assignee.Teams) > 0 {
+			team = assignee.Teams[0]
+		}
+
 		vars := userPendingCasesVars{
 			Assignee:   assignee,
+			Team:       team,
 			Cases:      cases,
 			Pagination: newPagination(pagination),
 			XSRFToken:  ctx.XSRFToken,
