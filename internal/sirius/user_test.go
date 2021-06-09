@@ -44,6 +44,10 @@ func TestUser(t *testing.T) {
 						Body: dsl.Like(map[string]interface{}{
 							"id":          dsl.Like(47),
 							"displayName": dsl.Like("John"),
+							"teams": dsl.EachLike(map[string]interface{}{
+								"id":          66,
+								"displayName": "Cool Team",
+							}, 1),
 						}),
 					})
 			},
@@ -54,6 +58,12 @@ func TestUser(t *testing.T) {
 			expectedUser: Assignee{
 				ID:          47,
 				DisplayName: "John",
+				Teams: []Team{
+					{
+						ID:          66,
+						DisplayName: "Cool Team",
+					},
+				},
 			},
 		},
 
