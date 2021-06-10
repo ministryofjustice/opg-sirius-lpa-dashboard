@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockUserPendingCasesClient struct {
+type mockUserAllCasesClient struct {
 	myDetails struct {
 		count   int
 		lastCtx sirius.Context
@@ -35,14 +35,14 @@ type mockUserPendingCasesClient struct {
 	}
 }
 
-func (m *mockUserPendingCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
+func (m *mockUserAllCasesClient) MyDetails(ctx sirius.Context) (sirius.MyDetails, error) {
 	m.myDetails.count += 1
 	m.myDetails.lastCtx = ctx
 
 	return m.myDetails.data, m.myDetails.err
 }
 
-func (m *mockUserPendingCasesClient) User(ctx sirius.Context, id int) (sirius.Assignee, error) {
+func (m *mockUserAllCasesClient) User(ctx sirius.Context, id int) (sirius.Assignee, error) {
 	m.user.count += 1
 	m.user.lastCtx = ctx
 	m.user.lastId = id
@@ -50,7 +50,7 @@ func (m *mockUserPendingCasesClient) User(ctx sirius.Context, id int) (sirius.As
 	return m.user.data, m.user.err
 }
 
-func (m *mockUserPendingCasesClient) CasesByAssignee(ctx sirius.Context, id int, criteria sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error) {
+func (m *mockUserAllCasesClient) CasesByAssignee(ctx sirius.Context, id int, criteria sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error) {
 	m.casesByAssignee.count += 1
 	m.casesByAssignee.lastCtx = ctx
 	m.casesByAssignee.lastId = id
@@ -59,10 +59,10 @@ func (m *mockUserPendingCasesClient) CasesByAssignee(ctx sirius.Context, id int,
 	return m.casesByAssignee.data, m.casesByAssignee.pagination, m.casesByAssignee.err
 }
 
-func TestGetUserPendingCases(t *testing.T) {
+func TestGetUserAllCases(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		Roles: []string{"Manager"},
 	}
@@ -82,9 +82,9 @@ func TestGetUserPendingCases(t *testing.T) {
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
+	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -97,21 +97,21 @@ func TestGetUserPendingCases(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(74, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
-	assert.Equal(userPendingCasesVars{
+	assert.Equal(userAllCasesVars{
 		Assignee:   client.user.data,
 		Cases:      client.casesByAssignee.data,
 		Pagination: newPagination(client.casesByAssignee.pagination),
 	}, template.lastVars)
 }
 
-func TestGetUserPendingCasesPage(t *testing.T) {
+func TestGetUserAllCasesPage(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		Roles: []string{"Manager"},
 	}
@@ -133,9 +133,9 @@ func TestGetUserPendingCasesPage(t *testing.T) {
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/users/pending-cases/74?page=4", nil)
+	r, _ := http.NewRequest("GET", "/users/all-cases/74?page=4", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -148,11 +148,11 @@ func TestGetUserPendingCasesPage(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(74, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
-	assert.Equal(userPendingCasesVars{
+	assert.Equal(userAllCasesVars{
 		Assignee:   client.user.data,
 		Team:       client.user.data.Teams[0],
 		Cases:      client.casesByAssignee.data,
@@ -160,19 +160,19 @@ func TestGetUserPendingCasesPage(t *testing.T) {
 	}, template.lastVars)
 }
 
-func TestGetUserPendingCasesForbidden(t *testing.T) {
+func TestGetUserAllCasesForbidden(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		Roles: []string{"Case Worker"},
 	}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
+	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -182,19 +182,19 @@ func TestGetUserPendingCasesForbidden(t *testing.T) {
 	assert.Equal(0, client.casesByAssignee.count)
 }
 
-func TestGetUserPendingCasesMyDetailsError(t *testing.T) {
+func TestGetUserAllCasesMyDetailsError(t *testing.T) {
 	assert := assert.New(t)
 
 	expectedError := errors.New("oops")
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	client.myDetails.err = expectedError
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
+	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -204,12 +204,12 @@ func TestGetUserPendingCasesMyDetailsError(t *testing.T) {
 	assert.Equal(0, client.casesByAssignee.count)
 }
 
-func TestGetUserPendingCasesGetUserError(t *testing.T) {
+func TestGetUserAllCasesGetUserError(t *testing.T) {
 	assert := assert.New(t)
 
 	expectedError := errors.New("oops")
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		Roles: []string{"Manager"},
 	}
@@ -217,9 +217,9 @@ func TestGetUserPendingCasesGetUserError(t *testing.T) {
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
+	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -232,12 +232,12 @@ func TestGetUserPendingCasesGetUserError(t *testing.T) {
 	assert.Equal(0, client.casesByAssignee.count)
 }
 
-func TestGetUserPendingCasesQueryError(t *testing.T) {
+func TestGetUserAllCasesQueryError(t *testing.T) {
 	assert := assert.New(t)
 
 	expectedError := errors.New("oops")
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		Roles: []string{"Manager"},
 	}
@@ -249,9 +249,9 @@ func TestGetUserPendingCasesQueryError(t *testing.T) {
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
+	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -264,19 +264,19 @@ func TestGetUserPendingCasesQueryError(t *testing.T) {
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
 	assert.Equal(74, client.casesByAssignee.lastId)
-	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
+	assert.Equal(sirius.Criteria{}.Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 }
 
-func TestBadMethodUserPendingCases(t *testing.T) {
+func TestBadMethodUserAllCases(t *testing.T) {
 	assert := assert.New(t)
 
-	client := &mockUserPendingCasesClient{}
+	client := &mockUserAllCasesClient{}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("DELETE", "/users/pending-cases/74", nil)
+	r, _ := http.NewRequest("DELETE", "/users/all-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userAllCases(client, template)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

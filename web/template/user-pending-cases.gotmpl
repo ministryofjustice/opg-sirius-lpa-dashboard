@@ -1,6 +1,12 @@
 {{ template "page" . }}
 
-{{ define "title" }}{{ .Assignee.DisplayName }}{{ end }}
+{{ define "title" }}Pending cases - {{ .Assignee.DisplayName }}{{ end }}
+
+{{ define "backlink" }}
+  {{ if .Team.ID }}
+    <a href="{{ prefix (printf "/teams/work-in-progress/%d" .Team.ID) }}" class="govuk-back-link">{{ .Team.DisplayName }}</a>
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <h1 class="govuk-heading-xl">{{ .Assignee.DisplayName }}</h1>
@@ -11,14 +17,14 @@
     </h2>
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-        <a class="govuk-tabs__tab" href="{{ prefix (printf "/user/%d" .Assignee.ID) }}">Pending cases</a>
-      </li>
-      <!--<li class="govuk-tabs__list-item">
-        <a class="govuk-tabs__tab" href="#">Tasks</a>
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}">Pending cases</a>
       </li>
       <li class="govuk-tabs__list-item">
-        <a class="govuk-tabs__tab" href="#">All cases</a>
-      </li>-->
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/users/tasks/%d" .Assignee.ID) }}">Tasks</a>
+      </li>
+      <li class="govuk-tabs__list-item">
+        <a class="govuk-tabs__tab" href="{{ prefix (printf "/users/all-cases/%d" .Assignee.ID) }}">All cases</a>
+      </li>
     </ul>
   </div>
 
