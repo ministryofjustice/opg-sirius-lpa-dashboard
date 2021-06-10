@@ -28,10 +28,10 @@
 
       {{ template "header" . }}
 
-      <div class="govuk-width-container app-width-container">
+      <div class="govuk-width-container">
         {{ block "backlink" . }}{{ end }}
 
-        <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
           {{ block "main" . }}{{ end }}
         </main>
       </div>
