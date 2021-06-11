@@ -5,7 +5,9 @@
 {{ define "main" }}
   <h1 class="govuk-heading-xl">Your cases</h1>
 
-  {{ template "request-next-case" . }}
+  {{ if .CanRequestCase }}
+    {{ template "request-next-case" . }}
+  {{ end }}
 
   <div class="govuk-tabs" data-module="govuk-tabs">
     <h2 class="govuk-tabs__title">
