@@ -64,9 +64,43 @@ func (p *Pagination) NextPage() int {
 }
 
 func (p *Pagination) Pages() []int {
-	pages := make([]int, p.TotalPages)
-	for i := 0; i < p.TotalPages; i++ {
-		pages[i] = i + 1
+	if p.TotalPages <= 7 {
+		pages := make([]int, p.TotalPages)
+		for i := 0; i < p.TotalPages; i++ {
+			pages[i] = i + 1
+		}
+		return pages
 	}
+
+	pages := make([]int, 0, 7)
+
+	if p.CurrentPage > 1 {
+		prev := p.CurrentPage - 1
+
+		switch prev {
+		case 1:
+			pages = append(pages, 1)
+		case 2:
+			pages = append(pages, 1, 2)
+		default:
+			pages = append(pages, 1, -1, prev)
+		}
+	}
+
+	pages = append(pages, p.CurrentPage)
+
+	if p.CurrentPage < p.TotalPages {
+		next := p.CurrentPage + 1
+
+		switch next {
+		case p.TotalPages:
+			pages = append(pages, p.TotalPages)
+		case p.TotalPages - 1:
+			pages = append(pages, next, p.TotalPages)
+		default:
+			pages = append(pages, next, -1, p.TotalPages)
+		}
+	}
+
 	return pages
 }
