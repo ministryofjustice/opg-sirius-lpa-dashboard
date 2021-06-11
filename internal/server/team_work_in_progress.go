@@ -152,6 +152,13 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 			return err
 		}
 
+		var caseworkTeams []sirius.Team
+		for _, team := range teams {
+			if strings.HasPrefix(team.DisplayName, "Casework Team") {
+				caseworkTeams = append(caseworkTeams, team)
+			}
+		}
+
 		currentTeam, ok := findTeam(id, teams)
 		if !ok {
 			return StatusError(http.StatusNotFound)
@@ -171,7 +178,7 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 			Pagination: newPaginationWithQuery(result.Pagination, filters.Encode()),
 			Today:      time.Now(),
 			Team:       currentTeam,
-			Teams:      teams,
+			Teams:      caseworkTeams,
 			Filters:    filters,
 		}
 
