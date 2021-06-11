@@ -3,6 +3,7 @@ package sirius
 import (
 	"encoding/json"
 	"net/http"
+	"sort"
 )
 
 type MyDetails struct {
@@ -28,6 +29,13 @@ func (md *MyDetails) IsManager() bool {
 	}
 
 	return false
+}
+
+func (md *MyDetails) IsCaseWorker() bool {
+	roles := md.Roles
+	sort.Strings(roles)
+
+	return len(roles) == 2 && roles[0] == "OPG User" && roles[1] == "POA User"
 }
 
 type MyDetailsTeam struct {
