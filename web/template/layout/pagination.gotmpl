@@ -10,7 +10,9 @@
       {{ end }}
 
       {{ range .Pages }}
-        {{ if eq . $.CurrentPage }}
+        {{ if eq . -1 }}
+          <li class="moj-pagination__item">&hellip;</li>
+        {{ else if eq . $.CurrentPage }}
           <li class="moj-pagination__item moj-pagination__item--active"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></li>
         {{ else }}
           <li class="moj-pagination__item"><a class="moj-pagination__link" href="{{ $.Query }}page={{ . }}"><span class="govuk-visually-hidden">Page </span>{{ . }}<span class="govuk-visually-hidden"> of {{ $.TotalPages }}</span></a></li>
