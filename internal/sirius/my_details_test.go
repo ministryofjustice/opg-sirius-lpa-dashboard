@@ -149,3 +149,42 @@ func TestMyDetailsIsManager(t *testing.T) {
 		assert.Equal(tc.expected, myDetails.IsManager())
 	}
 }
+
+func TestMyDetailsHasRole(t *testing.T) {
+	testCases := []struct {
+		roles    []string
+		search   string
+		expected bool
+	}{
+		{
+			roles:    []string{},
+			search:   "POA User",
+			expected: false,
+		},
+		{
+			roles:    []string{"POA User"},
+			search:   "POA User",
+			expected: true,
+		},
+		{
+			roles:    []string{"Manager", "POA User", "OPG User"},
+			search:   "POA User",
+			expected: true,
+		},
+		{
+			roles:    []string{"Manager", "OPG User"},
+			search:   "POA User",
+			expected: false,
+		},
+	}
+
+	assert := assert.New(t)
+
+	for _, tc := range testCases {
+		myDetails := MyDetails{
+			Roles: tc.roles,
+		}
+
+		assert.Equal(tc.expected, myDetails.HasRole(tc.search))
+	}
+}
