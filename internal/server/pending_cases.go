@@ -16,6 +16,7 @@ type pendingCasesVars struct {
 	Cases           []sirius.Case
 	Pagination      *Pagination
 	HasWorkableCase bool
+	CanRequestCase  bool
 	XSRFToken       string
 }
 
@@ -48,6 +49,7 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 			Cases:           myCases,
 			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
+			CanRequestCase:  myDetails.IsCaseWorker(),
 			XSRFToken:       ctx.XSRFToken,
 		}
 
