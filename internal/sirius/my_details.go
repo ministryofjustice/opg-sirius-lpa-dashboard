@@ -20,14 +20,18 @@ type MyDetails struct {
 	Suspended   bool            `json:"suspended"`
 }
 
-func (md *MyDetails) IsManager() bool {
-	for _, role := range md.Roles {
-		if role == "Manager" {
+func (md *MyDetails) HasRole(role string) bool {
+	for _, myRole := range md.Roles {
+		if myRole == role {
 			return true
 		}
 	}
 
 	return false
+}
+
+func (md *MyDetails) IsManager() bool {
+	return md.HasRole("Manager")
 }
 
 type MyDetailsTeam struct {
