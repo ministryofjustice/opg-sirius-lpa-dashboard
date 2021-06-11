@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
@@ -109,6 +110,34 @@ func TestPagination(t *testing.T) {
 				assert.Equal(tc.NextPage, pagination.NextPage())
 			}
 			assert.Equal(tc.Pages, pagination.Pages())
+		})
+	}
+}
+
+func TestPaginationPagesWhenOverflow(t *testing.T) {
+	testCases := map[int][]int{
+		1:  []int{1, 2, -1, 10},
+		2:  []int{1, 2, 3, -1, 10},
+		3:  []int{1, 2, 3, 4, -1, 10},
+		4:  []int{1, -1, 3, 4, 5, -1, 10},
+		5:  []int{1, -1, 4, 5, 6, -1, 10},
+		6:  []int{1, -1, 5, 6, 7, -1, 10},
+		7:  []int{1, -1, 6, 7, 8, -1, 10},
+		8:  []int{1, -1, 7, 8, 9, 10},
+		9:  []int{1, -1, 8, 9, 10},
+		10: []int{1, -1, 9, 10},
+	}
+
+	for current, pages := range testCases {
+		t.Run(fmt.Sprintf("Page%d", current), func(t *testing.T) {
+			pagination := newPagination(&sirius.Pagination{
+				TotalItems:  250,
+				CurrentPage: current,
+				TotalPages:  10,
+				PageSize:    25,
+			})
+
+			assert.Equal(t, pages, pagination.Pages())
 		})
 	}
 }
