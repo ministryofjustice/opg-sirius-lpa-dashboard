@@ -80,10 +80,16 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 			WorkedTotal: 1,
 		},
 	}
-	client.teams.data = []sirius.Team{{
-		ID:          1,
-		DisplayName: "my team",
-	}}
+	client.teams.data = []sirius.Team{
+		{
+			ID:          1,
+			DisplayName: "my team",
+		},
+		{
+			ID:          2,
+			DisplayName: "Casework Team 2",
+		},
+	}
 	template := &mockTemplate{}
 
 	w := httptest.NewRecorder()
@@ -115,7 +121,7 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 		Team:       client.teams.data[0],
 		Pagination: newPaginationWithQuery(client.casesByTeam.data.Pagination, ""),
 		Stats:      client.casesByTeam.data.Stats,
-		Teams:      client.teams.data,
+		Teams:      []sirius.Team{client.teams.data[1]},
 	}, vars)
 }
 
@@ -156,7 +162,7 @@ func TestGetTeamWorkInProgressPage(t *testing.T) {
 	}
 	client.teams.data = []sirius.Team{{
 		ID:          1,
-		DisplayName: "my team",
+		DisplayName: "Casework Team 1",
 	}}
 	template := &mockTemplate{}
 
@@ -209,7 +215,7 @@ func TestGetTeamWorkInProgressFiltered(t *testing.T) {
 	}
 	client.teams.data = []sirius.Team{{
 		ID:          1,
-		DisplayName: "my team",
+		DisplayName: "Casework Team 1",
 	}}
 	template := &mockTemplate{}
 
