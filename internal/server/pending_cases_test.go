@@ -106,7 +106,8 @@ func TestGetPendingCasesPage(t *testing.T) {
 
 	client := &mockPendingCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
-		ID: 14,
+		ID:    14,
+		Roles: []string{"Self Allocation User"},
 	}
 	client.casesByAssignee.data = []sirius.Case{{
 		ID: 78,
@@ -134,8 +135,9 @@ func TestGetPendingCasesPage(t *testing.T) {
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(pendingCasesVars{
-		Cases:      client.casesByAssignee.data,
-		Pagination: newPagination(client.casesByAssignee.pagination),
+		CanRequestCase: true,
+		Cases:          client.casesByAssignee.data,
+		Pagination:     newPagination(client.casesByAssignee.pagination),
 	}, template.lastVars)
 }
 

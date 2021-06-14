@@ -23,12 +23,12 @@ func (f filter) String() string {
 	return fmt.Sprintf("%s:%s", f.field, f.value)
 }
 
-type sort struct {
+type sortCriteria struct {
 	field string
 	order sortOrder
 }
 
-func (f sort) String() string {
+func (f sortCriteria) String() string {
 	return fmt.Sprintf("%s:%s", f.field, f.order)
 }
 
@@ -36,7 +36,7 @@ type Criteria struct {
 	page   int
 	limit  int
 	filter []filter
-	sort   []sort
+	sort   []sortCriteria
 }
 
 func (c Criteria) Page(id int) Criteria {
@@ -58,7 +58,7 @@ func (c Criteria) Filter(field string, value string) Criteria {
 }
 
 func (c Criteria) Sort(field string, order sortOrder) Criteria {
-	c.sort = append(c.sort, sort{
+	c.sort = append(c.sort, sortCriteria{
 		field: field,
 		order: order,
 	})
