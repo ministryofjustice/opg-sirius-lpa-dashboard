@@ -84,7 +84,8 @@ func TestGetTasks(t *testing.T) {
 
 			client := &mockTasksClient{}
 			client.myDetails.data = sirius.MyDetails{
-				ID: 14,
+				ID:    14,
+				Roles: []string{"Self Allocation User"},
 			}
 			client.casesWithOpenTasksByAssignee.data = []sirius.Case{{
 				ID: 78,
@@ -120,6 +121,7 @@ func TestGetTasks(t *testing.T) {
 				Cases:           client.casesWithOpenTasksByAssignee.data,
 				Pagination:      newPagination(client.casesWithOpenTasksByAssignee.pagination),
 				HasWorkableCase: true,
+				CanRequestCase:  true,
 			}, template.lastVars)
 		})
 	}
