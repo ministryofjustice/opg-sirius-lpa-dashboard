@@ -33,7 +33,7 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r)).Sort("receiptDate", sirius.Ascending)
+		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r)).Sort("workedDate", sirius.Descending)
 		myCases, pagination, err := client.CasesByAssignee(ctx, myDetails.ID, criteria)
 
 		if err != nil {
