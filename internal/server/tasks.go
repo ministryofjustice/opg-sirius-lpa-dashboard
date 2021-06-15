@@ -16,6 +16,7 @@ type tasksVars struct {
 	Cases           []sirius.Case
 	Pagination      *Pagination
 	HasWorkableCase bool
+	CanRequestCase  bool
 	XSRFToken       string
 }
 
@@ -46,6 +47,7 @@ func tasks(client TasksClient, tmpl Template) Handler {
 			Cases:           cases,
 			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
+			CanRequestCase:  myDetails.HasRole("Self Allocation User"),
 			XSRFToken:       ctx.XSRFToken,
 		})
 	}
