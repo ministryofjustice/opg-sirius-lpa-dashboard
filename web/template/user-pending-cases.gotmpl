@@ -29,7 +29,9 @@
   </div>
 
   <form action="{{ prefix "/reassign" }}" method="get">
-    <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
+    <input type="hidden" name="assignee" value="{{ .Assignee.ID }}" />
+
+    <button data-enable-when-selection class="govuk-button govuk-button--secondary" type="submit">Reassign or return selected case(s)</button>
 
     {{ template "pagination" .Pagination }}
 
@@ -51,7 +53,7 @@
           <tr class="govuk-table__row">
             <td class="govuk-table__cell">
               <div class="govuk-checkboxes__item govuk-checkboxes--small moj-multi-select__checkbox">
-                <input type="checkbox" class="govuk-checkboxes__input" name="worked" id="{{ .ID }}" value="{{ .ID }}">
+                <input type="checkbox" class="govuk-checkboxes__input" name="selected" id="{{ .ID }}" value="{{ .ID }}">
                 <label class="govuk-label govuk-checkboxes__label" for="{{ .ID }}">
                   <span class="govuk-visually-hidden">Select case {{ .Uid }}</span>
                 </label>
