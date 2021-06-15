@@ -23,6 +23,9 @@ type Client interface {
 	RequestNextCasesClient
 	TasksClient
 	TeamWorkInProgressClient
+	UserAllCasesClient
+	UserPendingCasesClient
+	UserTasksClient
 }
 
 type Template interface {
@@ -55,6 +58,18 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/teams/work-in-progress/",
 		wrap(
 			teamWorkInProgress(client, templates["team-work-in-progress.gotmpl"])))
+
+	mux.Handle("/users/pending-cases/",
+		wrap(
+			userPendingCases(client, templates["user-pending-cases.gotmpl"])))
+
+	mux.Handle("/users/tasks/",
+		wrap(
+			userTasks(client, templates["user-tasks.gotmpl"])))
+
+	mux.Handle("/users/all-cases/",
+		wrap(
+			userAllCases(client, templates["user-all-cases.gotmpl"])))
 
 	mux.Handle("/request-next-cases",
 		wrap(

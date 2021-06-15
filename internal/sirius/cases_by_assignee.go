@@ -21,6 +21,7 @@ type Case struct {
 type Assignee struct {
 	ID          int    `json:"id"`
 	DisplayName string `json:"displayName"`
+	Teams       []Team `json:"teams"`
 }
 
 type Donor struct {
