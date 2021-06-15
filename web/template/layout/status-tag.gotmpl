@@ -1,0 +1,9 @@
+{{ define "status-tag" }}
+  <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
+    {{ if and (eq .Status "Pending") (.Worked) }}
+      Worked, Pending
+    {{ else }}
+      {{ .Status }}
+    {{ end }}
+  </strong>
+{{ end }}

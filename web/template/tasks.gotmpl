@@ -54,9 +54,7 @@
             {{ .TaskCount }} {{ if eq .TaskCount 1 }}task{{ else }}tasks{{ end }}
           </td>
           <td class="govuk-table__cell">
-            <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
-              {{ .Status }}
-            </strong>
+            {{ template "status-tag" . }}
           </td>
         </tr>
       {{ else }}
