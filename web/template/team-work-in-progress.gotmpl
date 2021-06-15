@@ -88,14 +88,14 @@
               <ul class="govuk-list app-name-grid" data-select-id="cases-worked">
                 {{ range .Stats.Worked }}
                   <li class="govuk-body">
-                    <a class="govuk-link govuk-link--no-visited-state" href="#">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
+                    <a class="govuk-link govuk-link--no-visited-state" href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
                   </li>
                 {{ end }}
               </ul>
               <ul class="govuk-list app-name-grid" data-select-id="tasks-completed">
                 {{ range .Stats.TasksCompleted }}
                   <li class="govuk-body">
-                    <a class="govuk-link govuk-link--no-visited-state" href="#">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
+                    <a class="govuk-link govuk-link--no-visited-state" href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}">{{ .Assignee.DisplayName }}</a> <strong>{{ .Total }}</strong>
                   </li>
                 {{ end }}
               </ul>
