@@ -279,9 +279,7 @@
                     <strong>{{ .Assignee.DisplayName }}</strong>
                   </td>
                   <td class="govuk-table__cell">
-                    <strong class="govuk-tag govuk-tag--{{ statusColour .Status }}">
-                      {{ .Status }}
-                    </strong>
+                    {{ template "status-tag" . }}
                   </td>
                 </tr>
               {{ else }}
