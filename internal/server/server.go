@@ -20,6 +20,7 @@ type Client interface {
 	CentralCasesClient
 	MarkWorkedClient
 	PendingCasesClient
+	ReassignClient
 	RequestNextCasesClient
 	TasksClient
 	TeamWorkInProgressClient
@@ -70,6 +71,10 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/users/all-cases/",
 		wrap(
 			userAllCases(client, templates["user-all-cases.gotmpl"])))
+
+	mux.Handle("/reassign",
+		wrap(
+			reassign(client, templates["reassign.gotmpl"])))
 
 	mux.Handle("/request-next-cases",
 		wrap(
