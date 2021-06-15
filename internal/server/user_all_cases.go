@@ -8,13 +8,13 @@ import (
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
-type UserPendingCasesClient interface {
+type UserAllCasesClient interface {
 	CasesByAssignee(sirius.Context, int, sirius.Criteria) ([]sirius.Case, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 	User(sirius.Context, int) (sirius.Assignee, error)
 }
 
-type userPendingCasesVars struct {
+type userAllCasesVars struct {
 	Assignee   sirius.Assignee
 	Team       sirius.Team
 	Cases      []sirius.Case
@@ -22,7 +22,7 @@ type userPendingCasesVars struct {
 	XSRFToken  string
 }
 
-func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
+func userAllCases(client UserAllCasesClient, tmpl Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -39,7 +39,7 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 			return StatusError(http.StatusForbidden)
 		}
 
-		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/users/pending-cases/"))
+		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/users/all-cases/"))
 		if err != nil {
 			return StatusError(http.StatusNotFound)
 		}
@@ -50,8 +50,7 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 			return err
 		}
 
-		criteria := sirius.Criteria{}.Filter("status", "Pending").Page(getPage(r)).Sort("receiptDate", sirius.Ascending)
-		cases, pagination, err := client.CasesByAssignee(ctx, id, criteria)
+		cases, pagination, err := client.CasesByAssignee(ctx, id, sirius.Criteria{}.Page(getPage(r)).Sort("receiptDate", sirius.Ascending))
 
 		if err != nil {
 			return err
@@ -62,7 +61,7 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 			team = assignee.Teams[0]
 		}
 
-		vars := userPendingCasesVars{
+		vars := userAllCasesVars{
 			Assignee:   assignee,
 			Team:       team,
 			Cases:      cases,
