@@ -107,6 +107,7 @@ func TestGetAllCasesPage(t *testing.T) {
 	client := &mockAllCasesClient{}
 	client.myDetails.data = sirius.MyDetails{
 		ID: 14,
+		Roles: []string{"Self Allocation User"},
 	}
 	client.casesByAssignee.data = []sirius.Case{{
 		ID: 78,
@@ -133,6 +134,7 @@ func TestGetAllCasesPage(t *testing.T) {
 	assert.Equal(1, template.count)
 	assert.Equal("page", template.lastName)
 	assert.Equal(allCasesVars{
+		CanRequestCase: true,
 		Cases: client.casesByAssignee.data,
 	}, template.lastVars)
 }
