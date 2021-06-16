@@ -1,17 +1,18 @@
-import $ from 'jquery';
 import MOJFrontend from '@ministryofjustice/frontend/moj/all.js';
 import GOVUKFrontend from 'govuk-frontend/govuk/all.js';
+import $ from 'jquery';
 import './main.scss';
 
 function initEnableWhenSelection() {
     const button = document.querySelector('button[data-enable-when-selection]');
     if (button) {
-        const checkboxes = Array.from(document.querySelectorAll('input[type=checkbox]'));
-        button.disabled = !checkboxes.some(x => x.checked);
+        const checkboxes = Array.from(document.querySelectorAll('table input[type=checkbox]'));
+        const bodyCheckboxes = Array.from(document.querySelectorAll('tbody input[type=checkbox]'));
+        button.disabled = !bodyCheckboxes.some(x => x.checked);
 
         checkboxes.forEach(checkbox => {
             checkbox.onchange = () => {
-                button.disabled = !checkboxes.some(x => x.checked);
+                button.disabled = !bodyCheckboxes.some(x => x.checked);
             };
         });
     }

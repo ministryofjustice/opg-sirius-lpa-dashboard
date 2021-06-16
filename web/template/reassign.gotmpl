@@ -1,0 +1,90 @@
+{{ template "page" . }}
+
+{{ define "title" }}
+  {{ if .Success }}
+    Case{{ if gt (len .Selected) 1 }}s{{ end }} reassigned
+  {{ else }}
+    Reassign or return case{{ if gt (len .Selected) 1 }}s{{ end }}
+  {{ end }}
+{{ end }}
+
+{{ define "backlink" }}
+  {{ if not .Success }}
+    <a href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}" class="govuk-back-link">{{ .Assignee.DisplayName }}</a>
+  {{ end }}
+{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-form-group">
+    {{ if .Success }}
+      <h1 class="govuk-heading-l">{{ template "title" . }}</h1>
+
+      <p class="govuk-body">
+        {{ if eq (len .Selected) 1 }}
+          The case has
+        {{ else }}
+          {{ len .Selected }} cases have
+        {{ end }}
+        been reassigned from <strong>{{ .Assignee.DisplayName }}</strong> to <strong>{{ .AssignedTo.DisplayName }}</strong>.
+      </p>
+
+      <a class="govuk-button" href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}">Continue</a>
+    {{ else }}
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+          <h1 class="govuk-fieldset__heading">{{ template "title" . }}</h1>
+        </legend>
+
+        {{ if eq (len .Selected) 1 }}
+          <p class="govuk-body">What would you like to do with the selected case?</p>
+        {{ else }}
+          <p class="govuk-body">What would you like to do with the {{ len .Selected }} selected cases?</p>
+        {{ end }}
+
+        <form action="{{ prefix "/reassign" }}" method="post">
+          <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
+          <input type="hidden" name="assignee" value="{{ .Assignee.ID }}" />
+
+          {{ range .Selected }}
+            <input type="hidden" name="selected" value="{{ . }}" />
+          {{ end }}
+
+          <div class="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="reassign-1" name="reassign" type="radio" value="central-pot">
+              <label class="govuk-label govuk-radios__label" for="reassign-1">
+                Return to central pot
+              </label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="reassign-2" name="reassign" type="radio" value="user" aria-controls="reassign-select">
+              <label class="govuk-label govuk-radios__label" for="reassign-2">
+                Reassign
+              </label>
+            </div>
+            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="reassign-select">
+              <div class="govuk-form-group">
+                <label class="govuk-label" for="caseworker">
+                  Caseworker
+                </label>
+                <select class="govuk-select" id="caseworker" name="caseworker">
+                  <option disabled selected>Select a caseworker</option>
+                  {{ range .TeamMembers }}
+                    {{ if not (eq .ID $.Assignee.ID) }}
+                      <option value="{{ .ID }}">{{ .DisplayName }}</option>
+                    {{ end }}
+                  {{ end }}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="govuk-button-group govuk-!-margin-top-6">
+            <button type="submit" class="govuk-button">Submit</button>
+            <a class="govuk-link" href="{{ prefix (printf "/users/pending-cases/%d" .Assignee.ID) }}">Cancel</a>
+          </div>
+        </form>
+      </fieldset>
+    {{ end }}
+  </div>
+{{ end }}
