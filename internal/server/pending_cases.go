@@ -17,6 +17,7 @@ type pendingCasesVars struct {
 	Pagination      *Pagination
 	HasWorkableCase bool
 	CanRequestCase  bool
+	IsManager       bool
 	XSRFToken       string
 }
 
@@ -50,6 +51,7 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
 			CanRequestCase:  myDetails.HasRole("Self Allocation User"),
+			IsManager:       myDetails.HasRole("Manager"),
 			XSRFToken:       ctx.XSRFToken,
 		}
 

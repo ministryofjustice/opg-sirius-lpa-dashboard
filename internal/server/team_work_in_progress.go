@@ -25,6 +25,7 @@ type teamWorkInProgressVars struct {
 	Team           sirius.Team
 	Teams          []sirius.Team
 	Filters        teamWorkInProgressFilters
+	IsCaseWorker   bool
 }
 
 type teamWorkInProgressFilters struct {
@@ -173,13 +174,14 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 		}
 
 		vars := teamWorkInProgressVars{
-			Cases:      result.Cases,
-			Stats:      result.Stats,
-			Pagination: newPaginationWithQuery(result.Pagination, filters.Encode()),
-			Today:      time.Now(),
-			Team:       currentTeam,
-			Teams:      caseworkTeams,
-			Filters:    filters,
+			Cases:        result.Cases,
+			Stats:        result.Stats,
+			Pagination:   newPaginationWithQuery(result.Pagination, filters.Encode()),
+			Today:        time.Now(),
+			Team:         currentTeam,
+			Teams:        caseworkTeams,
+			Filters:      filters,
+			IsCaseWorker: myDetails.HasRole("Self Allocation User"),
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)
