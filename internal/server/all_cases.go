@@ -17,6 +17,7 @@ type allCasesVars struct {
 	Pagination      *Pagination
 	HasWorkableCase bool
 	CanRequestCase  bool
+	IsManager       bool
 	XSRFToken       string
 }
 
@@ -48,6 +49,7 @@ func allCases(client AllCasesClient, tmpl Template) Handler {
 			Pagination:      newPagination(pagination),
 			HasWorkableCase: hasWorkableCase,
 			CanRequestCase:  myDetails.HasRole("Self Allocation User"),
+			IsManager:       myDetails.HasRole("Manager"),
 			XSRFToken:       ctx.XSRFToken,
 		}
 

@@ -56,4 +56,9 @@ describe("Team work in progress", () => {
         cy.url().should('not.contain', 'allocation=123');
         cy.contains('Apply filters').should('not.be.visible');
     });
+
+    it('cross-links to caseworker view', () => {
+        cy.contains('Your cases').click();
+        cy.url().should("include", "/pending-cases");
+    });
 });

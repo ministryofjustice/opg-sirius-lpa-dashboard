@@ -3,7 +3,7 @@
 {{ define "title" }}Your cases{{ end }}
 
 {{ define "main" }}
-  <h1 class="govuk-heading-xl">Your cases</h1>
+  {{ template "caseworker-heading" . }}
 
   {{ template "request-next-case" . }}
 
