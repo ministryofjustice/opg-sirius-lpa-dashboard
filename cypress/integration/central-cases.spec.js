@@ -9,7 +9,7 @@ describe("Central pot pending cases", () => {
         cy.title().should('contain', 'LPA Allocations');
         cy.get('h1').should('contain', 'LPA allocations');
 
-        cy.get('.govuk-tabs__list-item--selected').should('contain', 'Central pot - pending cases');
+        cy.get('.govuk-tabs__list-item--selected').should('contain', 'Central pot - unallocated cases');
         cy.get('.moj-ticket-panel .govuk-heading-xl').invoke('text').should('equal', '1')
 
         cy.get('.moj-ticket-panel').should('contain', 'Oldest case date: 28 Nov 2017');
