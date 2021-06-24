@@ -33,3 +33,22 @@ $moj-page-width: 1220px;
     margin-left: 50%;
     transform: translateX(-50%);
 }
+
+.moj-multi-select__checkbox.govuk-checkboxes--small.govuk-checkboxes__item {
+    min-height: 20px;
+
+    .govuk-checkboxes__input {
+        height: 30px;
+        width: 30px;
+        left: -2px;
+        top: -3px;
+    }
+
+    .govuk-checkboxes__label::before {
+        top: 0;
+    }
+
+    .govuk-checkboxes__input:checked + .govuk-checkboxes__label::after {
+        top: 8px;
+    }
+}
