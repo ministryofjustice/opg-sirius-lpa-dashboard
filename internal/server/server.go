@@ -18,6 +18,7 @@ type Logger interface {
 type Client interface {
 	AllCasesClient
 	CentralCasesClient
+	FeedbackClient
 	MarkWorkedClient
 	PendingCasesClient
 	ReassignClient
@@ -83,6 +84,10 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/mark-worked",
 		wrap(
 			markWorked(client)))
+
+	mux.Handle("/feedback",
+		wrap(
+			feedback(client, templates["feedback.gotmpl"])))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 
