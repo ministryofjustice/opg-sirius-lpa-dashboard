@@ -1,0 +1,42 @@
+{{ template "page" . }}
+
+{{ define "title" }}Feedback{{ end }}
+
+{{ define "backlink" }}
+  <a href="{{ .Redirect }}" class="govuk-back-link">Back</a>
+{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <form action="{{ prefix "/feedback" }}" method="post">
+            <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
+            <input type="hidden" name="redirect" value="{{ .Redirect }}" />
+
+            <div class="govuk-form-group">
+              <h1 class="govuk-label-wrapper">
+                <label class="govuk-label govuk-label--l" for="feedback">
+                  Feedback
+                </label>
+              </h1>
+              <div id="feedback-hint" class="govuk-hint">
+                <p>Please let us know about your experience of using this new
+                allocations process. Include any feedback good or bad, bugs or
+                other issues. We can’t promise that we'll be able to address
+                everything, but the more feedback and detail you give the
+                better.</p>
+                <p>Leave your email address if you’re happy to be contacted
+                about your feedback or to take part in future user research.</p>
+              </div>
+              <textarea class="govuk-textarea" id="feedback" name="feedback" rows="5" aria-describedby="feedback-hint"></textarea>
+            </div>
+
+            <button type="submit" class="govuk-button">Submit</button>
+          </form>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+{{ end }}
