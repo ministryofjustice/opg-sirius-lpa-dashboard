@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "@ministryofjustice/frontend": "0.2.4",
-    "cypress": "7.5.0",
-    "govuk-frontend": "^3.9.0",
+    "cypress": "7.6.0",
+    "govuk-frontend": "^3.13.0",
     "jquery": "^3.6.0"
   },
   "devDependencies": {
