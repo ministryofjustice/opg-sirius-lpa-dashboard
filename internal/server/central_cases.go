@@ -18,6 +18,7 @@ type centralCasesVars struct {
 	Pagination     *Pagination
 	TeamID         int
 	TeamName       string
+	IsCaseWorker   bool
 }
 
 func centralCases(client CentralCasesClient, tmpl Template) Handler {
@@ -57,8 +58,9 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 		}
 
 		vars := centralCasesVars{
-			Cases:      teamCases,
-			Pagination: newPagination(pagination),
+			Cases:        teamCases,
+			Pagination:   newPagination(pagination),
+			IsCaseWorker: myDetails.HasRole("Self Allocation User"),
 		}
 
 		if len(oldestCases) > 0 {
