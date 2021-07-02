@@ -86,7 +86,7 @@ func TestRequestNextCasesStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	err := client.RequestNextCases(getContext(nil))
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/request-new-cases",
 		Method: http.MethodPost,

@@ -113,7 +113,7 @@ func TestTeamStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	_, err := client.Team(getContext(nil), 123)
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/teams/123",
 		Method: http.MethodGet,
