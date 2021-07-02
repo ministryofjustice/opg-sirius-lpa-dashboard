@@ -88,7 +88,7 @@ func TestMarkWorkedStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	err := client.MarkWorked(getContext(nil), 1)
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/lpas/1",
 		Method: http.MethodPut,

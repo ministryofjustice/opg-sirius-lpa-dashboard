@@ -107,7 +107,7 @@ func TestUserByEmailStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	_, err := client.UserByEmail(getContext(nil), "someone@opgtest.com")
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/users?email=someone@opgtest.com",
 		Method: http.MethodGet,

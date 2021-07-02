@@ -2,8 +2,10 @@ package sirius
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/pact-foundation/pact-go/dsl"
@@ -58,6 +60,7 @@ func TestStatusError(t *testing.T) {
 	resp := &http.Response{
 		StatusCode: http.StatusTeapot,
 		Request:    req,
+		Body:       io.NopCloser(strings.NewReader("a body")),
 	}
 
 	err := newStatusError(resp)
@@ -65,4 +68,5 @@ func TestStatusError(t *testing.T) {
 	assert.Equal(t, "POST /some/url returned 418", err.Error())
 	assert.Equal(t, "unexpected response from Sirius", err.Title())
 	assert.Equal(t, err, err.Data())
+	assert.Equal(t, "a body", err.Body)
 }

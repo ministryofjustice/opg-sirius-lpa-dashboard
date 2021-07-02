@@ -19,25 +19,29 @@ type StatusError struct {
 	Code   int    `json:"code"`
 	URL    string `json:"url"`
 	Method string `json:"method"`
+	Body   string `json:"body"`
 }
 
-func newStatusError(resp *http.Response) StatusError {
-	return StatusError{
+func newStatusError(resp *http.Response) *StatusError {
+	data, _ := io.ReadAll(resp.Body)
+
+	return &StatusError{
 		Code:   resp.StatusCode,
 		URL:    resp.Request.URL.String(),
 		Method: resp.Request.Method,
+		Body:   string(data),
 	}
 }
 
-func (e StatusError) Error() string {
+func (e *StatusError) Error() string {
 	return fmt.Sprintf("%s %s returned %d", e.Method, e.URL, e.Code)
 }
 
-func (e StatusError) Title() string {
+func (e *StatusError) Title() string {
 	return "unexpected response from Sirius"
 }
 
-func (e StatusError) Data() interface{} {
+func (e *StatusError) Data() interface{} {
 	return e
 }
 

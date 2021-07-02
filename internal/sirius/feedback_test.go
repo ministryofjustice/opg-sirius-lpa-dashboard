@@ -90,7 +90,7 @@ func TestFeedbackStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	err := client.Feedback(getContext(nil), "hey")
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/wth",
 		Method: http.MethodPost,
