@@ -323,7 +323,7 @@ func TestCasesByTeamStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	_, err := client.CasesByTeam(getContext(nil), 66, Criteria{}.Page(2))
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/teams/66/cases?page=2",
 		Method: http.MethodGet,
