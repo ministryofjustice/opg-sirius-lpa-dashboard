@@ -16,9 +16,4 @@ describe("Tasks", () => {
         $row.should('contain', 'Pending');
         $row.contains('7000-2830-9492').should('have.attr', 'href').should('contain', '/person/17/58');
     });
-
-    it('cross-links to case manager view', () => {
-        cy.contains('LPA allocations').click();
-        cy.url().should("include", "/teams/central");
-    });
 });

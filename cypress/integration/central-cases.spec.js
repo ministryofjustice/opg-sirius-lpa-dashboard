@@ -21,8 +21,4 @@ describe("Central pot pending cases", () => {
         $row.contains('7000-2830-9492').should('have.attr', 'href').should('contain', '/person/17/58');
     });
 
-    it('cross-links to caseworker view', () => {
-        cy.contains('Your cases').click();
-        cy.url().should("include", "/pending-cases");
-    });
 });

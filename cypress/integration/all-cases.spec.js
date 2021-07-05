@@ -17,8 +17,4 @@ describe("All cases", () => {
         $row.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/36');
     });
 
-    it('cross-links to case manager view', () => {
-        cy.contains('LPA allocations').click();
-        cy.url().should("include", "/teams/central");
-    });
 });
