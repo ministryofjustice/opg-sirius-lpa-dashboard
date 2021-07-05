@@ -21,11 +21,6 @@ describe("Case navigation", () => {
     cy.url().should("include", "/all-cases");
   });
 
-  it("can direct to sirius from your cases hyperlink", () => {
-    cy.contains('7000-2830-9492').click();
-    cy.url().should("include", "/lpa/person");
-  });
-
   it("can direct to feedback page", () => {
     cy.contains('Feedback').click();
     cy.url().should("include", "/feedback");
@@ -47,12 +42,6 @@ describe("Case navigation", () => {
     cy.contains('Central pot - unallocated cases').click();
     cy.url().should("include", "/teams/central");
   })
-
-  it("can direct to sirius using case hyperlink from LPA allocations", () => {
-    cy.contains('LPA allocations').click();
-    cy.contains('7000-2830-9492').click();
-    cy.url().should("include", "/lpa/person");
-  });
  
   it("can direct to your cases page from LPA allocations", () => {    
     cy.contains('LPA allocations').click();
