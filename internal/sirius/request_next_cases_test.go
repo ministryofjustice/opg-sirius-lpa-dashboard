@@ -10,7 +10,7 @@ import (
 )
 
 func TestRequestNextCases(t *testing.T) {
-	pact := newIgnoredPact()
+	pact := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
