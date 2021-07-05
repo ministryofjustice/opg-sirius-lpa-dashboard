@@ -21,9 +21,4 @@ describe("Pending cases", () => {
         cy.get('input[type=checkbox]').check();
         cy.contains('button', 'Progress worked cases').should('not.have.attr', 'disabled');
     });
-
-    it('cross-links to case manager view', () => {
-        cy.contains('LPA allocations').click();
-        cy.url().should("include", "/teams/central");
-    });
 });

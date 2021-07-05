@@ -44,7 +44,7 @@
         </h2>
         <ul class="govuk-tabs__list">
           <li class="govuk-tabs__list-item">
-            <a class="govuk-tabs__tab" href="{{prefix "/teams/central-pot" }}"><strong>Central pot</strong> - unallocated cases</a>
+            <a class="govuk-tabs__tab" href="{{prefix "/teams/central" }}"><strong>Central pot</strong> - unallocated cases</a>
           </li>
           <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
             <a class="govuk-tabs__tab" href="{{prefix (printf "/teams/work-in-progress/%d" .Team.ID) }}"><strong>{{ .Team.DisplayName }}</strong> - work in progress</a>
