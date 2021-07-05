@@ -23,7 +23,7 @@ describe("Case navigation", () => {
 
   it("can direct to sirius from your cases hyperlink", () => {
     cy.contains('7000-2830-9492').click();
-    cy.get('.app-auth-error').should('contain', 'You have been logged out due to session inactivity');
+    cy.url().should("include", "/lpa/person");
   });
 
   it("can direct to feedback page", () => {
@@ -51,7 +51,7 @@ describe("Case navigation", () => {
   it("can direct to sirius using case hyperlink from LPA allocations", () => {
     cy.contains('LPA allocations').click();
     cy.contains('7000-2830-9492').click();
-    cy.get('.app-auth-error').should('contain', 'You have been logged out due to session inactivity');
+    cy.url().should("include", "/lpa/person");
   });
  
   it("can direct to your cases page from LPA allocations", () => {    
