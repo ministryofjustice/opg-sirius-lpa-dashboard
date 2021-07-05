@@ -94,7 +94,7 @@ func TestAssignStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	err := client.Assign(getContext(nil), []int{1}, 47)
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/users/47/cases/1",
 		Method: http.MethodPut,

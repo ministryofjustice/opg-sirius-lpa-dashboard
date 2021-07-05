@@ -140,7 +140,7 @@ func TestCasesWithOpenTasksByAssigneeStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	_, _, err := client.CasesWithOpenTasksByAssignee(getContext(nil), 47, 2)
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/assignees/47/cases-with-open-tasks?page=2",
 		Method: http.MethodGet,

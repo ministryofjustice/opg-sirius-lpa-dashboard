@@ -439,7 +439,7 @@ func TestCasesByAssigneeStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	_, _, err := client.CasesByAssignee(getContext(nil), 47, Criteria{}.Page(2))
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/assignees/47/cases?filter=caseType%3Alpa%2Cactive%3Atrue&page=2",
 		Method: http.MethodGet,

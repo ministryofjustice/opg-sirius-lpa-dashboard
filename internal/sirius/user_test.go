@@ -113,7 +113,7 @@ func TestUserStatusError(t *testing.T) {
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
 	_, err := client.User(getContext(nil), 47)
-	assert.Equal(t, StatusError{
+	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/users/47",
 		Method: http.MethodGet,
