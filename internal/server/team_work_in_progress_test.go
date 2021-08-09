@@ -89,6 +89,10 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 			ID:          2,
 			DisplayName: "Casework Team 2",
 		},
+		{
+			ID:          3,
+			DisplayName: "Nottingham casework team 2",
+		},
 	}
 	template := &mockTemplate{}
 
@@ -121,7 +125,7 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 		Team:       client.teams.data[0],
 		Pagination: newPaginationWithQuery(client.casesByTeam.data.Pagination, ""),
 		Stats:      client.casesByTeam.data.Stats,
-		Teams:      []sirius.Team{client.teams.data[1]},
+		Teams:      []sirius.Team{client.teams.data[1], client.teams.data[2]},
 	}, vars)
 }
 
