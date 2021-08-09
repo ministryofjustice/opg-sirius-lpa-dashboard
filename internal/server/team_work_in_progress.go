@@ -155,7 +155,7 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 
 		var caseworkTeams []sirius.Team
 		for _, team := range teams {
-			if strings.HasPrefix(team.DisplayName, "Casework Team") {
+			if strings.HasPrefix(team.DisplayName, "Casework Team") || strings.HasPrefix(team.DisplayName, "Nottingham casework team") {
 				caseworkTeams = append(caseworkTeams, team)
 			}
 		}
