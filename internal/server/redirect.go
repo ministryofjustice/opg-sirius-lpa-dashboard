@@ -19,7 +19,7 @@ func redirect(client RedirectClient) Handler {
 			return err
 		}
 
-		if myDetails.HasRole("Card Payment User") {
+		if myDetails.IsCardPaymentUser() {
 			return RedirectError("/card-payments")
 		}
 
