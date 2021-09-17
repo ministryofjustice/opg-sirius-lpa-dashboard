@@ -12,15 +12,19 @@
       Contents
     </h2>
     <ul class="govuk-tabs__list">
+      {{ if .ShowCaseTabs }}
       <li class="govuk-tabs__list-item">
         <a class="govuk-tabs__tab" href="{{ prefix "/pending-cases" }}">Pending cases</a>
       </li>
+      {{ end }}
       <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
         <a class="govuk-tabs__tab" href="{{ prefix "/tasks" }}">Tasks</a>
       </li>
+      {{ if .ShowCaseTabs }}
       <li class="govuk-tabs__list-item">
         <a class="govuk-tabs__tab" href="{{ prefix "/all-cases" }}">All cases</a>
       </li>
+      {{ end }}
     </ul>
   </div>
 
@@ -59,7 +63,7 @@
         </tr>
       {{ else }}
         <tr>
-          <td colspan="5">You currently have no cases assigned</td>
+          <td colspan="5">You currently have no tasks assigned</td>
         </tr>
       {{ end }}
     </tbody>

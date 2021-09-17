@@ -122,9 +122,34 @@ func TestGetTasks(t *testing.T) {
 				Pagination:      newPagination(client.casesWithOpenTasksByAssignee.pagination),
 				HasWorkableCase: true,
 				CanRequestCase:  true,
+				ShowCaseTabs:    true,
 			}, template.lastVars)
 		})
 	}
+}
+
+func TestGetTasksHidesCaseTabs(t *testing.T) {
+	assert := assert.New(t)
+
+	client := &mockTasksClient{}
+	client.casesWithOpenTasksByAssignee.pagination = &sirius.Pagination{}
+	client.myDetails.data = sirius.MyDetails{
+		Roles: []string{"Card Payment User"},
+	}
+
+	template := &mockTemplate{}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/path", nil)
+
+	err := tasks(client, template)(w, r)
+	assert.Nil(err)
+
+	assert.Equal(tasksVars{
+		Cases:        client.casesWithOpenTasksByAssignee.data,
+		Pagination:   newPagination(&sirius.Pagination{}),
+		ShowCaseTabs: false,
+	}, template.lastVars)
 }
 
 func TestGetTasksMyDetailsError(t *testing.T) {
