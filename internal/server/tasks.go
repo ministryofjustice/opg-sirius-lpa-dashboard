@@ -18,6 +18,7 @@ type tasksVars struct {
 	HasWorkableCase bool
 	CanRequestCase  bool
 	IsManager       bool
+	ShowCaseTabs    bool
 	XSRFToken       string
 }
 
@@ -50,6 +51,7 @@ func tasks(client TasksClient, tmpl Template) Handler {
 			HasWorkableCase: hasWorkableCase,
 			CanRequestCase:  myDetails.HasRole("Self Allocation User"),
 			IsManager:       myDetails.HasRole("Manager"),
+			ShowCaseTabs:    !myDetails.IsCardPaymentUser(),
 			XSRFToken:       ctx.XSRFToken,
 		})
 	}
