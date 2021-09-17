@@ -34,6 +34,10 @@ func (md *MyDetails) IsManager() bool {
 	return md.HasRole("Manager")
 }
 
+func (md *MyDetails) IsCardPaymentUser() bool {
+	return len(md.Teams) > 0 && md.Teams[0].DisplayName == "Card Payment Team"
+}
+
 type MyDetailsTeam struct {
 	ID          int    `json:"id"`
 	DisplayName string `json:"displayName"`
