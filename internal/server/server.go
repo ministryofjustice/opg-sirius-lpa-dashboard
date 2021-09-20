@@ -17,12 +17,15 @@ type Logger interface {
 
 type Client interface {
 	AllCasesClient
+	CardPaymentsClient
 	CentralCasesClient
 	FeedbackClient
 	MarkWorkedClient
 	PendingCasesClient
 	ReassignClient
+	RedirectClient
 	RequestNextCasesClient
+	RequestNextPaymentTaskClient
 	TasksClient
 	TeamWorkInProgressClient
 	UserAllCasesClient
@@ -39,11 +42,15 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/", http.RedirectHandler(prefix+"/pending-cases", http.StatusFound))
+	mux.Handle("/", wrap(redirect(client)))
 
 	mux.Handle("/pending-cases",
 		wrap(
 			pendingCases(client, templates["pending-cases.gotmpl"])))
+
+	mux.Handle("/card-payments",
+		wrap(
+			cardPayments(client, templates["card-payments.gotmpl"])))
 
 	mux.Handle("/tasks",
 		wrap(
@@ -80,6 +87,10 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/request-next-cases",
 		wrap(
 			requestNextCases(client)))
+
+	mux.Handle("/request-next-payment-task",
+		wrap(
+			requestNextPaymentTask(client)))
 
 	mux.Handle("/mark-worked",
 		wrap(
