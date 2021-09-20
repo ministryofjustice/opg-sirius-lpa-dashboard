@@ -13,6 +13,6 @@ describe("Card payments", () => {
         $row.should('contain', 'Adrian Kurkjian');
         $row.should('contain', 'PF');
         $row.should('contain', '19 May 2021');
-        $row.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/36');
+        $row.contains('7000-8548-8461').should('have.attr', 'href').should('contain', '/person/23/1');
     });
 });
