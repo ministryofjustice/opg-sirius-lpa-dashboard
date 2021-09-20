@@ -1,0 +1,53 @@
+{{ template "page" . }}
+
+{{ define "title" }}Card payments{{ end }}
+
+{{ define "main" }}
+  <h1 class="govuk-heading-xl">Card payments</h1>
+
+  <form action="{{ prefix "/request-next-payment-task" }}" method="post">
+    <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
+    <button {{ if .HasIncompleteTask }}disabled{{ end }} class="govuk-button" type="submit">Request next payment task</button>
+  </form>
+
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Donor</th>
+        <th scope="col" class="govuk-table__header">Case</th>
+        <th scope="col" class="govuk-table__header">LPA type</th>
+        <th scope="col" class="govuk-table__header">Task</th>
+        <th scope="col" class="govuk-table__header">Due date</th>
+        <th scope="col" class="govuk-table__header">Status</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {{ range .Tasks }}
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">{{ .Case.Donor.DisplayName }}</th>
+          <td class="govuk-table__cell">
+            <a href="{{ sirius (printf "/lpa/person/%d/%d" .Case.Donor.ID .Case.ID) }}" class="govuk-link">
+              {{ .Case.Uid }}
+            </a>
+          </td>
+          <td class="govuk-table__cell">
+            {{ upper .Case.SubType }}
+          </td>
+          <td class="govuk-table__cell">
+            {{ .Name }}
+          </td>
+          <td class="govuk-table__cell">
+            {{ formatDate .DueDate }}
+          </td>
+          <td class="govuk-table__cell">
+            {{ .Status }}
+          </td>
+        </tr>
+      {{ else }}
+        <tr>
+          <td colspan="6">You currently have no task assigned</td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+{{ end }}
