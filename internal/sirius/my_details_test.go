@@ -256,3 +256,41 @@ func TestMyDetailsHasRole(t *testing.T) {
 		assert.Equal(tc.expected, myDetails.HasRole(tc.search))
 	}
 }
+
+func TestMyDetailsIsCardPaymentUser(t *testing.T) {
+	testCases := []struct {
+		roles    []string
+		expected bool
+	}{
+		{
+			roles:    []string{},
+			expected: false,
+		},
+		{
+			roles:    []string{"Admin"},
+			expected: false,
+		},
+		{
+			roles:    []string{"Card Payment User"},
+			expected: true,
+		},
+		{
+			roles:    []string{"User", "Card Payment User"},
+			expected: true,
+		},
+		{
+			roles:    []string{"User", "Card Payment User", "Admin"},
+			expected: true,
+		},
+	}
+
+	assert := assert.New(t)
+
+	for _, tc := range testCases {
+		myDetails := MyDetails{
+			Roles: tc.roles,
+		}
+
+		assert.Equal(tc.expected, myDetails.IsCardPaymentUser())
+	}
+}
