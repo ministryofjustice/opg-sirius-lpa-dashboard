@@ -13,7 +13,6 @@ type CardPaymentsClient interface {
 
 type cardPaymentsVars struct {
 	Tasks             []sirius.Task
-	HasIncompleteTask bool
 	XSRFToken         string
 }
 
@@ -42,7 +41,6 @@ func cardPayments(client CardPaymentsClient, tmpl Template) Handler {
 
 		vars := cardPaymentsVars{
 			Tasks:             tasks,
-			HasIncompleteTask: len(tasks) > 0,
 			XSRFToken:         ctx.XSRFToken,
 		}
 
