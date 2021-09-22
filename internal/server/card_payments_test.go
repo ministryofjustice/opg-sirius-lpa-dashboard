@@ -77,7 +77,6 @@ func TestGetCardPayments(t *testing.T) {
 	assert.Equal("page", template.lastName)
 	assert.Equal(cardPaymentsVars{
 		Tasks:             client.tasksByAssignee.data,
-		HasIncompleteTask: true,
 		XSRFToken:         getContext(r).XSRFToken,
 	}, template.lastVars)
 }

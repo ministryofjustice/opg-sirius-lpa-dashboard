@@ -7,7 +7,7 @@
 
   <form action="{{ prefix "/request-next-payment-task" }}" method="post">
     <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
-    <button {{ if .HasIncompleteTask }}disabled{{ end }} class="govuk-button" type="submit">Request next payment task</button>
+    <button class="govuk-button" type="submit">Request next payment task</button>
   </form>
 
   <table class="govuk-table">
