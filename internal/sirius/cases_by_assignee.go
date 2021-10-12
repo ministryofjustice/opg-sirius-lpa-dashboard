@@ -78,5 +78,9 @@ func (c *Client) CasesByAssignee(ctx Context, id int, criteria Criteria) ([]Case
 func (c *Client) HasWorkableCase(ctx Context, id int) (bool, error) {
 	_, pagination, err := c.CasesByAssignee(ctx, id, Criteria{}.Filter("status", "Pending").Filter("worked", "false").Page(1).Limit(1))
 
+	if err != nil {
+		return false, err
+	}
+
 	return pagination.TotalItems > 0, err
 }
