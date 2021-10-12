@@ -445,3 +445,17 @@ func TestCasesByAssigneeStatusError(t *testing.T) {
 		Method: http.MethodGet,
 	}, err)
 }
+
+func TestHasWorkableCaseStatusError(t *testing.T) {
+	s := teapotServer()
+	defer s.Close()
+
+	client, _ := NewClient(http.DefaultClient, s.URL)
+
+	_, err := client.HasWorkableCase(getContext(nil), 47)
+	assert.Equal(t, &StatusError{
+		Code:   http.StatusTeapot,
+		URL:    s.URL + "/api/v1/assignees/47/cases?filter=status%3APending%2Cworked%3Afalse%2CcaseType%3Alpa%2Cactive%3Atrue&limit=1&page=1",
+		Method: http.MethodGet,
+	}, err)
+}
