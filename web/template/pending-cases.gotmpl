@@ -27,7 +27,7 @@
   <form action="{{ prefix "/mark-worked" }}" method="post">
     <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
 
-    <div style="text-align:right">
+    <div class="govuk-!-text-align-right">
       <button data-enable-when-selection class="govuk-button govuk-button--secondary" type="submit">Progress worked cases</button>
     </div>
 
@@ -62,7 +62,7 @@
             </td>
             <td class="govuk-table__cell">
               {{ if .Worked }}
-                <svg style="float: left;" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="-5 -5 35 35">
+                <svg class="app-float-left" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="-5 -5 35 35">
                   <circle fill="green" cx="12.5" cy="12.5" r="17.5"></circle>
                   <path d="M25,6.2L8.7,23.2L0,14.1l4-4.2l4.7,4.9L21,2L25,6.2z" fill="white"></path>
                 </svg>
