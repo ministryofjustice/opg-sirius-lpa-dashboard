@@ -230,7 +230,7 @@ jobs:
           docker tag docker_app:latest sirius-lpa-dashboard:latest
       - name: Scan
         run: |
-          docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy sirius-lpa-dashboard:latest
+          docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image sirius-lpa-dashboard:latest
 
       - name: Bump version
         id: bump_version
