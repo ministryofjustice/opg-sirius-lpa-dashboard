@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -15,13 +16,13 @@ type feedbackVars struct {
 	Redirect  string
 }
 
-func feedback(client FeedbackClient, tmpl Template) Handler {
+func feedback(client FeedbackClient, tmpl template.Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		ctx := getContext(r)
 
 		switch r.Method {
 		case http.MethodGet:
-			return tmpl.ExecuteTemplate(w, "page", feedbackVars{
+			return tmpl(w, feedbackVars{
 				XSRFToken: ctx.XSRFToken,
 				Redirect:  r.Header.Get("Referer"),
 			})

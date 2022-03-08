@@ -84,7 +84,7 @@ func TestGetUserAllCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -100,7 +100,6 @@ func TestGetUserAllCases(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(userAllCasesVars{
 		Assignee:   client.user.data,
 		Cases:      client.casesByAssignee.data,
@@ -135,7 +134,7 @@ func TestGetUserAllCasesPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/all-cases/74?page=4", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -151,7 +150,6 @@ func TestGetUserAllCasesPage(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(userAllCasesVars{
 		Assignee:   client.user.data,
 		Team:       client.user.data.Teams[0],
@@ -172,7 +170,7 @@ func TestGetUserAllCasesForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -194,7 +192,7 @@ func TestGetUserAllCasesMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -219,7 +217,7 @@ func TestGetUserAllCasesGetUserError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -251,7 +249,7 @@ func TestGetUserAllCasesQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/all-cases/74", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -276,7 +274,7 @@ func TestBadMethodUserAllCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/users/all-cases/74", nil)
 
-	err := userAllCases(client, template)(w, r)
+	err := userAllCases(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

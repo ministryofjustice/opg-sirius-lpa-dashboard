@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -24,7 +25,7 @@ type reassignVars struct {
 	AssignedTo  sirius.Assignee
 }
 
-func reassign(client ReassignClient, tmpl Template) Handler {
+func reassign(client ReassignClient, tmpl template.Template) Handler {
 	getAssignee := func(ctx sirius.Context, id string) (sirius.Assignee, error) {
 		assigneeID, err := strconv.Atoi(id)
 		if err != nil {
@@ -105,6 +106,6 @@ func reassign(client ReassignClient, tmpl Template) Handler {
 			vars.AssignedTo = reassignTo
 		}
 
-		return tmpl.ExecuteTemplate(w, "page", vars)
+		return tmpl(w, vars)
 	}
 }

@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -12,11 +13,11 @@ type CardPaymentsClient interface {
 }
 
 type cardPaymentsVars struct {
-	Tasks             []sirius.Task
-	XSRFToken         string
+	Tasks     []sirius.Task
+	XSRFToken string
 }
 
-func cardPayments(client CardPaymentsClient, tmpl Template) Handler {
+func cardPayments(client CardPaymentsClient, tmpl template.Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -40,10 +41,10 @@ func cardPayments(client CardPaymentsClient, tmpl Template) Handler {
 		}
 
 		vars := cardPaymentsVars{
-			Tasks:             tasks,
-			XSRFToken:         ctx.XSRFToken,
+			Tasks:     tasks,
+			XSRFToken: ctx.XSRFToken,
 		}
 
-		return tmpl.ExecuteTemplate(w, "page", vars)
+		return tmpl(w, vars)
 	}
 }

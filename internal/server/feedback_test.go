@@ -37,11 +37,10 @@ func TestGetFeedback(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/path", nil)
 	r.Header.Add("Referer", "http://example.com/previous")
 
-	err := feedback(nil, template)(w, r)
+	err := feedback(nil, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(feedbackVars{
 		XSRFToken: getContext(r).XSRFToken,
 		Redirect:  "http://example.com/previous",

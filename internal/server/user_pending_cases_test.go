@@ -84,7 +84,7 @@ func TestGetUserPendingCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -100,7 +100,6 @@ func TestGetUserPendingCases(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(userPendingCasesVars{
 		Assignee:   client.user.data,
 		Cases:      client.casesByAssignee.data,
@@ -135,7 +134,7 @@ func TestGetUserPendingCasesPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/pending-cases/74?page=4", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -151,7 +150,6 @@ func TestGetUserPendingCasesPage(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(4).Sort("receiptDate", sirius.Ascending), client.casesByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(userPendingCasesVars{
 		Assignee:   client.user.data,
 		Team:       client.user.data.Teams[0],
@@ -172,7 +170,7 @@ func TestGetUserPendingCasesForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -194,7 +192,7 @@ func TestGetUserPendingCasesMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -219,7 +217,7 @@ func TestGetUserPendingCasesGetUserError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -251,7 +249,7 @@ func TestGetUserPendingCasesQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/pending-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -276,7 +274,7 @@ func TestBadMethodUserPendingCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/users/pending-cases/74", nil)
 
-	err := userPendingCases(client, template)(w, r)
+	err := userPendingCases(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

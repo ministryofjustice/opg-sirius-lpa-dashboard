@@ -99,7 +99,7 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -114,7 +114,6 @@ func TestGetTeamWorkInProgress(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Page(1), client.casesByTeam.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 
 	vars := template.lastVars.(teamWorkInProgressVars)
 	assert.WithinDuration(time.Now(), vars.Today, time.Second)
@@ -173,7 +172,7 @@ func TestGetTeamWorkInProgressPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1?page=4", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -188,7 +187,6 @@ func TestGetTeamWorkInProgressPage(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Page(4), client.casesByTeam.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 
 	vars := template.lastVars.(teamWorkInProgressVars)
 	assert.WithinDuration(time.Now(), vars.Today, time.Second)
@@ -226,7 +224,7 @@ func TestGetTeamWorkInProgressFiltered(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1?allocation=123", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -241,7 +239,6 @@ func TestGetTeamWorkInProgressFiltered(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Filter("allocation", "123").Page(1), client.casesByTeam.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 
 	vars := template.lastVars.(teamWorkInProgressVars)
 	assert.WithinDuration(time.Now(), vars.Today, time.Second)
@@ -271,7 +268,7 @@ func TestGetTeamWorkInProgressForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -292,7 +289,7 @@ func TestGetTeamWorkInProgressTeamDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/12", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Equal(StatusError(http.StatusNotFound), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -316,7 +313,7 @@ func TestGetTeamWorkInProgressMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -341,7 +338,7 @@ func TestGetTeamWorkInProgressTeamsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -373,7 +370,7 @@ func TestGetTeamWorkInProgressQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/teams/work-in-progress/1", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -397,7 +394,7 @@ func TestBadMethodTeamWorkInProgress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/path", nil)
 
-	err := teamWorkInProgress(client, template)(w, r)
+	err := teamWorkInProgress(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

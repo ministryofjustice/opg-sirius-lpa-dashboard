@@ -62,7 +62,7 @@ func TestGetCardPayments(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := cardPayments(client, template)(w, r)
+	err := cardPayments(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -74,10 +74,9 @@ func TestGetCardPayments(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Filter("status", "Not started").Sort("dueDate", sirius.Ascending).Sort("name", sirius.Descending), client.tasksByAssignee.lastCriteria)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(cardPaymentsVars{
-		Tasks:             client.tasksByAssignee.data,
-		XSRFToken:         getContext(r).XSRFToken,
+		Tasks:     client.tasksByAssignee.data,
+		XSRFToken: getContext(r).XSRFToken,
 	}, template.lastVars)
 }
 
@@ -93,7 +92,7 @@ func TestGetCardPaymentsMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := cardPayments(client, template)(w, r)
+	err := cardPayments(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -115,7 +114,7 @@ func TestGetCardPaymentsQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := cardPayments(client, template)(w, r)
+	err := cardPayments(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -131,7 +130,7 @@ func TestBadMethodCardPayments(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/path", nil)
 
-	err := cardPayments(client, template)(w, r)
+	err := cardPayments(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

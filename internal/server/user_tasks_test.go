@@ -84,7 +84,7 @@ func TestGetUserTasks(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/tasks/74", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -100,7 +100,6 @@ func TestGetUserTasks(t *testing.T) {
 	assert.Equal(1, client.casesWithOpenTasksByAssignee.lastPage)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(userTasksVars{
 		Assignee:   client.user.data,
 		Cases:      client.casesWithOpenTasksByAssignee.data,
@@ -135,7 +134,7 @@ func TestGetUserTasksPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/tasks/74?page=4", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -151,7 +150,6 @@ func TestGetUserTasksPage(t *testing.T) {
 	assert.Equal(4, client.casesWithOpenTasksByAssignee.lastPage)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(userTasksVars{
 		Assignee:   client.user.data,
 		Team:       client.user.data.Teams[0],
@@ -172,7 +170,7 @@ func TestGetUserTasksForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/tasks/74", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -194,7 +192,7 @@ func TestGetUserTasksMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/tasks/74", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -219,7 +217,7 @@ func TestGetUserTasksGetUserError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/tasks/74", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -251,7 +249,7 @@ func TestGetUserTasksQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/users/tasks/74", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -276,7 +274,7 @@ func TestBadMethodUserTasks(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/users/tasks/74", nil)
 
-	err := userTasks(client, template)(w, r)
+	err := userTasks(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

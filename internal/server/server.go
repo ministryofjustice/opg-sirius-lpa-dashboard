@@ -2,12 +2,12 @@ package server
 
 import (
 	"fmt"
-	"html/template"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 
+	"github.com/ministryofjustice/opg-go-common/securityheaders"
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -33,12 +33,8 @@ type Client interface {
 	UserTasksClient
 }
 
-type Template interface {
-	ExecuteTemplate(io.Writer, string, interface{}) error
-}
-
-func New(logger Logger, client Client, templates map[string]*template.Template, prefix, siriusURL, siriusPublicURL, webDir string) http.Handler {
-	wrap := errorHandler(logger, templates["error.gotmpl"], prefix, siriusPublicURL)
+func New(logger Logger, client Client, templates template.Templates, prefix, siriusURL, siriusPublicURL, webDir string) http.Handler {
+	wrap := errorHandler(logger, templates.Get("error.gotmpl"), prefix, siriusPublicURL)
 
 	mux := http.NewServeMux()
 
@@ -46,43 +42,43 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux.Handle("/pending-cases",
 		wrap(
-			pendingCases(client, templates["pending-cases.gotmpl"])))
+			pendingCases(client, templates.Get("pending-cases.gotmpl"))))
 
 	mux.Handle("/card-payments",
 		wrap(
-			cardPayments(client, templates["card-payments.gotmpl"])))
+			cardPayments(client, templates.Get("card-payments.gotmpl"))))
 
 	mux.Handle("/tasks",
 		wrap(
-			tasks(client, templates["tasks.gotmpl"])))
+			tasks(client, templates.Get("tasks.gotmpl"))))
 
 	mux.Handle("/all-cases",
 		wrap(
-			allCases(client, templates["all-cases.gotmpl"])))
+			allCases(client, templates.Get("all-cases.gotmpl"))))
 
 	mux.Handle("/teams/central",
 		wrap(
-			centralCases(client, templates["central-cases.gotmpl"])))
+			centralCases(client, templates.Get("central-cases.gotmpl"))))
 
 	mux.Handle("/teams/work-in-progress/",
 		wrap(
-			teamWorkInProgress(client, templates["team-work-in-progress.gotmpl"])))
+			teamWorkInProgress(client, templates.Get("team-work-in-progress.gotmpl"))))
 
 	mux.Handle("/users/pending-cases/",
 		wrap(
-			userPendingCases(client, templates["user-pending-cases.gotmpl"])))
+			userPendingCases(client, templates.Get("user-pending-cases.gotmpl"))))
 
 	mux.Handle("/users/tasks/",
 		wrap(
-			userTasks(client, templates["user-tasks.gotmpl"])))
+			userTasks(client, templates.Get("user-tasks.gotmpl"))))
 
 	mux.Handle("/users/all-cases/",
 		wrap(
-			userAllCases(client, templates["user-all-cases.gotmpl"])))
+			userAllCases(client, templates.Get("user-all-cases.gotmpl"))))
 
 	mux.Handle("/reassign",
 		wrap(
-			reassign(client, templates["reassign.gotmpl"])))
+			reassign(client, templates.Get("reassign.gotmpl"))))
 
 	mux.Handle("/request-next-cases",
 		wrap(
@@ -98,7 +94,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 
 	mux.Handle("/feedback",
 		wrap(
-			feedback(client, templates["feedback.gotmpl"])))
+			feedback(client, templates.Get("feedback.gotmpl"))))
 
 	mux.HandleFunc("/health-check", func(w http.ResponseWriter, r *http.Request) {})
 
@@ -107,20 +103,7 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/javascript/", static)
 	mux.Handle("/stylesheets/", static)
 
-	return http.StripPrefix(prefix, securityHeaders(mux))
-}
-
-func securityHeaders(h http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Security-Policy", "default-src 'self'")
-		w.Header().Add("Referrer-Policy", "same-origin")
-		w.Header().Add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
-		w.Header().Add("X-Content-Type-Options", "nosniff")
-		w.Header().Add("X-Frame-Options", "SAMEORIGIN")
-		w.Header().Add("X-XSS-Protection", "1; mode=block")
-
-		h.ServeHTTP(w, r)
-	}
+	return http.StripPrefix(prefix, securityheaders.Use(mux))
 }
 
 type RedirectError string
@@ -155,7 +138,7 @@ type errorVars struct {
 	Error string
 }
 
-func errorHandler(logger Logger, tmplError Template, prefix, siriusURL string) func(next Handler) http.Handler {
+func errorHandler(logger Logger, tmplError template.Template, prefix, siriusURL string) func(next Handler) http.Handler {
 	return func(next Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			err := next(w, r)
@@ -181,7 +164,7 @@ func errorHandler(logger Logger, tmplError Template, prefix, siriusURL string) f
 				}
 
 				w.WriteHeader(code)
-				err = tmplError.ExecuteTemplate(w, "page", errorVars{
+				err = tmplError(w, errorVars{
 					SiriusURL: siriusURL,
 					Path:      "",
 					Code:      code,
