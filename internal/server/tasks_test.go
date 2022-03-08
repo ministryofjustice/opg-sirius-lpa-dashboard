@@ -100,7 +100,7 @@ func TestGetTasks(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest("GET", tc.URL, nil)
 
-			err := tasks(client, template)(w, r)
+			err := tasks(client, template.Func)(w, r)
 			assert.Nil(err)
 
 			assert.Equal(1, client.myDetails.count)
@@ -116,7 +116,6 @@ func TestGetTasks(t *testing.T) {
 			assert.Equal(14, client.hasWorkableCase.lastId)
 
 			assert.Equal(1, template.count)
-			assert.Equal("page", template.lastName)
 			assert.Equal(tasksVars{
 				Cases:           client.casesWithOpenTasksByAssignee.data,
 				Pagination:      newPagination(client.casesWithOpenTasksByAssignee.pagination),
@@ -139,7 +138,7 @@ func TestGetTasksMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := tasks(client, template)(w, r)
+	err := tasks(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -163,7 +162,7 @@ func TestGetTasksQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := tasks(client, template)(w, r)
+	err := tasks(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -183,7 +182,7 @@ func TestBadMethodTasks(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/path", nil)
 
-	err := tasks(client, template)(w, r)
+	err := tasks(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

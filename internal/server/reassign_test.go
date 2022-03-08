@@ -120,7 +120,7 @@ func TestGetReassign(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path?selected=1&selected=4&assignee=47", nil)
 
-	err := reassign(client, template)(w, r)
+	err := reassign(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -135,7 +135,6 @@ func TestGetReassign(t *testing.T) {
 	assert.Equal(439, client.team.lastId)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(reassignVars{
 		XSRFToken:   getContext(r).XSRFToken,
 		Selected:    []int{1, 4},
@@ -298,7 +297,7 @@ func TestPostReassignToCentralPot(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/path", strings.NewReader("selected=1&selected=4&assignee=47&reassign=central-pot"))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	err := reassign(client, template)(w, r)
+	err := reassign(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -322,7 +321,6 @@ func TestPostReassignToCentralPot(t *testing.T) {
 	assert.Equal(50, client.assign.lastAssignee)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(reassignVars{
 		XSRFToken:   getContext(r).XSRFToken,
 		Selected:    []int{1, 4},
@@ -416,7 +414,7 @@ func TestPostReassignToUser(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/path", strings.NewReader("selected=1&selected=4&assignee=47&reassign=user&caseworker=99"))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	err := reassign(client, template)(w, r)
+	err := reassign(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -438,7 +436,6 @@ func TestPostReassignToUser(t *testing.T) {
 	assert.Equal(99, client.assign.lastAssignee)
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(reassignVars{
 		XSRFToken:   getContext(r).XSRFToken,
 		Selected:    []int{1, 4},

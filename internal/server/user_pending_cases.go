@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -22,7 +23,7 @@ type userPendingCasesVars struct {
 	XSRFToken  string
 }
 
-func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
+func userPendingCases(client UserPendingCasesClient, tmpl template.Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -70,6 +71,6 @@ func userPendingCases(client UserPendingCasesClient, tmpl Template) Handler {
 			XSRFToken:  ctx.XSRFToken,
 		}
 
-		return tmpl.ExecuteTemplate(w, "page", vars)
+		return tmpl(w, vars)
 	}
 }

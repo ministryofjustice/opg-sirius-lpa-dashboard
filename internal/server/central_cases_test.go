@@ -81,7 +81,7 @@ func TestGetCentralCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -98,7 +98,6 @@ func TestGetCentralCases(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending).Limit(1), client.casesByAssignee.criteria[1])
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(centralCasesVars{
 		Cases:    client.casesByAssignee.data,
 		TeamID:   123,
@@ -127,7 +126,7 @@ func TestGetCentralCasesPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path?page=4", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 	assert.Nil(err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -144,7 +143,6 @@ func TestGetCentralCasesPage(t *testing.T) {
 	assert.Equal(sirius.Criteria{}.Filter("status", "Pending").Page(1).Sort("receiptDate", sirius.Ascending).Limit(1), client.casesByAssignee.criteria[1])
 
 	assert.Equal(1, template.count)
-	assert.Equal("page", template.lastName)
 	assert.Equal(centralCasesVars{
 		Cases: client.casesByAssignee.data,
 	}, template.lastVars)
@@ -162,7 +160,7 @@ func TestGetCentralCasesForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 	assert.Equal(StatusError(http.StatusForbidden), err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -184,7 +182,7 @@ func TestGetCentralCasesMyDetailsError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -209,7 +207,7 @@ func TestGetCentralCasesUserError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -240,7 +238,7 @@ func TestGetCentralCasesQueryError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 	assert.Equal(expectedError, err)
 
 	assert.Equal(1, client.myDetails.count)
@@ -265,7 +263,7 @@ func TestBadMethodCentralCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("DELETE", "/path", nil)
 
-	err := centralCases(client, template)(w, r)
+	err := centralCases(client, template.Func)(w, r)
 
 	assert.Equal(StatusError(http.StatusMethodNotAllowed), err)
 

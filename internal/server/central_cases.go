@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -21,7 +22,7 @@ type centralCasesVars struct {
 	IsCaseWorker   bool
 }
 
-func centralCases(client CentralCasesClient, tmpl Template) Handler {
+func centralCases(client CentralCasesClient, tmpl template.Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -72,6 +73,6 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 			vars.TeamName = myDetails.Teams[0].DisplayName
 		}
 
-		return tmpl.ExecuteTemplate(w, "page", vars)
+		return tmpl(w, vars)
 	}
 }

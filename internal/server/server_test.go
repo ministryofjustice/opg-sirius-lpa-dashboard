@@ -26,13 +26,11 @@ func (m *mockLogger) Request(r *http.Request, err error) {
 
 type mockTemplate struct {
 	count    int
-	lastName string
 	lastVars interface{}
 }
 
-func (m *mockTemplate) ExecuteTemplate(w io.Writer, name string, vars interface{}) error {
+func (m *mockTemplate) Func(w io.Writer, vars interface{}) error {
 	m.count += 1
-	m.lastName = name
 	m.lastVars = vars
 	return nil
 }
@@ -41,32 +39,12 @@ func TestNew(t *testing.T) {
 	assert.Implements(t, (*http.Handler)(nil), New(nil, nil, nil, "", "", "", ""))
 }
 
-func TestSecurityHeaders(t *testing.T) {
-	assert := assert.New(t)
-
-	handler := securityHeaders(http.NotFoundHandler())
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/path", nil)
-
-	handler.ServeHTTP(w, r)
-
-	resp := w.Result()
-
-	assert.Equal("default-src 'self'", resp.Header.Get("Content-Security-Policy"))
-	assert.Equal("same-origin", resp.Header.Get("Referrer-Policy"))
-	assert.Equal("max-age=31536000; includeSubDomains; preload", resp.Header.Get("Strict-Transport-Security"))
-	assert.Equal("nosniff", resp.Header.Get("X-Content-Type-Options"))
-	assert.Equal("SAMEORIGIN", resp.Header.Get("X-Frame-Options"))
-	assert.Equal("1; mode=block", resp.Header.Get("X-XSS-Protection"))
-}
-
 func TestErrorHandler(t *testing.T) {
 	assert := assert.New(t)
 
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(nil, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(nil, tmplError.Func, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(http.StatusTeapot)
 		return nil
@@ -88,7 +66,7 @@ func TestErrorHandlerUnauthorized(t *testing.T) {
 
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(nil, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(nil, tmplError.Func, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return sirius.ErrUnauthorized
 	})
@@ -110,7 +88,7 @@ func TestErrorHandlerRedirect(t *testing.T) {
 
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(nil, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(nil, tmplError.Func, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return RedirectError("/here")
 	})
@@ -133,7 +111,7 @@ func TestErrorHandlerStatus(t *testing.T) {
 	logger := &mockLogger{}
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(logger, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(logger, tmplError.Func, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return StatusError(http.StatusTeapot)
 	})
@@ -165,7 +143,7 @@ func TestErrorHandlerStatusKnown(t *testing.T) {
 			logger := &mockLogger{}
 			tmplError := &mockTemplate{}
 
-			wrap := errorHandler(logger, tmplError, "/prefix", "http://sirius")
+			wrap := errorHandler(logger, tmplError.Func, "/prefix", "http://sirius")
 			handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 				return StatusError(code)
 			})

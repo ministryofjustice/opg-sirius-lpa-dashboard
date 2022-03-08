@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
@@ -126,7 +127,7 @@ func newTeamWorkInProgressFilters(form url.Values) teamWorkInProgressFilters {
 	return filters
 }
 
-func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler {
+func teamWorkInProgress(client TeamWorkInProgressClient, tmpl template.Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -184,7 +185,7 @@ func teamWorkInProgress(client TeamWorkInProgressClient, tmpl Template) Handler 
 			IsCaseWorker: myDetails.HasRole("Self Allocation User"),
 		}
 
-		return tmpl.ExecuteTemplate(w, "page", vars)
+		return tmpl(w, vars)
 	}
 }
 
