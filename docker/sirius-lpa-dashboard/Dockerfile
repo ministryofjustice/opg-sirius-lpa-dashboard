@@ -20,7 +20,8 @@ COPY go.sum .
 
 RUN go mod download
 
-COPY . .
+COPY main.go main.go
+COPY internal internal
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/opg-sirius-lpa-dashboard
 
@@ -30,10 +31,15 @@ WORKDIR /go/bin
 
 RUN apk --update --no-cache add \
     ca-certificates \
+    tz-data \
     && rm -rf /var/cache/apk/*
-RUN apk --no-cache add tzdata
 
 COPY --from=build-env /go/bin/opg-sirius-lpa-dashboard opg-sirius-lpa-dashboard
-COPY --from=build-env /app/web/template web/template
 COPY --from=asset-env /app/web/static web/static
+COPY web/template web/template
+
+RUN addgroup -S app && \
+    adduser -S -g app app && \
+    chown -R app:app opg-sirius-lpa-dashboard web/template web/static
+USER app
 ENTRYPOINT ["./opg-sirius-lpa-dashboard"]
