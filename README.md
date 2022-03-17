@@ -27,7 +27,6 @@ yarn && yarn build
 SIRIUS_PUBLIC_URL=http://localhost:8080 SIRIUS_URL=http://localhost:8080 PORT=8888 go run main.go
 ```
 
-
 ### Testing
 
 ```
@@ -46,18 +45,16 @@ yarn && yarn cypress
 Will start the application in a way that uses the stub service, then opens
 Cypress in the current project.
 
-
 ## Development
 
 On CI we lint using [golangci-lint](https://golangci-lint.run/). It may be
 useful to install locally to check changes. This will include a check on
 formatting so it is recommended to setup your editor to use `go fmt`.
 
-
 ## Environment variables
 
 | Name                | Description                         |
-|---------------------|-------------------------------------|
+| ------------------- | ----------------------------------- |
 | `PORT`              | Port to run on                      |
 | `WEB_DIR`           | Path to the 'web' directory         |
 | `SIRIUS_URL`        | Base URL to call Sirius             |
