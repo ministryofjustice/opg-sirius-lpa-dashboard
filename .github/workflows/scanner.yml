@@ -6,7 +6,7 @@ on:
       - "main"
   schedule:
     # Every thursday, at 12:20 UTC
-    - cron: '20 12 * * 4'
+    - cron: "20 12 * * 4"
 
 jobs:
   run:
