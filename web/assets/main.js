@@ -1,5 +1,5 @@
 import MOJFrontend from "@ministryofjustice/frontend/moj/all.js";
-import GOVUKFrontend from "govuk-frontend/govuk/all.js";
+import * as GOVUKFrontend from "govuk-frontend";
 import $ from "jquery";
 
 function initEnableWhenSelection() {
