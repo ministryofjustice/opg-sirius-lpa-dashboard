@@ -4,5 +4,5 @@ go 1.14
 
 require (
 	github.com/pact-foundation/pact-go v1.7.0
-	github.com/stretchr/testify v1.7.4
+	github.com/stretchr/testify v1.8.0
 )
