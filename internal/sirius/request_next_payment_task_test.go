@@ -28,7 +28,7 @@ func TestRequestNextPaymentTask(t *testing.T) {
 					UponReceiving("A request to be assigned a new payment task").
 					WithRequest(dsl.Request{
 						Method: http.MethodPost,
-						Path:   dsl.String("/api/v1/request-new-payment-task"),
+						Path:   dsl.String("/api/v1/request-new-task"),
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
 							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
@@ -54,7 +54,7 @@ func TestRequestNextPaymentTask(t *testing.T) {
 					UponReceiving("A request to be assigned new payment task without cookies").
 					WithRequest(dsl.Request{
 						Method: http.MethodPost,
-						Path:   dsl.String("/api/v1/request-new-payment-task"),
+						Path:   dsl.String("/api/v1/request-new-task"),
 					}).
 					WillRespondWith(dsl.Response{
 						Status: http.StatusUnauthorized,
@@ -88,7 +88,7 @@ func TestRequestNextPaymentTaskStatusError(t *testing.T) {
 	err := client.RequestNextPaymentTask(getContext(nil))
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/request-new-payment-task",
+		URL:    s.URL + "/api/v1/request-new-task",
 		Method: http.MethodPost,
 	}, err)
 }
