@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Client) RequestNextPaymentTask(ctx Context) error {
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/v1/request-new-payment-task", nil)
+	req, err := c.newRequest(ctx, http.MethodPost, "/api/v1/request-new-task", nil)
 	if err != nil {
 		return err
 	}
