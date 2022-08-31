@@ -19,8 +19,8 @@ func redirect(client RedirectClient) Handler {
 			return err
 		}
 
-		if myDetails.IsCardPaymentUser() {
-			return RedirectError("/card-payments")
+		if myDetails.IsSelfAllocationTaskUser() {
+			return RedirectError("/tasks-dashboard")
 		}
 
 		return RedirectError("/pending-cases")

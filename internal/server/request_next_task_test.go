@@ -34,7 +34,7 @@ func TestPostRequestNextTask(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/path", nil)
 
 	err := requestNextTask(client)(w, r)
-	assert.Equal(RedirectError("/card-payments"), err)
+	assert.Equal(RedirectError("/tasks-dashboard"), err)
 
 	assert.Equal(1, client.requestNextTask.count)
 	assert.Equal(getContext(r), client.requestNextTask.lastCtx)

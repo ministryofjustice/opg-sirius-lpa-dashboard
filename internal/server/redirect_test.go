@@ -41,17 +41,17 @@ func TestRedirect(t *testing.T) {
 	assert.Equal(getContext(r), client.myDetails.lastCtx)
 }
 
-func TestRedirectCardPaymentUser(t *testing.T) {
+func TestRedirectSelfAllocationTaskUser(t *testing.T) {
 	assert := assert.New(t)
 
 	client := &mockRedirectClient{}
-	client.myDetails.data = sirius.MyDetails{Roles: []string{"Card Payment User"}}
+	client.myDetails.data = sirius.MyDetails{Roles: []string{"Self Allocation Task User"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/path", nil)
 
 	err := redirect(client)(w, r)
-	assert.Equal(RedirectError("/card-payments"), err)
+	assert.Equal(RedirectError("/tasks-dashboard"), err)
 
 	assert.Equal(1, client.myDetails.count)
 	assert.Equal(getContext(r), client.myDetails.lastCtx)
