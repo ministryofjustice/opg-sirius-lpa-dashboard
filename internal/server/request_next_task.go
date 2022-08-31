@@ -6,17 +6,17 @@ import (
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
-type RequestNextPaymentTaskClient interface {
-	RequestNextPaymentTask(sirius.Context) error
+type RequestNextTaskClient interface {
+	RequestNextTask(sirius.Context) error
 }
 
-func requestNextPaymentTask(client RequestNextPaymentTaskClient) Handler {
+func requestNextTask(client RequestNextTaskClient) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodPost {
 			return StatusError(http.StatusMethodNotAllowed)
 		}
 
-		if err := client.RequestNextPaymentTask(getContext(r)); err != nil {
+		if err := client.RequestNextTask(getContext(r)); err != nil {
 			return err
 		}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRequestNextPaymentTask(t *testing.T) {
+func TestRequestNextTask(t *testing.T) {
 	pact := newPact()
 	defer pact.Teardown()
 
@@ -28,7 +28,7 @@ func TestRequestNextPaymentTask(t *testing.T) {
 					UponReceiving("A request to be assigned a new payment task").
 					WithRequest(dsl.Request{
 						Method: http.MethodPost,
-						Path:   dsl.String("/api/v1/request-new-payment-task"),
+						Path:   dsl.String("/api/v1/request-new-task"),
 						Headers: dsl.MapMatcher{
 							"X-XSRF-TOKEN":        dsl.String("abcde"),
 							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
@@ -54,7 +54,7 @@ func TestRequestNextPaymentTask(t *testing.T) {
 					UponReceiving("A request to be assigned new payment task without cookies").
 					WithRequest(dsl.Request{
 						Method: http.MethodPost,
-						Path:   dsl.String("/api/v1/request-new-payment-task"),
+						Path:   dsl.String("/api/v1/request-new-task"),
 					}).
 					WillRespondWith(dsl.Response{
 						Status: http.StatusUnauthorized,
@@ -71,7 +71,7 @@ func TestRequestNextPaymentTask(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				err := client.RequestNextPaymentTask(getContext(tc.cookies))
+				err := client.RequestNextTask(getContext(tc.cookies))
 				assert.Equal(t, tc.expectedError, err)
 				return nil
 			}))
@@ -79,16 +79,16 @@ func TestRequestNextPaymentTask(t *testing.T) {
 	}
 }
 
-func TestRequestNextPaymentTaskStatusError(t *testing.T) {
+func TestRequestNextTaskStatusError(t *testing.T) {
 	s := teapotServer()
 	defer s.Close()
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	err := client.RequestNextPaymentTask(getContext(nil))
+	err := client.RequestNextTask(getContext(nil))
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/request-new-payment-task",
+		URL:    s.URL + "/api/v1/request-new-task",
 		Method: http.MethodPost,
 	}, err)
 }

@@ -26,7 +26,7 @@ type Client interface {
 	ReassignClient
 	RedirectClient
 	RequestNextCasesClient
-	RequestNextPaymentTaskClient
+	RequestNextTaskClient
 	TasksClient
 	TeamWorkInProgressClient
 	UserAllCasesClient
@@ -89,9 +89,9 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 		wrap(
 			requestNextCases(client)))
 
-	mux.Handle("/request-next-payment-task",
+	mux.Handle("/request-next-task",
 		wrap(
-			requestNextPaymentTask(client)))
+			requestNextTask(client)))
 
 	mux.Handle("/mark-worked",
 		wrap(
