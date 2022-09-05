@@ -20,6 +20,6 @@ func requestNextTask(client RequestNextTaskClient) Handler {
 			return err
 		}
 
-		return RedirectError("/card-payments")
+		return RedirectError("/tasks-dashboard")
 	}
 }

@@ -1,13 +1,13 @@
-describe("Card payments", () => {
+describe("Tasks dashboard", () => {
   beforeEach(() => {
     cy.setCookie("Other", "other");
     cy.setCookie("XSRF-TOKEN", "abcde");
-    cy.visit("/card-payments");
+    cy.visit("/tasks-dashboard");
   });
 
   it("shows your tasks", () => {
-    cy.title().should("contain", "Card payments");
-    cy.get("h1").should("contain", "Card payments");
+    cy.title().should("contain", "my team Dashboard");
+    cy.get("h1").should("contain", "my team Dashboard");
 
     const $row = cy.get("table > tbody > tr");
     $row.should("contain", "Adrian Kurkjian");

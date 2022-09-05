@@ -2,21 +2,23 @@ package server
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 )
 
-type CardPaymentsClient interface {
+type TasksDashboardClient interface {
 	TasksByAssignee(sirius.Context, int, sirius.Criteria) ([]sirius.Task, *sirius.Pagination, error)
 	MyDetails(sirius.Context) (sirius.MyDetails, error)
 }
 
-type cardPaymentsVars struct {
-	Tasks             []sirius.Task
-	XSRFToken         string
+type tasksDashboardVars struct {
+	Tasks     []sirius.Task
+	Title     string
+	XSRFToken string
 }
 
-func cardPayments(client CardPaymentsClient, tmpl Template) Handler {
+func tasksDashboard(client TasksDashboardClient, tmpl Template) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if r.Method != http.MethodGet {
 			return StatusError(http.StatusMethodNotAllowed)
@@ -39,9 +41,15 @@ func cardPayments(client CardPaymentsClient, tmpl Template) Handler {
 			return err
 		}
 
-		vars := cardPaymentsVars{
-			Tasks:             tasks,
-			XSRFToken:         ctx.XSRFToken,
+		vars := tasksDashboardVars{
+			Tasks:     tasks,
+			Title:     "Tasks Dashboard",
+			XSRFToken: ctx.XSRFToken,
+		}
+
+		if len(myDetails.Teams) > 0 {
+			teamName := strings.Trim(strings.ReplaceAll(myDetails.Teams[0].DisplayName, "Team", ""), " ")
+			vars.Title = teamName + " Dashboard"
 		}
 
 		return tmpl.ExecuteTemplate(w, "page", vars)

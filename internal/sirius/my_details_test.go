@@ -257,7 +257,7 @@ func TestMyDetailsHasRole(t *testing.T) {
 	}
 }
 
-func TestMyDetailsIsCardPaymentUser(t *testing.T) {
+func TestMyDetailsIsSelfAllocationTaskUser(t *testing.T) {
 	testCases := []struct {
 		roles    []string
 		expected bool
@@ -271,15 +271,15 @@ func TestMyDetailsIsCardPaymentUser(t *testing.T) {
 			expected: false,
 		},
 		{
-			roles:    []string{"Card Payment User"},
+			roles:    []string{"Self Allocation Task User"},
 			expected: true,
 		},
 		{
-			roles:    []string{"User", "Card Payment User"},
+			roles:    []string{"User", "Self Allocation Task User"},
 			expected: true,
 		},
 		{
-			roles:    []string{"User", "Card Payment User", "Admin"},
+			roles:    []string{"User", "Self Allocation Task User", "Admin"},
 			expected: true,
 		},
 	}
@@ -291,6 +291,6 @@ func TestMyDetailsIsCardPaymentUser(t *testing.T) {
 			Roles: tc.roles,
 		}
 
-		assert.Equal(tc.expected, myDetails.IsCardPaymentUser())
+		assert.Equal(tc.expected, myDetails.IsSelfAllocationTaskUser())
 	}
 }

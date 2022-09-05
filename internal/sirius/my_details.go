@@ -34,8 +34,8 @@ func (md *MyDetails) IsManager() bool {
 	return md.HasRole("Manager")
 }
 
-func (md *MyDetails) IsCardPaymentUser() bool {
-	return md.HasRole("Card Payment User")
+func (md *MyDetails) IsSelfAllocationTaskUser() bool {
+	return md.HasRole("Self Allocation Task User")
 }
 
 type MyDetailsTeam struct {

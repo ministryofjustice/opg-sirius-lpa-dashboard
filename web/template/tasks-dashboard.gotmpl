@@ -1,13 +1,13 @@
 {{ template "page" . }}
 
-{{ define "title" }}Card payments{{ end }}
+{{ define "title" }}{{ .Title }}{{ end }}
 
 {{ define "main" }}
-  <h1 class="govuk-heading-xl">Card payments</h1>
+  <h1 class="govuk-heading-xl">{{ .Title }}</h1>
 
   <form action="{{ prefix "/request-next-task" }}" method="post">
     <input type="hidden" name="xsrfToken" value="{{ .XSRFToken }}" />
-    <button class="govuk-button" type="submit">Request next payment task</button>
+    <button class="govuk-button" type="submit">Request next task</button>
   </form>
 
   <table class="govuk-table">
