@@ -57,26 +57,6 @@ func TestTeams(t *testing.T) {
 				},
 			},
 		},
-		{
-			name: "Unauthorized",
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("User exists").
-					UponReceiving("A request for teams without cookies").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/teams"),
-						Headers: dsl.MapMatcher{
-							"OPG-Bypass-Membrane": dsl.String("1"),
-						},
-					}).
-					WillRespondWith(dsl.Response{
-						Status: http.StatusUnauthorized,
-					})
-			},
-			expectedError: ErrUnauthorized,
-		},
 	}
 
 	for _, tc := range testCases {
