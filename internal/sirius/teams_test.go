@@ -1,7 +1,6 @@
 package sirius
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -17,6 +16,7 @@ func TestTeams(t *testing.T) {
 	testCases := []struct {
 		name             string
 		setup            func()
+		cookies          []*http.Cookie
 		expectedResponse []Team
 		expectedError    error
 	}{
@@ -30,6 +30,11 @@ func TestTeams(t *testing.T) {
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/teams"),
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
+						},
 					}).
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
@@ -40,6 +45,10 @@ func TestTeams(t *testing.T) {
 						}, 1),
 					})
 			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
+			},
 			expectedResponse: []Team{
 				{
 					ID:          66,
@@ -47,6 +56,26 @@ func TestTeams(t *testing.T) {
 					Members:     []TeamMember{},
 				},
 			},
+		},
+		{
+			name: "Unauthorized",
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("User exists").
+					UponReceiving("A request for teams without cookies").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/teams"),
+						Headers: dsl.MapMatcher{
+							"OPG-Bypass-Membrane": dsl.String("1"),
+						},
+					}).
+					WillRespondWith(dsl.Response{
+						Status: http.StatusUnauthorized,
+					})
+			},
+			expectedError: ErrUnauthorized,
 		},
 	}
 
@@ -57,7 +86,7 @@ func TestTeams(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				users, err := client.Teams(Context{Context: context.Background()})
+				users, err := client.Teams(getContext(tc.cookies))
 				assert.Equal(t, tc.expectedResponse, users)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -73,6 +102,7 @@ func TestTeamsIgnored(t *testing.T) {
 	testCases := []struct {
 		name             string
 		setup            func()
+		cookies          []*http.Cookie
 		expectedResponse []Team
 		expectedError    error
 	}{
@@ -86,6 +116,11 @@ func TestTeamsIgnored(t *testing.T) {
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/teams"),
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
+						},
 					}).
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
@@ -99,6 +134,10 @@ func TestTeamsIgnored(t *testing.T) {
 							}, 1),
 						}, 1),
 					})
+			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
 			},
 			expectedResponse: []Team{
 				{
@@ -120,7 +159,7 @@ func TestTeamsIgnored(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				users, err := client.Teams(Context{Context: context.Background()})
+				users, err := client.Teams(getContext(tc.cookies))
 				assert.Equal(t, tc.expectedResponse, users)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -135,7 +174,7 @@ func TestTeamsStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, err := client.Teams(Context{Context: context.Background()})
+	_, err := client.Teams(getContext(nil))
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/teams",

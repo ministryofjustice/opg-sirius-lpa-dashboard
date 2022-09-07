@@ -1,7 +1,6 @@
 package sirius
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -17,6 +16,7 @@ func TestMyDetails(t *testing.T) {
 	testCases := []struct {
 		name              string
 		setup             func()
+		cookies           []*http.Cookie
 		expectedMyDetails MyDetails
 		expectedError     error
 	}{
@@ -30,6 +30,11 @@ func TestMyDetails(t *testing.T) {
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/users/current"),
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
+						},
 					}).
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
@@ -44,11 +49,36 @@ func TestMyDetails(t *testing.T) {
 						}),
 					})
 			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
+			},
 			expectedMyDetails: MyDetails{
 				ID:    47,
 				Roles: []string{"Manager"},
 				Teams: []MyDetailsTeam{{ID: 66, DisplayName: "my team"}},
 			},
+		},
+
+		{
+			name: "Unauthorized",
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("User exists").
+					UponReceiving("A request to get my details without cookies").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/users/current"),
+						Headers: dsl.MapMatcher{
+							"OPG-Bypass-Membrane": dsl.String("1"),
+						},
+					}).
+					WillRespondWith(dsl.Response{
+						Status: http.StatusUnauthorized,
+					})
+			},
+			expectedError: ErrUnauthorized,
 		},
 	}
 
@@ -59,7 +89,7 @@ func TestMyDetails(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				myDetails, err := client.MyDetails(Context{Context: context.Background()})
+				myDetails, err := client.MyDetails(getContext(tc.cookies))
 				assert.Equal(t, tc.expectedMyDetails, myDetails)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -75,6 +105,7 @@ func TestMyDetailsIgnored(t *testing.T) {
 	testCases := []struct {
 		name              string
 		setup             func()
+		cookies           []*http.Cookie
 		expectedMyDetails MyDetails
 		expectedError     error
 	}{
@@ -88,6 +119,11 @@ func TestMyDetailsIgnored(t *testing.T) {
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/users/current"),
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
+						},
 					}).
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
@@ -101,6 +137,10 @@ func TestMyDetailsIgnored(t *testing.T) {
 							}, 1),
 						}),
 					})
+			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
 			},
 			expectedMyDetails: MyDetails{
 				ID:    47,
@@ -117,7 +157,7 @@ func TestMyDetailsIgnored(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				myDetails, err := client.MyDetails(Context{Context: context.Background()})
+				myDetails, err := client.MyDetails(getContext(tc.cookies))
 				assert.Equal(t, tc.expectedMyDetails, myDetails)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -132,7 +172,7 @@ func TestMyDetailsStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, err := client.MyDetails(Context{Context: context.Background()})
+	_, err := client.MyDetails(getContext(nil))
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/users/current",

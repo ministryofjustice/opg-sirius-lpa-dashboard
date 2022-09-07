@@ -1,7 +1,6 @@
 package sirius
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -19,6 +18,7 @@ func TestCasesByTeam(t *testing.T) {
 		name           string
 		criteria       Criteria
 		setup          func()
+		cookies        []*http.Cookie
 		expectedResult *CasesByTeam
 		expectedError  error
 	}{
@@ -35,6 +35,11 @@ func TestCasesByTeam(t *testing.T) {
 						Path:   dsl.String("/api/v1/teams/66/cases"),
 						Query: dsl.MapMatcher{
 							"page": dsl.String("1"),
+						},
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
 						},
 					}).
 					WillRespondWith(dsl.Response{
@@ -84,6 +89,10 @@ func TestCasesByTeam(t *testing.T) {
 						}),
 					})
 			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
+			},
 			expectedResult: &CasesByTeam{
 				Cases: []Case{{
 					ID:  36,
@@ -127,6 +136,23 @@ func TestCasesByTeam(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Unauthorized",
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("I have a pending case assigned").
+					UponReceiving("A request to get my team's cases without cookies").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/teams/66/cases"),
+					}).
+					WillRespondWith(dsl.Response{
+						Status: http.StatusUnauthorized,
+					})
+			},
+			expectedError: ErrUnauthorized,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -136,7 +162,7 @@ func TestCasesByTeam(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				result, err := client.CasesByTeam(Context{Context: context.Background()}, 66, tc.criteria)
+				result, err := client.CasesByTeam(getContext(tc.cookies), 66, tc.criteria)
 				assert.Equal(t, tc.expectedResult, result)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -153,6 +179,7 @@ func TestCasesByTeamIgnored(t *testing.T) {
 		name           string
 		criteria       Criteria
 		setup          func()
+		cookies        []*http.Cookie
 		expectedResult *CasesByTeam
 		expectedError  error
 	}{
@@ -170,6 +197,11 @@ func TestCasesByTeamIgnored(t *testing.T) {
 						Query: dsl.MapMatcher{
 							"page":   dsl.String("1"),
 							"filter": dsl.String("allocation:47"),
+						},
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
 						},
 					}).
 					WillRespondWith(dsl.Response{
@@ -218,6 +250,10 @@ func TestCasesByTeamIgnored(t *testing.T) {
 							}, 1),
 						}),
 					})
+			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
 			},
 			expectedResult: &CasesByTeam{
 				Cases: []Case{{
@@ -271,7 +307,7 @@ func TestCasesByTeamIgnored(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				result, err := client.CasesByTeam(Context{Context: context.Background()}, 66, tc.criteria)
+				result, err := client.CasesByTeam(getContext(tc.cookies), 66, tc.criteria)
 				assert.Equal(t, tc.expectedResult, result)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
@@ -286,7 +322,7 @@ func TestCasesByTeamStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, err := client.CasesByTeam(Context{Context: context.Background()}, 66, Criteria{}.Page(2))
+	_, err := client.CasesByTeam(getContext(nil), 66, Criteria{}.Page(2))
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/teams/66/cases?page=2",

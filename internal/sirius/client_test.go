@@ -1,6 +1,7 @@
 package sirius
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -39,6 +40,14 @@ func teapotServer() *httptest.Server {
 			w.WriteHeader(http.StatusTeapot)
 		}),
 	)
+}
+
+func getContext(cookies []*http.Cookie) Context {
+	return Context{
+		Context:   context.Background(),
+		Cookies:   cookies,
+		XSRFToken: "abcde",
+	}
 }
 
 func TestClientError(t *testing.T) {

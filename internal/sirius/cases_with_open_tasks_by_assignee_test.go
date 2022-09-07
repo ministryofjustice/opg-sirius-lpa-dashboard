@@ -1,7 +1,6 @@
 package sirius
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -18,6 +17,7 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 	testCases := []struct {
 		name               string
 		setup              func()
+		cookies            []*http.Cookie
 		expectedCases      []Case
 		expectedPagination *Pagination
 		expectedError      error
@@ -34,6 +34,11 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 						Path:   dsl.String("/api/v1/assignees/47/cases-with-open-tasks"),
 						Query: dsl.MapMatcher{
 							"page": dsl.String("1"),
+						},
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
 						},
 					}).
 					WillRespondWith(dsl.Response{
@@ -63,6 +68,10 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 						}),
 					})
 			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
+			},
 			expectedCases: []Case{{
 				ID:  58,
 				Uid: "7000-2830-9492",
@@ -84,6 +93,27 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 				PageSize:    25,
 			},
 		},
+
+		{
+			name: "Unauthorized",
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("I have a case with an open task assigned").
+					UponReceiving("A request to get my cases with open tasks without cookies").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/assignees/47/cases-with-open-tasks"),
+						Query: dsl.MapMatcher{
+							"page": dsl.String("1"),
+						},
+					}).
+					WillRespondWith(dsl.Response{
+						Status: http.StatusUnauthorized,
+					})
+			},
+			expectedError: ErrUnauthorized,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -93,7 +123,7 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				cases, pagination, err := client.CasesWithOpenTasksByAssignee(Context{Context: context.Background()}, 47, 1)
+				cases, pagination, err := client.CasesWithOpenTasksByAssignee(getContext(tc.cookies), 47, 1)
 				assert.Equal(t, tc.expectedCases, cases)
 				assert.Equal(t, tc.expectedPagination, pagination)
 				assert.Equal(t, tc.expectedError, err)
@@ -109,7 +139,7 @@ func TestCasesWithOpenTasksByAssigneeStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, _, err := client.CasesWithOpenTasksByAssignee(Context{Context: context.Background()}, 47, 2)
+	_, _, err := client.CasesWithOpenTasksByAssignee(getContext(nil), 47, 2)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/assignees/47/cases-with-open-tasks?page=2",

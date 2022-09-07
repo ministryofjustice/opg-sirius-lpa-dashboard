@@ -1,7 +1,6 @@
 package sirius
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -19,6 +18,7 @@ func TestTasksByAssignee(t *testing.T) {
 		name               string
 		criteria           Criteria
 		setup              func()
+		cookies            []*http.Cookie
 		expectedTasks      []Task
 		expectedPagination *Pagination
 		expectedError      error
@@ -37,6 +37,11 @@ func TestTasksByAssignee(t *testing.T) {
 						Query: dsl.MapMatcher{
 							"filter": dsl.String("status:Not started"),
 							"sort":   dsl.String("dueDate:asc,name:desc"),
+						},
+						Headers: dsl.MapMatcher{
+							"X-XSRF-TOKEN":        dsl.String("abcde"),
+							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
+							"OPG-Bypass-Membrane": dsl.String("1"),
 						},
 					}).
 					WillRespondWith(dsl.Response{
@@ -69,6 +74,10 @@ func TestTasksByAssignee(t *testing.T) {
 						}),
 					})
 			},
+			cookies: []*http.Cookie{
+				{Name: "XSRF-TOKEN", Value: "abcde"},
+				{Name: "Other", Value: "other"},
+			},
 			expectedTasks: []Task{{
 				ID:      36,
 				Status:  "Not started",
@@ -93,6 +102,28 @@ func TestTasksByAssignee(t *testing.T) {
 				PageSize:    25,
 			},
 		},
+		{
+			name:     "Unauthorized",
+			criteria: Criteria{}.Filter("status", "Not started").Sort("dueDate", Ascending).Sort("name", Descending),
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("I have a task assigned").
+					UponReceiving("A request to get my tasks without cookies").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/assignees/47/tasks"),
+						Query: dsl.MapMatcher{
+							"filter": dsl.String("status:Not started"),
+							"sort":   dsl.String("dueDate:asc,name:desc"),
+						},
+					}).
+					WillRespondWith(dsl.Response{
+						Status: http.StatusUnauthorized,
+					})
+			},
+			expectedError: ErrUnauthorized,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -102,7 +133,7 @@ func TestTasksByAssignee(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				tasks, pagination, err := client.TasksByAssignee(Context{Context: context.Background()}, 47, tc.criteria)
+				tasks, pagination, err := client.TasksByAssignee(getContext(tc.cookies), 47, tc.criteria)
 				assert.Equal(t, tc.expectedTasks, tasks)
 				assert.Equal(t, tc.expectedPagination, pagination)
 				assert.Equal(t, tc.expectedError, err)
@@ -118,7 +149,7 @@ func TestTasksByAssigneeStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	_, _, err := client.TasksByAssignee(Context{Context: context.Background()}, 47, Criteria{})
+	_, _, err := client.TasksByAssignee(getContext(nil), 47, Criteria{})
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/assignees/47/tasks?",
