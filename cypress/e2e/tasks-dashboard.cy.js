@@ -1,5 +1,7 @@
 describe("Tasks dashboard", () => {
   beforeEach(() => {
+    cy.setCookie("Other", "other");
+    cy.setCookie("XSRF-TOKEN", "abcde");
     cy.visit("/tasks-dashboard");
   });
 

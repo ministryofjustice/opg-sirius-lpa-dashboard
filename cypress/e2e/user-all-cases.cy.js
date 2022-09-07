@@ -1,5 +1,7 @@
 describe("All of another user's cases", () => {
   beforeEach(() => {
+    cy.setCookie("Other", "other");
+    cy.setCookie("XSRF-TOKEN", "abcde");
     cy.visit("/users/all-cases/47");
   });
 
