@@ -57,31 +57,6 @@ func TestUserByEmail(t *testing.T) {
 				ID: 47,
 			},
 		},
-
-		{
-			name:  "Unauthorized",
-			email: "manager@opgtest.com",
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("!Manager user exists").
-					UponReceiving("A request to get !Manager's ID without cookies").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users"),
-						Query: dsl.MapMatcher{
-							"email": dsl.String("manager@opgtest.com"),
-						},
-						Headers: dsl.MapMatcher{
-							"OPG-Bypass-Membrane": dsl.String("1"),
-						},
-					}).
-					WillRespondWith(dsl.Response{
-						Status: http.StatusUnauthorized,
-					})
-			},
-			expectedError: ErrUnauthorized,
-		},
 	}
 
 	for _, tc := range testCases {

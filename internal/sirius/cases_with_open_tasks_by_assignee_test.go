@@ -93,27 +93,6 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 				PageSize:    25,
 			},
 		},
-
-		{
-			name: "Unauthorized",
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("I have a case with an open task assigned").
-					UponReceiving("A request to get my cases with open tasks without cookies").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases-with-open-tasks"),
-						Query: dsl.MapMatcher{
-							"page": dsl.String("1"),
-						},
-					}).
-					WillRespondWith(dsl.Response{
-						Status: http.StatusUnauthorized,
-					})
-			},
-			expectedError: ErrUnauthorized,
-		},
 	}
 
 	for _, tc := range testCases {
