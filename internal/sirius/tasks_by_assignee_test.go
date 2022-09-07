@@ -102,28 +102,6 @@ func TestTasksByAssignee(t *testing.T) {
 				PageSize:    25,
 			},
 		},
-		{
-			name:     "Unauthorized",
-			criteria: Criteria{}.Filter("status", "Not started").Sort("dueDate", Ascending).Sort("name", Descending),
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("I have a task assigned").
-					UponReceiving("A request to get my tasks without cookies").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/tasks"),
-						Query: dsl.MapMatcher{
-							"filter": dsl.String("status:Not started"),
-							"sort":   dsl.String("dueDate:asc,name:desc"),
-						},
-					}).
-					WillRespondWith(dsl.Response{
-						Status: http.StatusUnauthorized,
-					})
-			},
-			expectedError: ErrUnauthorized,
-		},
 	}
 
 	for _, tc := range testCases {

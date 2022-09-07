@@ -312,26 +312,6 @@ func TestCasesByAssignee(t *testing.T) {
 				PageSize:    25,
 			},
 		},
-		{
-			name: "Unauthorized",
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("I have a pending case assigned").
-					UponReceiving("A request to get my cases without cookies").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases"),
-						Query: dsl.MapMatcher{
-							"filter": dsl.String("caseType:lpa,active:true"),
-						},
-					}).
-					WillRespondWith(dsl.Response{
-						Status: http.StatusUnauthorized,
-					})
-			},
-			expectedError: ErrUnauthorized,
-		},
 	}
 
 	for _, tc := range testCases {
