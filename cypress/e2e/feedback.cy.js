@@ -1,7 +1,5 @@
 describe("Feedback", () => {
   beforeEach(() => {
-    cy.setCookie("Other", "other");
-    cy.setCookie("XSRF-TOKEN", "abcde");
     cy.visit("/all-cases");
   });
 

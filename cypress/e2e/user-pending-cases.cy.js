@@ -1,7 +1,5 @@
 describe("Another user's pending cases", () => {
   beforeEach(() => {
-    cy.setCookie("Other", "other");
-    cy.setCookie("XSRF-TOKEN", "abcde");
     cy.visit("/users/pending-cases/47");
   });
 
