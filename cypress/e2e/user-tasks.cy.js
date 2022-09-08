@@ -1,7 +1,5 @@
 describe("Another user's tasks", () => {
   beforeEach(() => {
-    cy.setCookie("Other", "other");
-    cy.setCookie("XSRF-TOKEN", "abcde");
     cy.visit("/users/tasks/47");
   });
 
