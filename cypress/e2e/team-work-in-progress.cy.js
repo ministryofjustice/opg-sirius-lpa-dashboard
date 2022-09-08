@@ -1,7 +1,5 @@
 describe("Team work in progress", () => {
   beforeEach(() => {
-    cy.setCookie("Other", "other");
-    cy.setCookie("XSRF-TOKEN", "abcde");
     cy.visit("/teams/work-in-progress/66");
   });
 
