@@ -1,6 +1,7 @@
 package sirius
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -16,7 +17,6 @@ func TestAssign(t *testing.T) {
 	testCases := []struct {
 		name          string
 		setup         func()
-		cookies       []*http.Cookie
 		expectedError error
 	}{
 		{
@@ -36,21 +36,11 @@ func TestAssign(t *testing.T) {
 								"id":         dsl.Like(1),
 							}, 1),
 						}),
-						Headers: dsl.MapMatcher{
-							"X-XSRF-TOKEN":        dsl.String("abcde"),
-							"Cookie":              dsl.String("XSRF-TOKEN=abcde; Other=other"),
-							"OPG-Bypass-Membrane": dsl.String("1"),
-							"Content-Type":        dsl.String("application/json"),
-						},
 					}).
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
 						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
 					})
-			},
-			cookies: []*http.Cookie{
-				{Name: "XSRF-TOKEN", Value: "abcde"},
-				{Name: "Other", Value: "other"},
 			},
 		},
 	}
@@ -62,7 +52,7 @@ func TestAssign(t *testing.T) {
 			assert.Nil(t, pact.Verify(func() error {
 				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
 
-				err := client.Assign(getContext(tc.cookies), []int{58}, 47)
+				err := client.Assign(Context{Context: context.Background()}, []int{58}, 47)
 				assert.Equal(t, tc.expectedError, err)
 				return nil
 			}))
@@ -76,7 +66,7 @@ func TestAssignStatusError(t *testing.T) {
 
 	client, _ := NewClient(http.DefaultClient, s.URL)
 
-	err := client.Assign(getContext(nil), []int{1}, 47)
+	err := client.Assign(Context{Context: context.Background()}, []int{1}, 47)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
 		URL:    s.URL + "/api/v1/users/47/cases/1",
