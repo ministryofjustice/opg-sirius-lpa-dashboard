@@ -82,7 +82,6 @@ jobs:
           gotestsum --junitfile test-results/unit-tests.xml -- ./... -coverprofile=test-results/test-coverage.txt
 
       - name: Run SonarQube Scanner
-        if: github.actor != 'dependabot[bot]'
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -99,7 +98,6 @@ jobs:
               echo "::set-output name=BRANCH::main"
           fi
       - name: Publish pacts
-        if: github.actor != 'dependabot[bot]'
         run: |
           pact-broker publish ./pacts/sirius-lpa-dashboard-sirius.json \
             --consumer-app-version ${{ steps.pact_tag.outputs.TAG }} \
@@ -209,7 +207,6 @@ jobs:
     name: "Build & Push Containers"
     runs-on: ubuntu-latest
     needs: ["build", "test", "lint", "acceptance-test", "cypress"]
-    if: github.actor != 'dependabot[bot]'
     outputs:
       branch: ${{ steps.set-outputs.outputs.branch }}
       tag: ${{ steps.bump_version.outputs.tag }}
@@ -222,7 +219,7 @@ jobs:
           if [ "${{ github.head_ref }}" == "" ]; then
             echo BRANCH_NAME=main >> $GITHUB_ENV
           else
-            echo BRANCH_NAME=${{ github.head_ref }} >> $GITHUB_ENV
+            echo BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/\//-/g') >> $GITHUB_ENV
           fi
         id: extract_branch
       - uses: unfor19/install-aws-cli-action@v1
@@ -242,11 +239,12 @@ jobs:
 
       - name: Bump version
         id: bump_version
-        uses: anothrNick/github-tag-action@1.36.0
+        uses: anothrNick/github-tag-action@1.52.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 1.0.0
           DEFAULT_BUMP: minor
+          PRERELEASE: true
           PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
           RELEASE_BRANCHES: main
           WITH_V: true
