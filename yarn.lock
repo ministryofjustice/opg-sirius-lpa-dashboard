@@ -1059,6 +1059,10 @@ onetime@^5.1.0:
   dependencies:
     mimic-fn "^2.1.0"
 
+opg-sirius-search-ui@ministryofjustice/opg-sirius-search-ui#VEGA-1575-recreate-search-results-dropdown:
+  version "0.1.0"
+  resolved "https://codeload.github.com/ministryofjustice/opg-sirius-search-ui/tar.gz/bd0a01fa3289f7427906d90be3ab817b464d4705"
+
 ospath@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/ospath/-/ospath-1.2.2.tgz#1276639774a3f8ef2572f7fe4280e0ea4550c07b"
