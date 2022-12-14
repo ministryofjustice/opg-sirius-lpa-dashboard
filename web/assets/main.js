@@ -1,6 +1,7 @@
 import MOJFrontend from "@ministryofjustice/frontend/moj/all.js";
 import * as GOVUKFrontend from "govuk-frontend";
 import $ from "jquery";
+import 'opg-sirius-search-ui';
 
 function initEnableWhenSelection() {
   const button = document.querySelector("button[data-enable-when-selection]");
