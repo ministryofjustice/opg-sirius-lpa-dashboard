@@ -105,14 +105,6 @@ jobs:
             --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
             --broker-username admin \
             --broker-password ${{ secrets.PACT_BROKER_PASSWORD }}
-      - name: Compare pacts
-        if: github.actor == 'dependabot[bot]'
-        env:
-          PACT_DIR: ./pacts
-          PACT_BROKER_URL: https://pact-broker.api.opg.service.justice.gov.uk
-        run: |
-          curl ${PACT_BROKER_URL}/pacts/provider/sirius/consumer/sirius-lpa-dashboard/latest > /tmp/latest-pact.json
-          (diff <(jq --sort-keys . ${PACT_DIR}/sirius-lpa-dashboard-sirius.json) <(jq --sort-keys . /tmp/latest-pact.json) || true) | (! grep '<')
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v3
         with:
