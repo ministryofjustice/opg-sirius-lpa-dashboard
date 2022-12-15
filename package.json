@@ -15,7 +15,8 @@
     "@ministryofjustice/frontend": "1.6.3",
     "cypress": "11.2.0",
     "govuk-frontend": "^4.4.0",
-    "jquery": "^3.6.1"
+    "jquery": "^3.6.1",
+    "opg-sirius-search-ui": "ministryofjustice/opg-sirius-search-ui#v1.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.16.0",
