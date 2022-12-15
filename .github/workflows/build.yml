@@ -17,9 +17,9 @@ jobs:
     name: Build LPA Dashboard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Images
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
@@ -34,14 +34,14 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: "^1.16.5"
+          go-version-file: 'go.mod'
       - uses: unfor19/install-aws-cli-action@v1
 
       - name: Cache Go Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -62,7 +62,7 @@ jobs:
           echo "pact_version=1.88.79" >> $GITHUB_ENV
       - name: Cache Pact
         id: cache-pact
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./pact/
           key: ${{ runner.os }}-pact-${{ env.pact_version }}
@@ -106,13 +106,13 @@ jobs:
             --broker-username admin \
             --broker-password ${{ secrets.PACT_BROKER_PASSWORD }}
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           files: test-results/test-coverage.txt
           fail_ci_if_error: true
           verbose: true
       - name: Persist Pacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pacts
           path: |
@@ -123,9 +123,9 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Run linting
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
 
   acceptance-test:
     name: Acceptance Tests
@@ -134,14 +134,14 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Images
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: pacts
           path: ./pacts
@@ -171,14 +171,14 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Images
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: pacts
           path: ./pacts
@@ -203,7 +203,7 @@ jobs:
       branch: ${{ steps.set-outputs.outputs.branch }}
       tag: ${{ steps.bump_version.outputs.tag }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: "0"
       - name: Extract branch name
@@ -217,7 +217,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
 
       - name: Cache Images
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
@@ -231,7 +231,7 @@ jobs:
 
       - name: Bump version
         id: bump_version
-        uses: anothrNick/github-tag-action@1.52.0
+        uses: anothrNick/github-tag-action@1.54.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 1.0.0
@@ -277,7 +277,7 @@ jobs:
     needs: push
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
