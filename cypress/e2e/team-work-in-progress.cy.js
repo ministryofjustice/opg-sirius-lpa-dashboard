@@ -30,7 +30,7 @@ describe("Team work in progress", () => {
   });
 
   it("shows worked cases for each team member", () => {
-    cy.get(".app-name-grid").within(() => {
+    cy.get(".app-name-grid:visible").within(() => {
       cy.contains("John Smith");
       cy.contains("1").should("be.visible");
     });
@@ -39,7 +39,7 @@ describe("Team work in progress", () => {
   it("shows tasks completed for each team member", () => {
     cy.get("#data-select").select("Tasks completed today");
 
-    cy.get(".app-name-grid").within(() => {
+    cy.get(".app-name-grid:visible").within(() => {
       cy.contains("John Smith");
       cy.contains("3").should("be.visible");
     });
