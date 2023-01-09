@@ -32,15 +32,6 @@ services:
       - LHCI_BUILD_CONTEXT__GITHUB_REPO_SLUG=ministryofjustice/opg-sirius-lpa-dashboard
       - LHCI_GITHUB_APP_TOKEN
 
-  cypress:
-    build:
-      context: ..
-      dockerfile: ./docker/cypress/Dockerfile
-    command: ["--headless", "-b", "chrome"]
-    depends_on:
-      - app
-      - pact-stub
-
 volumes:
   pacts_data:
     name: pacts_data
