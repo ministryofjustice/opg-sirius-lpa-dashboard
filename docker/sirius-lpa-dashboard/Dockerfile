@@ -25,7 +25,7 @@ COPY internal internal
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/opg-sirius-lpa-dashboard
 
-FROM alpine:3.17.0
+FROM alpine:3.17.1
 
 WORKDIR /go/bin
 
@@ -33,8 +33,6 @@ RUN apk --update --no-cache add \
     ca-certificates \
     tzdata \
     && rm -rf /var/cache/apk/*
-
-RUN apk upgrade libcrypto3 libssl3
 
 COPY --from=build-env /go/bin/opg-sirius-lpa-dashboard opg-sirius-lpa-dashboard
 COPY --from=asset-env /app/web/static web/static
