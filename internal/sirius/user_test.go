@@ -23,7 +23,7 @@ func TestUser(t *testing.T) {
 	}{
 		{
 			name:  "OK",
-			email: "manager@opgtest.com",
+			email: PotUserEmail,
 			setup: func() {
 				pact.
 					AddInteraction().
