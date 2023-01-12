@@ -314,7 +314,7 @@ func TestPostReassignToCentralPot(t *testing.T) {
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
-	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
+	assert.Equal(sirius.PotUserEmail, client.userByEmail.lastEmail)
 
 	assert.Equal(1, client.assign.count)
 	assert.Equal(getContext(r), client.assign.lastCtx)

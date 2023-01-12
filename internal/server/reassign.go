@@ -80,7 +80,7 @@ func reassign(client ReassignClient, tmpl Template) Handler {
 			var reassignTo sirius.Assignee
 			switch r.FormValue("reassign") {
 			case "central-pot":
-				centralPot, err := client.UserByEmail(ctx, "manager@opgtest.com")
+				centralPot, err := client.UserByEmail(ctx, sirius.PotUserEmail)
 				if err != nil {
 					return err
 				}
