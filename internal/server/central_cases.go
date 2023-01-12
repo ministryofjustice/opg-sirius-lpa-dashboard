@@ -38,7 +38,7 @@ func centralCases(client CentralCasesClient, tmpl Template) Handler {
 			return StatusError(http.StatusForbidden)
 		}
 
-		centralPotUser, err := client.UserByEmail(ctx, "manager@opgtest.com")
+		centralPotUser, err := client.UserByEmail(ctx, sirius.PotUserEmail)
 		if err != nil {
 			return err
 		}

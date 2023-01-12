@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+const PotUserEmail string =  "opgcasework@publicguardian.gov.uk"
+
 func (c *Client) User(ctx Context, id int) (Assignee, error) {
 	var v Assignee
 

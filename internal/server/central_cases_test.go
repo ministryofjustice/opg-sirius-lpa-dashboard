@@ -89,7 +89,7 @@ func TestGetCentralCases(t *testing.T) {
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
-	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
+	assert.Equal(sirius.PotUserEmail, client.userByEmail.lastEmail)
 
 	assert.Equal(2, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
@@ -135,7 +135,7 @@ func TestGetCentralCasesPage(t *testing.T) {
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
-	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
+	assert.Equal(sirius.PotUserEmail, client.userByEmail.lastEmail)
 
 	assert.Equal(2, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)
@@ -217,7 +217,7 @@ func TestGetCentralCasesUserError(t *testing.T) {
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
-	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
+	assert.Equal(sirius.PotUserEmail, client.userByEmail.lastEmail)
 
 	assert.Equal(0, client.casesByAssignee.count)
 }
@@ -248,7 +248,7 @@ func TestGetCentralCasesQueryError(t *testing.T) {
 
 	assert.Equal(1, client.userByEmail.count)
 	assert.Equal(getContext(r), client.userByEmail.lastCtx)
-	assert.Equal("manager@opgtest.com", client.userByEmail.lastEmail)
+	assert.Equal(sirius.PotUserEmail, client.userByEmail.lastEmail)
 
 	assert.Equal(1, client.casesByAssignee.count)
 	assert.Equal(getContext(r), client.casesByAssignee.lastCtx)

@@ -23,7 +23,7 @@ func TestUserByEmail(t *testing.T) {
 	}{
 		{
 			name:  "OK",
-			email: "manager@opgtest.com",
+			email: PotUserEmail,
 			setup: func() {
 				pact.
 					AddInteraction().
@@ -33,7 +33,7 @@ func TestUserByEmail(t *testing.T) {
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/users"),
 						Query: dsl.MapMatcher{
-							"email": dsl.String("manager@opgtest.com"),
+							"email": dsl.String(PotUserEmail),
 						},
 					}).
 					WillRespondWith(dsl.Response{
