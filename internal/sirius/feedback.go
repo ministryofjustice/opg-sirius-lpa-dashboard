@@ -29,7 +29,7 @@ func (c *Client) Feedback(ctx Context, message string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec G307 false positive
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return ErrUnauthorized
