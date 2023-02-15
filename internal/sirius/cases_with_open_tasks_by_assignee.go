@@ -23,7 +23,7 @@ func (c *Client) CasesWithOpenTasksByAssignee(ctx Context, id, page int) ([]Case
 	if err != nil {
 		return nil, nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec G307 false positive
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return nil, nil, ErrUnauthorized

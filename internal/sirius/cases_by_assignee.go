@@ -49,7 +49,7 @@ func (c *Client) CasesByAssignee(ctx Context, id int, criteria Criteria) ([]Case
 	if err != nil {
 		return nil, nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec G307 false positive
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return nil, nil, ErrUnauthorized
