@@ -35,7 +35,7 @@ func (c *Client) CasesByTeam(ctx Context, id int, criteria Criteria) (*CasesByTe
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec G307 false positive
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return nil, ErrUnauthorized

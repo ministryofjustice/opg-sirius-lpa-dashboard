@@ -24,7 +24,7 @@ func (c *Client) UserByEmail(ctx Context, email string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec G307 false positive
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return User{}, ErrUnauthorized
