@@ -231,9 +231,19 @@ jobs:
         run: |
           docker load -i /tmp/images/app.tar
           docker tag docker_app:latest sirius-lpa-dashboard:latest
-      - name: Scan
-        run: |
-          docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image sirius-lpa-dashboard:latest
+
+      - name: Trivy Image Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: sirius-lpa-dashboard:latest
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: Bump version
         id: bump_version
