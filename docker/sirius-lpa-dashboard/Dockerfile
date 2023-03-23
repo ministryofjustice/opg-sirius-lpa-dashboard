@@ -31,8 +31,10 @@ WORKDIR /go/bin
 
 RUN apk --update --no-cache add \
     ca-certificates \
-    tzdata \
-    && rm -rf /var/cache/apk/*
+    tzdata
+
+# Patch vulnerabilities
+RUN apk upgrade --no-cache libcrypto3 libssl3
 
 COPY --from=build-env /go/bin/opg-sirius-lpa-dashboard opg-sirius-lpa-dashboard
 COPY --from=asset-env /app/web/static web/static
