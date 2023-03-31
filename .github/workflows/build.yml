@@ -191,7 +191,7 @@ jobs:
           docker-compose -f docker/docker-compose.ci.yml up -d pact-stub app
 
       - name: Cypress Tests
-        uses: cypress-io/github-action@v5.0.9
+        uses: cypress-io/github-action@v5.5.1
         with:
           browser: chrome
 
