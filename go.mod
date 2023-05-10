@@ -1,6 +1,6 @@
 module github.com/ministryofjustice/opg-sirius-lpa-dashboard
 
-go 1.19
+go 1.20
 
 require (
 	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
