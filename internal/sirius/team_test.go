@@ -28,7 +28,7 @@ func TestTeam(t *testing.T) {
 				pact.
 					AddInteraction().
 					Given("LPA team with members exists").
-					UponReceiving("A request for an LPA team").
+					UponReceiving("A request for an LPA team with ID 66").
 					WithRequest(dsl.Request{
 						Method: http.MethodGet,
 						Path:   dsl.String("/api/v1/teams/66"),
@@ -53,6 +53,42 @@ func TestTeam(t *testing.T) {
 					{
 						ID:          400,
 						DisplayName: "Carline",
+					},
+				},
+			},
+		},
+		{
+			name: "OK",
+			id:   67,
+			setup: func() {
+				pact.
+					AddInteraction().
+					Given("LPA team with members exists").
+					UponReceiving("A request for an LPA team with ID 67").
+					WithRequest(dsl.Request{
+						Method: http.MethodGet,
+						Path:   dsl.String("/api/v1/teams/67"),
+					}).
+					WillRespondWith(dsl.Response{
+						Status:  http.StatusOK,
+						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
+						Body: dsl.Like(map[string]interface{}{
+							"id":          dsl.Like(67),
+							"displayName": dsl.Like("Nottingham casework team"),
+							"members": dsl.EachLike(map[string]interface{}{
+								"id":          dsl.Like(600),
+								"displayName": dsl.Like("Jet"),
+							}, 1),
+						}),
+					})
+			},
+			expectedResponse: Team{
+				ID:          67,
+				DisplayName: "Nottingham casework team",
+				Members: []TeamMember{
+					{
+						ID:          600,
+						DisplayName: "Jet",
 					},
 				},
 			},
