@@ -9,13 +9,13 @@ describe("Team work in progress", () => {
 
     cy.get(".govuk-tabs__list-item--selected").should(
       "contain",
-      "Cool Team - work in progress"
+      "Casework Team - work in progress"
     );
     cy.get(".moj-ticket-panel .govuk-heading-xl")
       .invoke("text")
       .should("equal", "1");
 
-    cy.get(".moj-ticket-panel").should("contain", "Cool Team");
+    cy.get(".moj-ticket-panel").should("contain", "Casework Team");
 
     cy.get("table > tbody > tr").within(() => {
       cy.contains("Adrian Kurkjian");
