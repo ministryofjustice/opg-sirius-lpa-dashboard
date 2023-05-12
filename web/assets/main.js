@@ -43,7 +43,9 @@ function initSelectNavigate() {
   const select = document.querySelector("select[data-select-navigate]");
   if (select) {
     select.onchange = () => {
-      window.location.href = select.value;
+      // VEGA-1677: escape metacharacters
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+      window.location.assign(select.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
     };
   }
 }
