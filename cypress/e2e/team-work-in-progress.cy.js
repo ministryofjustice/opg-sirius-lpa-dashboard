@@ -61,4 +61,14 @@ describe("Team work in progress", () => {
     cy.url().should("not.contain", "allocation=123");
     cy.contains("Apply filters").should("not.be.visible");
   });
+
+  it("enables navigation to other teams via dropdown", () => {
+    cy.get("[data-select-navigate]").select("Nottingham casework team");
+    cy.url().should("contain", "teams/work-in-progress/67");
+    cy.get(".govuk-tabs__list-item--selected").should(
+      "contain",
+      "Nottingham casework team - work in progress"
+    );
+    cy.get(".moj-ticket-panel").should("contain", "Nottingham casework team");
+  });
 });
