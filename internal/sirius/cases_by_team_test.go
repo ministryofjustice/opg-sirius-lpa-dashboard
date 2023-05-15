@@ -146,7 +146,7 @@ func TestCasesByTeam(t *testing.T) {
 }
 
 func TestCasesByTeamIgnored(t *testing.T) {
-	pact := newPact()
+	pact := newIgnoredPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
