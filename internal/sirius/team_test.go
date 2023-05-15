@@ -57,6 +57,35 @@ func TestTeam(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.setup()
+
+			assert.Nil(t, pact.Verify(func() error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+
+				team, err := client.Team(Context{Context: context.Background()}, tc.id)
+				assert.Equal(t, tc.expectedResponse, team)
+				assert.Equal(t, tc.expectedError, err)
+				return nil
+			}))
+		})
+	}
+}
+
+func TestTeamIgnored(t *testing.T) {
+	pact := newPact()
+	defer pact.Teardown()
+
+	testCases := []struct {
+		id               int
+		name             string
+		setup            func()
+		expectedResponse Team
+		expectedError    error
+	}{
 		{
 			name: "OK",
 			id:   67,
