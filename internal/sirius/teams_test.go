@@ -90,24 +90,35 @@ func TestTeamsIgnored(t *testing.T) {
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,
 						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.EachLike(map[string]interface{}{
-							"id":          dsl.Like(66),
-							"displayName": dsl.Like("Cool Team"),
-							"members": dsl.EachLike(map[string]interface{}{
-								"id":          dsl.Like(47),
-								"displayName": dsl.Like("John"),
-							}, 1),
-						}, 1),
+						Body: dsl.Like([]map[string]interface{}{
+							{
+								"id":          dsl.Like(66),
+								"displayName": dsl.Like("Casework Team"),
+								"members": dsl.EachLike(map[string]interface{}{
+									"id":          dsl.Like(47),
+									"displayName": dsl.Like("John"),
+								}, 1),
+							},
+							{
+								"id":          dsl.Like(67),
+								"displayName": dsl.Like("Nottingham casework team"),
+							},
+						}),
 					})
 			},
 			expectedResponse: []Team{
 				{
 					ID:          66,
-					DisplayName: "Cool Team",
+					DisplayName: "Casework Team",
 					Members: []TeamMember{{
 						ID:          47,
 						DisplayName: "John",
 					}},
+				},
+				{
+					ID:          67,
+					DisplayName: "Nottingham casework team",
+					Members: []TeamMember{},
 				},
 			},
 		},
