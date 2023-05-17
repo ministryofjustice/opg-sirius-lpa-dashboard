@@ -9,13 +9,13 @@ describe("Team work in progress", () => {
 
     cy.get(".govuk-tabs__list-item--selected").should(
       "contain",
-      "Cool Team - work in progress"
+      "Casework Team - work in progress"
     );
     cy.get(".moj-ticket-panel .govuk-heading-xl")
       .invoke("text")
       .should("equal", "1");
 
-    cy.get(".moj-ticket-panel").should("contain", "Cool Team");
+    cy.get(".moj-ticket-panel").should("contain", "Casework Team");
 
     cy.get("table > tbody > tr").within(() => {
       cy.contains("Adrian Kurkjian");
@@ -60,5 +60,15 @@ describe("Team work in progress", () => {
     cy.contains("Reset").click();
     cy.url().should("not.contain", "allocation=123");
     cy.contains("Apply filters").should("not.be.visible");
+  });
+
+  it("enables navigation to other teams via dropdown", () => {
+    cy.get("[data-select-navigate]").select("Nottingham casework team");
+    cy.url().should("contain", "teams/work-in-progress/67");
+    cy.get(".govuk-tabs__list-item--selected").should(
+      "contain",
+      "Nottingham casework team - work in progress"
+    );
+    cy.get(".moj-ticket-panel").should("contain", "Nottingham casework team");
   });
 });
