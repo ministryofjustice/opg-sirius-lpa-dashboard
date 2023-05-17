@@ -292,7 +292,7 @@ jobs:
         run: |
           docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
           docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          if [ needs.identify.outputs.branch == "main" ]; then
+          if [ "${{ needs.identify.outputs.branch }}" == "main" ]; then
             docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.identify.outputs.tag }}
             # We want all of the tags pushed
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
