@@ -43,7 +43,8 @@ function initSelectNavigate() {
   const select = document.querySelector("select[data-select-navigate]");
   if (select) {
     select.onchange = () => {
-      window.location.href = select.value;
+      const id = parseInt(select.value);
+      window.location.assign("/teams/work-in-progress/" + id);
     };
   }
 }

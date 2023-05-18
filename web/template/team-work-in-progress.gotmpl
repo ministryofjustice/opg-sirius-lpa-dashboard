@@ -27,7 +27,7 @@
             </label>
             <select class="govuk-select" id="team-select" data-select-navigate>
               {{ range .Teams }}
-                <option value="{{prefix (printf "/teams/work-in-progress/%d" .ID) }}" {{ if eq .ID $.Team.ID }}selected{{ end }}>{{ .DisplayName }}</option>
+                <option value="{{printf "%d" .ID}}" {{ if eq .ID $.Team.ID }}selected{{ end }}>{{ .DisplayName }}</option>
               {{ end }}
             </select>
           </div>
