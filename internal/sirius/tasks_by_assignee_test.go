@@ -63,7 +63,7 @@ func TestTasksByAssignee(t *testing.T) {
 										"firstname": dsl.Like("Adrian"),
 										"surname":   dsl.Like("Kurkjian"),
 									}),
-									"caseSubtype": dsl.Term("pf", "hw|pf"),
+									"caseSubtype": dsl.Term("pfa", "hw|pfa"),
 								}, 1),
 							}, 1),
 						}),
@@ -83,7 +83,7 @@ func TestTasksByAssignee(t *testing.T) {
 						Firstname: "Adrian",
 						Surname:   "Kurkjian",
 					},
-					SubType: "pf",
+					SubType: "pfa",
 				}},
 			}},
 			expectedPagination: &Pagination{
