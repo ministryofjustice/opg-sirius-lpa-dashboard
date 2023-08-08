@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      url: ["http://app:8888/"],
+      url: ["http://lpa-dashboard:8888/"],
       settings: {
         extraHeaders: JSON.stringify({
           Cookie: "XSRF-TOKEN=abcde; Other=other",
