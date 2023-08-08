@@ -14,11 +14,10 @@
 ### Running the application
 
 ```
-docker compose -f docker/docker-compose.yml up -d --build
+docker compose up -d lpa-dashboard
 ```
 
-This will run the application at http://localhost:8888/, and assumes that Sirius
-is running at http://localhost:8080/.
+This will run the application at http://localhost:8888/, and against the mock.
 
 Alternatively the application can be run without the use of Docker
 
@@ -27,29 +26,43 @@ yarn && yarn build
 SIRIUS_PUBLIC_URL=http://localhost:8080 SIRIUS_URL=http://localhost:8080 PORT=8888 go run main.go
 ```
 
+If you want to run your local changes in the context of local sirius then build the local image and start up sirius.
+
+```
+make build
+# cd to sirius repo
+make dev-up
+```
+
 ### Testing
 
 ```
-go test ./...
+make unit-test
 ```
 
-This will run the Go unit tests. It relies on `pact` being available on your
-`$PATH`. The tests will produce a `./pacts` directory which is then used to
-provide a stub service for the Cypress tests.
+This will run the Go unit tests and generate the local pact contracts for the pact stub for further testing.
 
 ```
-docker compose -f docker/docker-compose.cypress.yml up -d --build
-yarn && yarn cypress
+make cypress
 ```
 
-Will start the application in a way that uses the stub service, then opens
-Cypress in the current project.
+This will run Cypress aginst the lpa-dashboard and the pact-stub
 
 ## Development
 
-On CI we lint using [golangci-lint](https://golangci-lint.run/). It may be
-useful to install locally to check changes. This will include a check on
-formatting so it is recommended to setup your editor to use `go fmt`.
+Linting
+This will include a check on formatting so it is recommended to setup your editor to use `go fmt`.
+You can run linting locally with
+
+```
+make lint
+```
+
+If you want to build the application and run all test suites that get run in CI just run:
+
+```
+make
+```
 
 ## Environment variables
 
