@@ -1,4 +1,5 @@
 cypress/screenshots
+cypress/downloads
 cypress/videos
 internal/sirius/log/
 logs/
@@ -7,5 +8,7 @@ pacts/
 web/static
 # ignore JetBrains project files
 .idea
-log/
 test-results
+.gocache
+.cache
+.trivy-cache
