@@ -60,10 +60,10 @@ jobs:
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
       - name: Build Images
         run: |
-          docker-compose -f docker/docker-compose.ci.yml build --parallel app pact-stub
+          make build-ci
           mkdir -p /tmp/images
-          docker save -o /tmp/images/app.tar docker_app:latest
-          docker save -o /tmp/images/pact-stub.tar docker_pact-stub:latest
+          docker save -o /tmp/images/app.tar lpa-dashboard:latest
+          docker save -o /tmp/images/pact-stub.tar pact-stub:latest
 
   test:
     name: Unit Tests
@@ -71,67 +71,36 @@ jobs:
     needs: [identify]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
-        with:
-          go-version-file: 'go.mod'
       - uses: unfor19/install-aws-cli-action@v1
 
       - name: Cache Go Dependencies
         uses: actions/cache@v3
         with:
-          path: ~/go/pkg/mod
+          path: .gocache
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Install modules
-        run: |
-          go mod download
-
-      - name: Setup gotestsum
-        uses: autero1/action-gotestsum@v2.0.0
-        with:
-          gotestsum_version: 1.6.4
-      - run: mkdir -p test-results
-
-      - name: Set Pact Standalone version
-        run: |
-          echo "pact_version=1.88.79" >> $GITHUB_ENV
-      - name: Cache Pact
-        id: cache-pact
-        uses: actions/cache@v3
-        with:
-          path: ./pact/
-          key: ${{ runner.os }}-pact-${{ env.pact_version }}
-      - name: Add Pact to Path
-        if: steps.cache-pact.outputs.cache-hit == 'true'
-        run: |
-          echo "$PWD/pact/bin" >> $GITHUB_PATH
-      - name: Download pact tools
-        if: steps.cache-pact.outputs.cache-hit != 'true'
-        run: |
-          curl -LO https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v${{ env.pact_version }}/pact-${{ env.pact_version }}-linux-x86_64.tar.gz
-          tar xzf pact-${{ env.pact_version }}-linux-x86_64.tar.gz
-          echo "$PWD/pact/bin" >> $GITHUB_PATH
 
       - name: Run Tests
-        run: |
-          gotestsum --junitfile test-results/unit-tests.xml -- ./... -coverprofile=test-results/test-coverage.txt
+        run: make unit-test
 
       - name: Publish pacts
         run: |
-          pact-broker publish ./pacts/sirius-lpa-dashboard-sirius.json \
+          docker compose -f docker/docker-compose.ci.yml run --rm test-runner pact-broker publish ./pacts/sirius-lpa-dashboard-sirius.json \
             --consumer-app-version ${{ needs.identify.outputs.commit }} \
             --branch ${{ needs.identify.outputs.branch }} \
             --tag ${{ needs.identify.outputs.tag }} \
             --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
             --broker-username admin \
             --broker-password ${{ secrets.PACT_BROKER_PASSWORD }}
+
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v3
         with:
           files: test-results/test-coverage.txt
           fail_ci_if_error: true
           verbose: true
+
       - name: Persist Pacts
         uses: actions/upload-artifact@v3
         with:
@@ -146,7 +115,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run linting
-        uses: golangci/golangci-lint-action@v3
+        run: make lint
 
   acceptance-test:
     name: Acceptance Tests
@@ -161,16 +130,12 @@ jobs:
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: pacts
           path: ./pacts
-      - name: Retrieve pact
-        run: |
-          docker container create --name temp -v pacts_data:/root hello-world
-          docker cp ./pacts/ignored-ignored.json temp:/root/ignored-ignored.json
-          docker cp ./pacts/sirius-lpa-dashboard-sirius.json temp:/root/sirius-lpa-dashboard-sirius.json
 
       - name: Restore images
         run: |
@@ -178,12 +143,10 @@ jobs:
           docker load -i /tmp/images/pact-stub.tar
 
       - name: Run pa11y
-        run: |
-          docker-compose -f docker/docker-compose.ci.yml run --entrypoint="pa11y-ci" puppeteer
+        run: make pa11y
 
       - name: Run Lighthouse
-        run: |
-          docker-compose -f docker/docker-compose.ci.yml run --entrypoint="lhci autorun" puppeteer
+        run: make lighthouse
 
   cypress:
     name: Cypress
@@ -198,28 +161,20 @@ jobs:
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: pacts
           path: ./pacts
-      - name: Retrieve pact
-        run: |
-          docker container create --name temp -v pacts_data:/root hello-world
-          docker cp ./pacts/ignored-ignored.json temp:/root/ignored-ignored.json
-          docker cp ./pacts/sirius-lpa-dashboard-sirius.json temp:/root/sirius-lpa-dashboard-sirius.json
+
       - name: Restore images
         run: |
           docker load -i /tmp/images/app.tar
           docker load -i /tmp/images/pact-stub.tar
-      - name: Start app
-        run: |
-          docker-compose -f docker/docker-compose.ci.yml up -d pact-stub app
 
-      - name: Cypress Tests
-        uses: cypress-io/github-action@v5.8.3
-        with:
-          browser: chrome
+      - name: Start app
+        run: make cypress
 
       - name: Upload Cypress screenshots
         uses: actions/upload-artifact@v3
@@ -251,15 +206,15 @@ jobs:
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
+
       - name: Restore Image
-        run: |
-          docker load -i /tmp/images/app.tar
-          docker tag docker_app:latest sirius-lpa-dashboard:latest
+        run: docker load -i /tmp/images/app.tar
 
       - name: Trivy Image Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: sirius-lpa-dashboard:latest
+          image-ref: lpa-dashboard:latest
+          exit-code: 1
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -290,10 +245,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: sirius/sirius-lpa-dashboard
         run: |
-          docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
-          docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker tag lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
+          docker tag lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
           if [ "${{ needs.identify.outputs.branch }}" == "main" ]; then
-            docker tag sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.identify.outputs.tag }}
+            docker tag lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.identify.outputs.tag }}
             # We want all of the tags pushed
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
           else

@@ -14,7 +14,7 @@
 ### Running the application
 
 ```
-docker-compose -f docker/docker-compose.yml up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 ```
 
 This will run the application at http://localhost:8888/, and assumes that Sirius
@@ -38,7 +38,7 @@ This will run the Go unit tests. It relies on `pact` being available on your
 provide a stub service for the Cypress tests.
 
 ```
-docker-compose -f docker/docker-compose.cypress.yml up -d --build
+docker compose -f docker/docker-compose.cypress.yml up -d --build
 yarn && yarn cypress
 ```
 
