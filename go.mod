@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231002150139-ed6f6387fc7e
-	github.com/pact-foundation/pact-go v1.7.0
+	github.com/pact-foundation/pact-go v1.8.0
 	github.com/stretchr/testify v1.8.4
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.20.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.45.0
@@ -12,7 +12,7 @@ require (
 	go.opentelemetry.io/otel v1.19.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.19.0
 	go.opentelemetry.io/otel/sdk v1.19.0
-	google.golang.org/grpc v1.58.2
+	google.golang.org/grpc v1.58.3
 )
 
 require (
