@@ -3,7 +3,7 @@ module github.com/ministryofjustice/opg-sirius-lpa-dashboard
 go 1.19
 
 require (
-	github.com/ministryofjustice/opg-go-common v0.0.0-20231106092059-b3dcf8bd1eeb
+	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
 	github.com/pact-foundation/pact-go v1.8.0
 	github.com/stretchr/testify v1.8.4
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.21.1
