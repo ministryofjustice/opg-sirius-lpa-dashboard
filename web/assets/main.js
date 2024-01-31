@@ -86,10 +86,6 @@ function initFilterHeadings() {
   }
 }
 
-document.body.className = document.body.className
-  ? document.body.className + " js-enabled"
-  : "js-enabled";
-
 // Expose jQuery on window so MOJFrontend can use it
 window.$ = $;
 
