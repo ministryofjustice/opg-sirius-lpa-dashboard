@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -218,4 +219,23 @@ func TestGetContextForPostRequest(t *testing.T) {
 	assert.Equal(r.Context(), ctx.Context)
 	assert.Equal(r.Cookies(), ctx.Cookies)
 	assert.Equal("the-real-one", ctx.XSRFToken)
+}
+
+func TestCancelledContext(t *testing.T) {
+	assert := assert.New(t)
+
+	logger := &mockLogger{}
+
+	wrap := errorHandler(logger, nil, "/prefix", "http://sirius")
+	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return context.Canceled
+	})
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/path", nil)
+
+	handler.ServeHTTP(w, r)
+
+	resp := w.Result()
+	assert.Equal(499, resp.StatusCode)
 }
