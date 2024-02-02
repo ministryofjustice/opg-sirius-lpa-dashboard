@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -150,6 +152,11 @@ func errorHandler(logger Logger, tmplError Template, prefix, siriusURL string) f
 			err := next(w, r)
 
 			if err != nil {
+				if errors.Is(err, context.Canceled) {
+					w.WriteHeader(499)
+					return
+				}
+
 				if err == sirius.ErrUnauthorized {
 					http.Redirect(w, r, fmt.Sprintf("%s/auth?redirect=%s", siriusURL, url.QueryEscape(prefix+r.URL.Path)), http.StatusFound)
 					return
