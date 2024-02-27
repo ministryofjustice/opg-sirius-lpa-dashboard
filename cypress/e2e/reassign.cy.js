@@ -4,7 +4,7 @@ describe("Reassign", () => {
   });
 
   it("allows reassigning cases", () => {
-    cy.get("tbody input[type=checkbox]").click();
+    cy.get("tbody label[for=58]").click();
     cy.contains("Reassign or return selected case(s)").click();
 
     cy.contains("Return to central pot").click();

@@ -22,7 +22,7 @@ describe("Pending cases", () => {
       "have.attr",
       "disabled"
     );
-    cy.get("input[type=checkbox]").check();
+    cy.get("label[for=58]").click();
     cy.contains("button", "Progress worked cases").should(
       "not.have.attr",
       "disabled"
