@@ -28,7 +28,6 @@ func pendingCases(client PendingCasesClient, tmpl Template) Handler {
 		}
 
 		ctx := getContext(r)
-
 		myDetails, err := client.MyDetails(ctx)
 		if err != nil {
 			return err
