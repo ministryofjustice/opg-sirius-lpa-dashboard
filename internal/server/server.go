@@ -6,18 +6,16 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/ministryofjustice/opg-go-common/securityheaders"
+	"github.com/ministryofjustice/opg-go-common/telemetry"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
-
-type Logger interface {
-	Request(*http.Request, error)
-}
 
 type Client interface {
 	AllCasesClient
@@ -41,8 +39,8 @@ type Template interface {
 	ExecuteTemplate(io.Writer, string, interface{}) error
 }
 
-func New(logger Logger, client Client, templates map[string]*template.Template, prefix, siriusURL, siriusPublicURL, webDir string) http.Handler {
-	wrap := errorHandler(logger, templates["error.gotmpl"], prefix, siriusPublicURL)
+func New(logger *slog.Logger, client Client, templates map[string]*template.Template, prefix, siriusURL, siriusPublicURL, webDir string) http.Handler {
+	wrap := errorHandler(templates["error.gotmpl"], prefix, siriusPublicURL)
 
 	mux := http.NewServeMux()
 
@@ -111,7 +109,9 @@ func New(logger Logger, client Client, templates map[string]*template.Template, 
 	mux.Handle("/javascript/", static)
 	mux.Handle("/stylesheets/", static)
 
-	return otelhttp.NewHandler(http.StripPrefix(prefix, securityheaders.Use(mux)), "lpa-dashboard")
+	middleware := telemetry.Middleware(logger)
+
+	return otelhttp.NewHandler(http.StripPrefix(prefix, securityheaders.Use(middleware(mux))), "lpa-dashboard")
 }
 
 type RedirectError string
@@ -146,7 +146,7 @@ type errorVars struct {
 	Error string
 }
 
-func errorHandler(logger Logger, tmplError Template, prefix, siriusURL string) func(next Handler) http.Handler {
+func errorHandler(tmplError Template, prefix, siriusURL string) func(next Handler) http.Handler {
 	return func(next Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			err := next(w, r)
@@ -167,13 +167,16 @@ func errorHandler(logger Logger, tmplError Template, prefix, siriusURL string) f
 					return
 				}
 
-				logger.Request(r, err)
-
 				code := http.StatusInternalServerError
 				if status, ok := err.(StatusError); ok {
 					if status.Code() == http.StatusForbidden || status.Code() == http.StatusNotFound {
 						code = status.Code()
 					}
+				}
+
+				logger := telemetry.LoggerFromContext(r.Context())
+				if code == http.StatusInternalServerError {
+					logger.Error(err.Error())
 				}
 
 				w.WriteHeader(code)
@@ -185,7 +188,7 @@ func errorHandler(logger Logger, tmplError Template, prefix, siriusURL string) f
 				})
 
 				if err != nil {
-					logger.Request(r, err)
+					logger.Error("could not generate error template", slog.Any("err", err.Error()))
 					http.Error(w, "Could not generate error template", http.StatusInternalServerError)
 				}
 			}

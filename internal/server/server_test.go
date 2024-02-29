@@ -1,41 +1,43 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-go-common/telemetry"
 	"github.com/ministryofjustice/opg-sirius-lpa-dashboard/internal/sirius"
 	"github.com/stretchr/testify/assert"
 )
-
-type mockLogger struct {
-	count       int
-	lastRequest *http.Request
-	lastError   error
-}
-
-func (m *mockLogger) Request(r *http.Request, err error) {
-	m.count += 1
-	m.lastRequest = r
-	m.lastError = err
-}
 
 type mockTemplate struct {
 	count    int
 	lastName string
 	lastVars interface{}
+	err      error
 }
 
 func (m *mockTemplate) ExecuteTemplate(w io.Writer, name string, vars interface{}) error {
 	m.count += 1
 	m.lastName = name
 	m.lastVars = vars
-	return nil
+	return m.err
+}
+
+func contextWithLogger() (context.Context, *bytes.Buffer) {
+	var buf bytes.Buffer
+	logHandler := slog.NewJSONHandler(&buf, nil)
+	ctx := telemetry.ContextWithLogger(context.Background(), slog.New(logHandler))
+
+	return ctx, &buf
 }
 
 func TestNew(t *testing.T) {
@@ -47,7 +49,7 @@ func TestErrorHandler(t *testing.T) {
 
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(nil, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(tmplError, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(http.StatusTeapot)
 		return nil
@@ -69,7 +71,7 @@ func TestErrorHandlerUnauthorized(t *testing.T) {
 
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(nil, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(tmplError, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return sirius.ErrUnauthorized
 	})
@@ -91,7 +93,7 @@ func TestErrorHandlerRedirect(t *testing.T) {
 
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(nil, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(tmplError, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return RedirectError("/here")
 	})
@@ -111,16 +113,17 @@ func TestErrorHandlerRedirect(t *testing.T) {
 func TestErrorHandlerStatus(t *testing.T) {
 	assert := assert.New(t)
 
-	logger := &mockLogger{}
+	ctx, logBuf := contextWithLogger()
+
 	tmplError := &mockTemplate{}
 
-	wrap := errorHandler(logger, tmplError, "/prefix", "http://sirius")
+	wrap := errorHandler(tmplError, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return StatusError(http.StatusTeapot)
 	})
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/path", nil)
+	r, _ := http.NewRequestWithContext(ctx, "GET", "/path", nil)
 
 	handler.ServeHTTP(w, r)
 
@@ -130,9 +133,11 @@ func TestErrorHandlerStatus(t *testing.T) {
 	assert.Equal(1, tmplError.count)
 	assert.Equal(errorVars{SiriusURL: "http://sirius", Code: http.StatusInternalServerError, Error: "418 I'm a teapot"}, tmplError.lastVars)
 
-	assert.Equal(1, logger.count)
-	assert.Equal(r, logger.lastRequest)
-	assert.Equal(StatusError(http.StatusTeapot), logger.lastError)
+	data := map[string]string{}
+	err := json.Unmarshal(logBuf.Bytes(), &data)
+	assert.Nil(err)
+	assert.Equal("418 I'm a teapot", data["msg"])
+	assert.Equal("ERROR", data["level"])
 }
 
 func TestErrorHandlerStatusKnown(t *testing.T) {
@@ -143,16 +148,17 @@ func TestErrorHandlerStatusKnown(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			logger := &mockLogger{}
+			ctx, logBuf := contextWithLogger()
+
 			tmplError := &mockTemplate{}
 
-			wrap := errorHandler(logger, tmplError, "/prefix", "http://sirius")
+			wrap := errorHandler(tmplError, "/prefix", "http://sirius")
 			handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 				return StatusError(code)
 			})
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest("GET", "/path", nil)
+			r, _ := http.NewRequestWithContext(ctx, "GET", "/path", nil)
 
 			handler.ServeHTTP(w, r)
 
@@ -162,11 +168,39 @@ func TestErrorHandlerStatusKnown(t *testing.T) {
 			assert.Equal(1, tmplError.count)
 			assert.Equal(errorVars{SiriusURL: "http://sirius", Code: code, Error: fmt.Sprintf("%d %s", code, name)}, tmplError.lastVars)
 
-			assert.Equal(1, logger.count)
-			assert.Equal(r, logger.lastRequest)
-			assert.Equal(StatusError(code), logger.lastError)
+			assert.Equal("", logBuf.String())
 		})
 	}
+}
+
+func TestErrorHandlerTemplateError(t *testing.T) {
+	assert := assert.New(t)
+
+	ctx, logBuf := contextWithLogger()
+	tmplError := &mockTemplate{}
+	tmplError.err = errors.New("could not render")
+
+	wrap := errorHandler(tmplError, "/prefix", "http://sirius")
+	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return StatusError(http.StatusNotFound)
+	})
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, "GET", "/path", nil)
+
+	handler.ServeHTTP(w, r)
+
+	resp := w.Result()
+	assert.Equal(http.StatusNotFound, resp.StatusCode)
+
+	assert.Equal(1, tmplError.count)
+
+	data := map[string]string{}
+	err := json.Unmarshal(logBuf.Bytes(), &data)
+	assert.Nil(err)
+	assert.Equal("could not generate error template", data["msg"])
+	assert.Equal("ERROR", data["level"])
+	assert.Equal("could not render", data["err"])
 }
 
 func TestGetContext(t *testing.T) {
@@ -224,18 +258,19 @@ func TestGetContextForPostRequest(t *testing.T) {
 func TestCancelledContext(t *testing.T) {
 	assert := assert.New(t)
 
-	logger := &mockLogger{}
+	ctx, logBuf := contextWithLogger()
 
-	wrap := errorHandler(logger, nil, "/prefix", "http://sirius")
+	wrap := errorHandler(nil, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
 		return context.Canceled
 	})
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/path", nil)
+	r, _ := http.NewRequestWithContext(ctx, "GET", "/path", nil)
 
 	handler.ServeHTTP(w, r)
 
 	resp := w.Result()
 	assert.Equal(499, resp.StatusCode)
+	assert.Equal("", logBuf.String())
 }
