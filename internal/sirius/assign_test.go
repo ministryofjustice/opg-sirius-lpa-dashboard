@@ -3,16 +3,27 @@ package sirius
 import (
 	"context"
 	"fmt"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"net/http"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAssign(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, _ := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "sirius-lpa-dashboard",
+		Provider: "sirius",
+		Host:     "localhost",
+		//PactFileWriteMode: "merge",
+		LogDir:  "../../logs",
+		PactDir: "../../pacts",
+	})
+
+	// pact := newPact()
+	// Havent seen any ref to teardown in v2
+	// defer pact.Teardown()
 
 	testCases := []struct {
 		name          string
@@ -26,20 +37,17 @@ func TestAssign(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to reassign a case").
-					WithRequest(dsl.Request{
-						Method: http.MethodPut,
-						Path:   dsl.String("/api/v1/users/47/cases/58"),
-						Body: dsl.Like(map[string]interface{}{
-							"data": dsl.EachLike(map[string]interface{}{
-								"assigneeId": dsl.Like(99),
-								"caseType":   dsl.String("LPA"),
-								"id":         dsl.Like(1),
+					WithRequest("PUT", "/api/v1/users/47/cases/58", func(r *consumer.V2RequestBuilder) {
+						r.JSONBody(matchers.Like(map[string]interface{}{
+							"data": matchers.EachLike(map[string]interface{}{
+								"assigneeId": matchers.Like(99),
+								"caseType":   matchers.String("LPA"),
+								"id":         matchers.Like(1),
 							}, 1),
-						}),
+						}))
 					}).
-					WillRespondWith(dsl.Response{
-						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
+					WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
+						b.Header("Content-Type", matchers.String("application/json"))
 					})
 			},
 		},
@@ -49,8 +57,8 @@ func TestAssign(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", config.Port))
 
 				err := client.Assign(Context{Context: context.Background()}, []int{58}, 47)
 				assert.Equal(t, tc.expectedError, err)
