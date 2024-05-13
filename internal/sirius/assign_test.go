@@ -18,7 +18,7 @@ func TestAssign(t *testing.T) {
 	pact, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
 		Consumer: "sirius-lpa-dashboard",
 		Provider: "sirius",
-		Host:     "localhost",
+		Host:     "127.0.0.1",
 		//PactFileWriteMode: "merge",
 		LogDir:  "../../logs",
 		PactDir: "../../pacts",
@@ -61,7 +61,7 @@ func TestAssign(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", config.Port))
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				err := client.Assign(Context{Context: context.Background()}, []int{58}, 47)
 				assert.Equal(t, tc.expectedError, err)
@@ -71,17 +71,16 @@ func TestAssign(t *testing.T) {
 	}
 }
 
-//
-//func TestAssignStatusError(t *testing.T) {
-//	s := teapotServer()
-//	defer s.Close()
-//
-//	client, _ := NewClient(http.DefaultClient, s.URL)
-//
-//	err := client.Assign(Context{Context: context.Background()}, []int{1}, 47)
-//	assert.Equal(t, &StatusError{
-//		Code:   http.StatusTeapot,
-//		URL:    s.URL + "/api/v1/users/47/cases/1",
-//		Method: http.MethodPut,
-//	}, err)
-//}
+func TestAssignStatusError(t *testing.T) {
+	s := teapotServer()
+	defer s.Close()
+
+	client, _ := NewClient(http.DefaultClient, s.URL)
+
+	err := client.Assign(Context{Context: context.Background()}, []int{1}, 47)
+	assert.Equal(t, &StatusError{
+		Code:   http.StatusTeapot,
+		URL:    s.URL + "/api/v1/users/47/cases/1",
+		Method: http.MethodPut,
+	}, err)
+}
