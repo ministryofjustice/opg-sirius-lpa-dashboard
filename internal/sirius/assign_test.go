@@ -12,22 +12,10 @@ import (
 )
 
 func TestAssign(t *testing.T) {
-	// this doesnt fix logger issue
-	// log.SetLogLevel("ERROR")
 
-	pact, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
-		Consumer: "sirius-lpa-dashboard",
-		Provider: "sirius",
-		Host:     "127.0.0.1",
-		//PactFileWriteMode: "merge",
-		LogDir:  "../../logs",
-		PactDir: "../../pacts",
-	})
+	pact, err := newPact()
 
 	assert.NoError(t, err)
-	// pact := newPact()
-	// Havent seen any ref to teardown in v2
-	// defer pact.Teardown()
 
 	testCases := []struct {
 		name          string
@@ -41,7 +29,7 @@ func TestAssign(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to reassign a case").
-					WithRequest("PUT", "/api/v1/users/47/cases/58", func(r *consumer.V2RequestBuilder) {
+					WithRequest(http.MethodPut, "/api/v1/users/47/cases/58", func(r *consumer.V2RequestBuilder) {
 						r.JSONBody(matchers.Like(map[string]interface{}{
 							"data": matchers.EachLike(map[string]interface{}{
 								"assigneeId": matchers.Like(99),

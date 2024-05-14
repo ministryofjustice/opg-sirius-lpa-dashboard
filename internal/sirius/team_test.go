@@ -11,7 +11,7 @@ import (
 )
 
 func TestTeam(t *testing.T) {
-	pact := newPact()
+	_, _ := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
@@ -76,7 +76,7 @@ func TestTeam(t *testing.T) {
 }
 
 func TestTeamIgnored(t *testing.T) {
-	pact := newIgnoredPact()
+	pact, _ := newIgnoredPact()
 	defer pact.Teardown()
 
 	testCases := []struct {

@@ -11,7 +11,7 @@ import (
 )
 
 func TestMarkWorked(t *testing.T) {
-	pact := newPact()
+	_, _ := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
@@ -29,7 +29,7 @@ func TestMarkWorked(t *testing.T) {
 					WithRequest(dsl.Request{
 						Method: http.MethodPut,
 						Path:   dsl.String("/api/v1/lpas/800"),
-						Body: dsl.Like(map[string]interface{}{"worked": true}),
+						Body:   dsl.Like(map[string]interface{}{"worked": true}),
 					}).
 					WillRespondWith(dsl.Response{
 						Status:  http.StatusOK,

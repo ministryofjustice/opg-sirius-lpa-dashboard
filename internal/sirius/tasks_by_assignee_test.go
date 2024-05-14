@@ -12,7 +12,7 @@ import (
 )
 
 func TestTasksByAssignee(t *testing.T) {
-	pact := newPact()
+	_, _ := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {

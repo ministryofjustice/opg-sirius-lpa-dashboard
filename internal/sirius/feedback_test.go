@@ -11,7 +11,7 @@ import (
 )
 
 func TestFeedback(t *testing.T) {
-	pact := newIgnoredPact()
+	pact, _ := newIgnoredPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
