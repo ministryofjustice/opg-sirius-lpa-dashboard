@@ -11,7 +11,7 @@ import (
 )
 
 func TestUser(t *testing.T) {
-	pact := newPact()
+	_, _ := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {

@@ -11,7 +11,7 @@ import (
 )
 
 func TestUserByEmail(t *testing.T) {
-	pact := newPact()
+	_, _ := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
