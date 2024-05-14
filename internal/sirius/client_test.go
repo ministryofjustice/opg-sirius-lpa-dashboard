@@ -45,6 +45,17 @@ func newIgnoredPact() *dsl.Pact {
 	}
 }
 
+func newIgnoredPactV2() (*consumer.V2HTTPMockProvider, error) {
+	return consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "ignored",
+		Provider: "ignored",
+		Host:     "127.0.0.1",
+		// PactFileWriteMode: "merge",
+		LogDir:  "../../logs",
+		PactDir: "../../pacts",
+	})
+}
+
 func teapotServer() *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

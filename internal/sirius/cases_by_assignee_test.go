@@ -13,8 +13,9 @@ import (
 )
 
 func TestCasesByAssignee(t *testing.T) {
-	pact, _ := newPactV2()
-	//defer pact.Teardown()
+	pact, err := newPactV2()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name               string
