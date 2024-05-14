@@ -13,7 +13,7 @@ import (
 
 func TestAssign(t *testing.T) {
 
-	pact, err := newPact()
+	pact, err := newPactV2()
 
 	assert.NoError(t, err)
 

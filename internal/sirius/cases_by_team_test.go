@@ -12,7 +12,7 @@ import (
 )
 
 func TestCasesByTeam(t *testing.T) {
-	_, _ := newPact()
+	pact := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
@@ -146,7 +146,7 @@ func TestCasesByTeam(t *testing.T) {
 }
 
 func TestCasesByTeamIgnored(t *testing.T) {
-	pact, _ := newIgnoredPact()
+	pact := newIgnoredPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
@@ -280,7 +280,7 @@ func TestCasesByTeamIgnored(t *testing.T) {
 }
 
 func TestCasesByTeamWithAllocationIgnored(t *testing.T) {
-	pact, _ := newIgnoredPact()
+	pact := newIgnoredPact()
 	defer pact.Teardown()
 
 	testCases := []struct {

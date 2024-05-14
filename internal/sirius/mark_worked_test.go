@@ -11,7 +11,7 @@ import (
 )
 
 func TestMarkWorked(t *testing.T) {
-	_, _ := newPact()
+	pact := newPact()
 	defer pact.Teardown()
 
 	testCases := []struct {
