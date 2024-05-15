@@ -7,13 +7,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCasesByAssignee(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, err := newPact()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name               string
@@ -31,37 +33,39 @@ func TestCasesByAssignee(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to get my cases").
-					WithRequest(dsl.Request{
-						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases"),
-						Query: dsl.MapMatcher{
-							"page":   dsl.String("1"),
-							"filter": dsl.String("caseType:lpa,active:true"),
-							"sort":   dsl.String("receiptDate:asc"),
+					WithCompleteRequest(
+						consumer.Request{
+							Method: http.MethodGet,
+							Path:   matchers.String("/api/v1/assignees/47/cases"),
+							Query: matchers.MapMatcher{
+								"page":   matchers.String("1"),
+								"filter": matchers.String("caseType:lpa,active:true"),
+								"sort":   matchers.String("receiptDate:asc"),
+							},
 						},
-					}).
-					WillRespondWith(dsl.Response{
+					).
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"total": dsl.Like(1),
-							"limit": dsl.Like(25),
-							"pages": dsl.Like(map[string]interface{}{
-								"current": dsl.Like(1),
-								"total":   dsl.Like(1),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"total": matchers.Like(1),
+							"limit": matchers.Like(25),
+							"pages": matchers.Like(map[string]interface{}{
+								"current": matchers.Like(1),
+								"total":   matchers.Like(1),
 							}),
-							"cases": dsl.EachLike(map[string]interface{}{
-								"id":  dsl.Like(36),
-								"uId": dsl.Term("7000-8548-8461", `\d{4}-\d{4}-\d{4}`),
-								"donor": dsl.Like(map[string]interface{}{
-									"id":        dsl.Like(23),
-									"uId":       dsl.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
-									"firstname": dsl.Like("Adrian"),
-									"surname":   dsl.Like("Kurkjian"),
+							"cases": matchers.EachLike(map[string]interface{}{
+								"id":  matchers.Like(36),
+								"uId": matchers.Term("7000-8548-8461", `\d{4}-\d{4}-\d{4}`),
+								"donor": matchers.Like(map[string]interface{}{
+									"id":        matchers.Like(23),
+									"uId":       matchers.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
+									"firstname": matchers.Like("Adrian"),
+									"surname":   matchers.Like("Kurkjian"),
 								}),
-								"caseSubtype": dsl.Term("pfa", "hw|pfa"),
-								"receiptDate": dsl.Term("12/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
-								"status":      dsl.Like("Perfect"),
+								"caseSubtype": matchers.Term("pfa", "hw|pfa"),
+								"receiptDate": matchers.Term("12/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
+								"status":      matchers.Like("Perfect"),
 							}, 1),
 						}),
 					})
@@ -94,37 +98,37 @@ func TestCasesByAssignee(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to get my pending cases").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases"),
-						Query: dsl.MapMatcher{
-							"page":   dsl.String("1"),
-							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
-							"sort":   dsl.String("receiptDate:asc"),
+						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Query: matchers.MapMatcher{
+							"page":   matchers.String("1"),
+							"filter": matchers.String("status:Pending,caseType:lpa,active:true"),
+							"sort":   matchers.String("receiptDate:asc"),
 						},
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"total": dsl.Like(1),
-							"limit": dsl.Like(25),
-							"pages": dsl.Like(map[string]interface{}{
-								"current": dsl.Like(1),
-								"total":   dsl.Like(1),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"total": matchers.Like(1),
+							"limit": matchers.Like(25),
+							"pages": matchers.Like(map[string]interface{}{
+								"current": matchers.Like(1),
+								"total":   matchers.Like(1),
 							}),
-							"cases": dsl.EachLike(map[string]interface{}{
-								"id":  dsl.Like(58),
-								"uId": dsl.Term("7000-2830-9492", `\d{4}-\d{4}-\d{4}`),
-								"donor": dsl.Like(map[string]interface{}{
-									"id":        dsl.Like(17),
-									"uId":       dsl.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
-									"firstname": dsl.Like("Wilma"),
-									"surname":   dsl.Like("Ruthman"),
+							"cases": matchers.EachLike(map[string]interface{}{
+								"id":  matchers.Like(58),
+								"uId": matchers.Term("7000-2830-9492", `\d{4}-\d{4}-\d{4}`),
+								"donor": matchers.Like(map[string]interface{}{
+									"id":        matchers.Like(17),
+									"uId":       matchers.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
+									"firstname": matchers.Like("Wilma"),
+									"surname":   matchers.Like("Ruthman"),
 								}),
-								"caseSubtype": dsl.Term("hw", "hw|pfa"),
-								"receiptDate": dsl.Term("14/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
-								"status":      dsl.Like("Pending"),
+								"caseSubtype": matchers.Term("hw", "hw|pfa"),
+								"receiptDate": matchers.Term("14/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
+								"status":      matchers.Like("Pending"),
 							}, 1),
 						}),
 					})
@@ -157,37 +161,37 @@ func TestCasesByAssignee(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to get my pending cases sorted by worked date").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases"),
-						Query: dsl.MapMatcher{
-							"page":   dsl.String("1"),
-							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
-							"sort":   dsl.String("workedDate:desc,receiptDate:asc"),
+						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Query: matchers.MapMatcher{
+							"page":   matchers.String("1"),
+							"filter": matchers.String("status:Pending,caseType:lpa,active:true"),
+							"sort":   matchers.String("workedDate:desc,receiptDate:asc"),
 						},
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"total": dsl.Like(1),
-							"limit": dsl.Like(25),
-							"pages": dsl.Like(map[string]interface{}{
-								"current": dsl.Like(1),
-								"total":   dsl.Like(1),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"total": matchers.Like(1),
+							"limit": matchers.Like(25),
+							"pages": matchers.Like(map[string]interface{}{
+								"current": matchers.Like(1),
+								"total":   matchers.Like(1),
 							}),
-							"cases": dsl.EachLike(map[string]interface{}{
-								"id":  dsl.Like(58),
-								"uId": dsl.Term("7000-2830-9492", `\d{4}-\d{4}-\d{4}`),
-								"donor": dsl.Like(map[string]interface{}{
-									"id":        dsl.Like(17),
-									"uId":       dsl.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
-									"firstname": dsl.Like("Wilma"),
-									"surname":   dsl.Like("Ruthman"),
+							"cases": matchers.EachLike(map[string]interface{}{
+								"id":  matchers.Like(58),
+								"uId": matchers.Term("7000-2830-9492", `\d{4}-\d{4}-\d{4}`),
+								"donor": matchers.Like(map[string]interface{}{
+									"id":        matchers.Like(17),
+									"uId":       matchers.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
+									"firstname": matchers.Like("Wilma"),
+									"surname":   matchers.Like("Ruthman"),
 								}),
-								"caseSubtype": dsl.Term("hw", "hw|pfa"),
-								"receiptDate": dsl.Term("14/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
-								"status":      dsl.Like("Pending"),
+								"caseSubtype": matchers.Term("hw", "hw|pfa"),
+								"receiptDate": matchers.Term("14/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
+								"status":      matchers.Like("Pending"),
 							}, 1),
 						}),
 					})
@@ -220,38 +224,38 @@ func TestCasesByAssignee(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to get my oldest pending case").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases"),
-						Query: dsl.MapMatcher{
-							"page":   dsl.String("1"),
-							"limit":  dsl.String("1"),
-							"filter": dsl.String("status:Pending,caseType:lpa,active:true"),
-							"sort":   dsl.String("receiptDate:asc"),
+						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Query: matchers.MapMatcher{
+							"page":   matchers.String("1"),
+							"limit":  matchers.String("1"),
+							"filter": matchers.String("status:Pending,caseType:lpa,active:true"),
+							"sort":   matchers.String("receiptDate:asc"),
 						},
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"total": dsl.Like(1),
-							"limit": dsl.Like(25),
-							"pages": dsl.Like(map[string]interface{}{
-								"current": dsl.Like(1),
-								"total":   dsl.Like(1),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"total": matchers.Like(1),
+							"limit": matchers.Like(25),
+							"pages": matchers.Like(map[string]interface{}{
+								"current": matchers.Like(1),
+								"total":   matchers.Like(1),
 							}),
-							"cases": dsl.EachLike(map[string]interface{}{
-								"id":  dsl.Like(453),
-								"uId": dsl.Term("7000-2830-9429", `\d{4}-\d{4}-\d{4}`),
-								"donor": dsl.Like(map[string]interface{}{
-									"id":        dsl.Like(363),
-									"uId":       dsl.Term("7000-5382-4435", `\d{4}-\d{4}-\d{4}`),
-									"firstname": dsl.Like("Mario"),
-									"surname":   dsl.Like("Evanosky"),
+							"cases": matchers.EachLike(map[string]interface{}{
+								"id":  matchers.Like(453),
+								"uId": matchers.Term("7000-2830-9429", `\d{4}-\d{4}-\d{4}`),
+								"donor": matchers.Like(map[string]interface{}{
+									"id":        matchers.Like(363),
+									"uId":       matchers.Term("7000-5382-4435", `\d{4}-\d{4}-\d{4}`),
+									"firstname": matchers.Like("Mario"),
+									"surname":   matchers.Like("Evanosky"),
 								}),
-								"caseSubtype": dsl.Term("hw", "hw|pfa"),
-								"receiptDate": dsl.Term("28/11/2017", `\d{1,2}/\d{1,2}/\d{4}`),
-								"status":      dsl.Like("Pending"),
+								"caseSubtype": matchers.Term("hw", "hw|pfa"),
+								"receiptDate": matchers.Term("28/11/2017", `\d{1,2}/\d{1,2}/\d{4}`),
+								"status":      matchers.Like("Pending"),
 							}, 1),
 						}),
 					})
@@ -282,8 +286,8 @@ func TestCasesByAssignee(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				cases, pagination, err := client.CasesByAssignee(Context{Context: context.Background()}, 47, tc.criteria)
 				assert.Equal(t, tc.expectedCases, cases)
@@ -296,8 +300,7 @@ func TestCasesByAssignee(t *testing.T) {
 }
 
 func TestHasWorkableCase(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, _ := newPact()
 
 	testCases := []struct {
 		name          string
@@ -312,37 +315,37 @@ func TestHasWorkableCase(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to get a pending, unworked case").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/cases"),
-						Query: dsl.MapMatcher{
-							"page":   dsl.String("1"),
-							"limit":  dsl.String("1"),
-							"filter": dsl.String("status:Pending,worked:false,caseType:lpa,active:true"),
+						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Query: matchers.MapMatcher{
+							"page":   matchers.String("1"),
+							"limit":  matchers.String("1"),
+							"filter": matchers.String("status:Pending,worked:false,caseType:lpa,active:true"),
 						},
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"total": dsl.Like(1),
-							"limit": dsl.Like(25),
-							"pages": dsl.Like(map[string]interface{}{
-								"current": dsl.Like(1),
-								"total":   dsl.Like(1),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"total": matchers.Like(1),
+							"limit": matchers.Like(25),
+							"pages": matchers.Like(map[string]interface{}{
+								"current": matchers.Like(1),
+								"total":   matchers.Like(1),
 							}),
-							"cases": dsl.EachLike(map[string]interface{}{
-								"id":  dsl.Like(453),
-								"uId": dsl.Term("7000-2830-9429", `\d{4}-\d{4}-\d{4}`),
-								"donor": dsl.Like(map[string]interface{}{
-									"id":        dsl.Like(363),
-									"uId":       dsl.Term("7000-5382-4435", `\d{4}-\d{4}-\d{4}`),
-									"firstname": dsl.Like("Mario"),
-									"surname":   dsl.Like("Evanosky"),
+							"cases": matchers.EachLike(map[string]interface{}{
+								"id":  matchers.Like(453),
+								"uId": matchers.Term("7000-2830-9429", `\d{4}-\d{4}-\d{4}`),
+								"donor": matchers.Like(map[string]interface{}{
+									"id":        matchers.Like(363),
+									"uId":       matchers.Term("7000-5382-4435", `\d{4}-\d{4}-\d{4}`),
+									"firstname": matchers.Like("Mario"),
+									"surname":   matchers.Like("Evanosky"),
 								}),
-								"caseSubtype": dsl.Term("hw", "hw|pfa"),
-								"receiptDate": dsl.Term("28/11/2017", `\d{1,2}/\d{1,2}/\d{4}`),
-								"status":      dsl.Like("Pending"),
+								"caseSubtype": matchers.Term("hw", "hw|pfa"),
+								"receiptDate": matchers.Term("28/11/2017", `\d{1,2}/\d{1,2}/\d{4}`),
+								"status":      matchers.Like("Pending"),
 							}, 1),
 						}),
 					})
@@ -354,8 +357,8 @@ func TestHasWorkableCase(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				ok, err := client.HasWorkableCase(Context{Context: context.Background()}, 47)
 				assert.True(t, ok)
