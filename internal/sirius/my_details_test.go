@@ -12,7 +12,7 @@ import (
 )
 
 func TestMyDetails(t *testing.T) {
-	pact, err := newPactV2()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 
@@ -71,7 +71,7 @@ func TestMyDetails(t *testing.T) {
 }
 
 func TestMyDetailsIgnored(t *testing.T) {
-	pact, err := newIgnoredPactV2()
+	pact, err := newIgnoredPact()
 
 	assert.NoError(t, err)
 

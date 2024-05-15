@@ -13,7 +13,7 @@ import (
 )
 
 func TestCasesByAssignee(t *testing.T) {
-	pact, err := newPactV2()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 
@@ -300,7 +300,7 @@ func TestCasesByAssignee(t *testing.T) {
 }
 
 func TestHasWorkableCase(t *testing.T) {
-	pact, _ := newPactV2()
+	pact, _ := newPact()
 
 	testCases := []struct {
 		name          string

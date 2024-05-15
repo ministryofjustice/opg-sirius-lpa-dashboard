@@ -12,7 +12,7 @@ import (
 )
 
 func TestTeam(t *testing.T) {
-	pact, err := newPactV2()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 
@@ -78,7 +78,7 @@ func TestTeam(t *testing.T) {
 }
 
 func TestTeamIgnored(t *testing.T) {
-	pact, err := newIgnoredPactV2()
+	pact, err := newIgnoredPact()
 
 	assert.NoError(t, err)
 

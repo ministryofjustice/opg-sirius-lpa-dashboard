@@ -13,7 +13,7 @@ import (
 )
 
 func TestCasesByTeam(t *testing.T) {
-	pact, err := newPactV2()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 
@@ -148,7 +148,7 @@ func TestCasesByTeam(t *testing.T) {
 }
 
 func TestCasesByTeamIgnored(t *testing.T) {
-	pact, err := newIgnoredPactV2()
+	pact, err := newIgnoredPact()
 
 	assert.NoError(t, err)
 
@@ -283,7 +283,7 @@ func TestCasesByTeamIgnored(t *testing.T) {
 }
 
 func TestCasesByTeamWithAllocationIgnored(t *testing.T) {
-	pact, err := newIgnoredPactV2()
+	pact, err := newIgnoredPact()
 
 	assert.NoError(t, err)
 
