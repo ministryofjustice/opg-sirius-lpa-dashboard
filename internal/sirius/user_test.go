@@ -12,7 +12,7 @@ import (
 )
 
 func TestUser(t *testing.T) {
-	pact, err := newPactV2()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 

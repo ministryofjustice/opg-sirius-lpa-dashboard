@@ -12,7 +12,7 @@ import (
 )
 
 func TestFeedback(t *testing.T) {
-	pact, err := newIgnoredPactV2()
+	pact, err := newIgnoredPact()
 
 	assert.NoError(t, err)
 

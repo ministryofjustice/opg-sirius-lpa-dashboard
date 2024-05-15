@@ -13,7 +13,7 @@ import (
 )
 
 func TestTasksByAssignee(t *testing.T) {
-	pact, err := newPactV2()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 
