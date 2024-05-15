@@ -16,9 +16,8 @@ func newPact() (*consumer.V2HTTPMockProvider, error) {
 		Consumer: "sirius-lpa-dashboard",
 		Provider: "sirius",
 		Host:     "127.0.0.1",
-		//PactFileWriteMode: "merge",
-		LogDir:  "../../logs",
-		PactDir: "../../pacts",
+		LogDir:   "../../logs",
+		PactDir:  "../../pacts",
 	})
 }
 
@@ -27,9 +26,8 @@ func newIgnoredPact() (*consumer.V2HTTPMockProvider, error) {
 		Consumer: "ignored",
 		Provider: "ignored",
 		Host:     "127.0.0.1",
-		// PactFileWriteMode: "merge",
-		LogDir:  "../../logs",
-		PactDir: "../../pacts",
+		LogDir:   "../../logs",
+		PactDir:  "../../pacts",
 	})
 }
 
