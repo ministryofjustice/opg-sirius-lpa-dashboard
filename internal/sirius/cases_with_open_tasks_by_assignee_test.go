@@ -14,7 +14,6 @@ import (
 
 func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 	pact, err := newPactV2()
-
 	assert.NoError(t, err)
 
 	testCases := []struct {

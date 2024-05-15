@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFeedback(t *testing.T) {
-	pact := newIgnoredPact()
-	defer pact.Teardown()
+	pact, err := newIgnoredPactV2()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name          string
@@ -26,16 +28,16 @@ func TestFeedback(t *testing.T) {
 					AddInteraction().
 					Given("I am a user").
 					UponReceiving("A request to give feedback").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPost,
-						Path:   dsl.String("/api/wth"),
-						Body: dsl.Like(map[string]interface{}{
-							"message": dsl.String("hey"),
+						Path:   matchers.String("/api/wth"),
+						Body: matchers.Like(map[string]interface{}{
+							"message": matchers.String("hey"),
 						}),
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
 					})
 			},
 		},
@@ -45,8 +47,8 @@ func TestFeedback(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				err := client.Feedback(Context{Context: context.Background()}, "hey")
 				assert.Equal(t, tc.expectedError, err)

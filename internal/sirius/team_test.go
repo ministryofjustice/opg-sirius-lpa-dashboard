@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTeam(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, err := newPactV2()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		id               int
@@ -29,19 +31,19 @@ func TestTeam(t *testing.T) {
 					AddInteraction().
 					Given("LPA team with members exists").
 					UponReceiving("A request for an LPA team with ID 66").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/teams/66"),
+						Path:   matchers.String("/api/v1/teams/66"),
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"id":          dsl.Like(66),
-							"displayName": dsl.Like("Cool Team"),
-							"members": dsl.EachLike(map[string]interface{}{
-								"id":          dsl.Like(400),
-								"displayName": dsl.Like("Carline"),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"id":          matchers.Like(66),
+							"displayName": matchers.Like("Cool Team"),
+							"members": matchers.EachLike(map[string]interface{}{
+								"id":          matchers.Like(400),
+								"displayName": matchers.Like("Carline"),
 							}, 1),
 						}),
 					})
@@ -63,8 +65,8 @@ func TestTeam(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				team, err := client.Team(Context{Context: context.Background()}, tc.id)
 				assert.Equal(t, tc.expectedResponse, team)
@@ -76,8 +78,9 @@ func TestTeam(t *testing.T) {
 }
 
 func TestTeamIgnored(t *testing.T) {
-	pact := newIgnoredPact()
-	defer pact.Teardown()
+	pact, err := newIgnoredPactV2()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		id               int
@@ -94,19 +97,19 @@ func TestTeamIgnored(t *testing.T) {
 					AddInteraction().
 					Given("LPA team with members exists").
 					UponReceiving("A request for an LPA team with ID 67").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/teams/67"),
+						Path:   matchers.String("/api/v1/teams/67"),
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"id":          dsl.Like(67),
-							"displayName": dsl.Like("Nottingham casework team"),
-							"members": dsl.EachLike(map[string]interface{}{
-								"id":          dsl.Like(600),
-								"displayName": dsl.Like("Jet"),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"id":          matchers.Like(67),
+							"displayName": matchers.Like("Nottingham casework team"),
+							"members": matchers.EachLike(map[string]interface{}{
+								"id":          matchers.Like(600),
+								"displayName": matchers.Like("Jet"),
 							}, 1),
 						}),
 					})
@@ -128,8 +131,8 @@ func TestTeamIgnored(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				team, err := client.Team(Context{Context: context.Background()}, tc.id)
 				assert.Equal(t, tc.expectedResponse, team)
