@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/ministryofjustice/opg-go-common v1.2.0
-	github.com/pact-foundation/pact-go v1.8.0
+	github.com/pact-foundation/pact-go/v2 v2.0.4
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.51.0
 )
@@ -19,7 +19,6 @@ require (
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
-	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.26.0 // indirect

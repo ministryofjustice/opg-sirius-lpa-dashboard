@@ -7,13 +7,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTasksByAssignee(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, err := newPact()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name               string
@@ -31,39 +33,39 @@ func TestTasksByAssignee(t *testing.T) {
 					AddInteraction().
 					Given("I have a task assigned").
 					UponReceiving("A request to get my tasks").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/assignees/47/tasks"),
-						Query: dsl.MapMatcher{
-							"filter": dsl.String("status:Not started"),
-							"sort":   dsl.String("dueDate:asc,name:desc"),
+						Path:   matchers.String("/api/v1/assignees/47/tasks"),
+						Query: matchers.MapMatcher{
+							"filter": matchers.String("status:Not started"),
+							"sort":   matchers.String("dueDate:asc,name:desc"),
 						},
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"total": dsl.Like(1),
-							"limit": dsl.Like(25),
-							"pages": dsl.Like(map[string]interface{}{
-								"current": dsl.Like(1),
-								"total":   dsl.Like(1),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"total": matchers.Like(1),
+							"limit": matchers.Like(25),
+							"pages": matchers.Like(map[string]interface{}{
+								"current": matchers.Like(1),
+								"total":   matchers.Like(1),
 							}),
-							"tasks": dsl.EachLike(map[string]interface{}{
-								"id":      dsl.Like(36),
-								"status":  dsl.Like("Not started"),
-								"dueDate": dsl.Term("19/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
-								"name":    dsl.Like("something"),
-								"caseItems": dsl.EachLike(map[string]interface{}{
-									"id":  dsl.Like(1),
-									"uId": dsl.Term("7000-8548-8461", `\d{4}-\d{4}-\d{4}`),
-									"donor": dsl.Like(map[string]interface{}{
-										"id":        dsl.Like(23),
-										"uId":       dsl.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
-										"firstname": dsl.Like("Adrian"),
-										"surname":   dsl.Like("Kurkjian"),
+							"tasks": matchers.EachLike(map[string]interface{}{
+								"id":      matchers.Like(36),
+								"status":  matchers.Like("Not started"),
+								"dueDate": matchers.Term("19/05/2021", `\d{1,2}/\d{1,2}/\d{4}`),
+								"name":    matchers.Like("something"),
+								"caseItems": matchers.EachLike(map[string]interface{}{
+									"id":  matchers.Like(1),
+									"uId": matchers.Term("7000-8548-8461", `\d{4}-\d{4}-\d{4}`),
+									"donor": matchers.Like(map[string]interface{}{
+										"id":        matchers.Like(23),
+										"uId":       matchers.Term("7000-5382-4438", `\d{4}-\d{4}-\d{4}`),
+										"firstname": matchers.Like("Adrian"),
+										"surname":   matchers.Like("Kurkjian"),
 									}),
-									"caseSubtype": dsl.Term("pfa", "hw|pfa"),
+									"caseSubtype": matchers.Term("pfa", "hw|pfa"),
 								}, 1),
 							}, 1),
 						}),
@@ -99,8 +101,8 @@ func TestTasksByAssignee(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				tasks, pagination, err := client.TasksByAssignee(Context{Context: context.Background()}, 47, tc.criteria)
 				assert.Equal(t, tc.expectedTasks, tasks)
