@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMyDetails(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, err := newPactV2()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name              string
@@ -27,19 +29,19 @@ func TestMyDetails(t *testing.T) {
 					AddInteraction().
 					Given("User exists").
 					UponReceiving("A request to get my details").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users/current"),
+						Path:   matchers.String("/api/v1/users/current"),
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"id":    dsl.Like(47),
-							"roles": dsl.EachLike("Manager", 1),
-							"teams": dsl.EachLike(map[string]interface{}{
-								"id":          dsl.Like(66),
-								"displayName": dsl.Like("my team"),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"id":    matchers.Like(47),
+							"roles": matchers.EachLike("Manager", 1),
+							"teams": matchers.EachLike(map[string]interface{}{
+								"id":          matchers.Like(66),
+								"displayName": matchers.Like("my team"),
 							}, 1),
 						}),
 					})
@@ -56,8 +58,8 @@ func TestMyDetails(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				myDetails, err := client.MyDetails(Context{Context: context.Background()})
 				assert.Equal(t, tc.expectedMyDetails, myDetails)
@@ -69,8 +71,9 @@ func TestMyDetails(t *testing.T) {
 }
 
 func TestMyDetailsIgnored(t *testing.T) {
-	pact := newIgnoredPact()
-	defer pact.Teardown()
+	pact, err := newIgnoredPactV2()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name              string
@@ -85,19 +88,19 @@ func TestMyDetailsIgnored(t *testing.T) {
 					AddInteraction().
 					Given("User exists").
 					UponReceiving("A request to get my details").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users/current"),
+						Path:   matchers.String("/api/v1/users/current"),
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"id":    dsl.Like(47),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"id":    matchers.Like(47),
 							"roles": []string{"Manager", "Self Allocation User"},
-							"teams": dsl.EachLike(map[string]interface{}{
-								"id":          dsl.Like(66),
-								"displayName": dsl.Like("my team"),
+							"teams": matchers.EachLike(map[string]interface{}{
+								"id":          matchers.Like(66),
+								"displayName": matchers.Like("my team"),
 							}, 1),
 						}),
 					})
@@ -114,8 +117,8 @@ func TestMyDetailsIgnored(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				myDetails, err := client.MyDetails(Context{Context: context.Background()})
 				assert.Equal(t, tc.expectedMyDetails, myDetails)

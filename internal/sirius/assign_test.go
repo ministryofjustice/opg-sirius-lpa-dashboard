@@ -3,11 +3,11 @@ package sirius
 import (
 	"context"
 	"fmt"
-	"github.com/pact-foundation/pact-go/v2/consumer"
-	"github.com/pact-foundation/pact-go/v2/matchers"
 	"net/http"
 	"testing"
 
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,17 +29,20 @@ func TestAssign(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to reassign a case").
-					WithRequest(http.MethodPut, "/api/v1/users/47/cases/58", func(r *consumer.V2RequestBuilder) {
-						r.JSONBody(matchers.Like(map[string]interface{}{
+					WithCompleteRequest(consumer.Request{
+						Method: http.MethodPut,
+						Path:   matchers.String("/api/v1/users/47/cases/58"),
+						Body: matchers.Like(map[string]interface{}{
 							"data": matchers.EachLike(map[string]interface{}{
 								"assigneeId": matchers.Like(99),
 								"caseType":   matchers.String("LPA"),
 								"id":         matchers.Like(1),
 							}, 1),
-						}))
+						}),
 					}).
-					WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-						b.Header("Content-Type", matchers.String("application/json"))
+					WithCompleteResponse(consumer.Response{
+						Status:  http.StatusOK,
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
 					})
 			},
 		},
