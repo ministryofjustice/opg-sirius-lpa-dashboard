@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUserByEmail(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+	pact, err := newPact()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name          string
@@ -29,18 +31,18 @@ func TestUserByEmail(t *testing.T) {
 					AddInteraction().
 					Given("!Manager user exists").
 					UponReceiving("A request to get !Manager's ID").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   dsl.String("/api/v1/users"),
-						Query: dsl.MapMatcher{
-							"email": dsl.String(PotUserEmail),
+						Path:   matchers.String("/api/v1/users"),
+						Query: matchers.MapMatcher{
+							"email": matchers.String(PotUserEmail),
 						},
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-						Body: dsl.Like(map[string]interface{}{
-							"id": dsl.Like(47),
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
+						Body: matchers.Like(map[string]interface{}{
+							"id": matchers.Like(47),
 						}),
 					})
 			},
@@ -54,8 +56,8 @@ func TestUserByEmail(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				user, err := client.UserByEmail(Context{Context: context.Background()}, tc.email)
 				assert.Equal(t, tc.expectedUser, user)
