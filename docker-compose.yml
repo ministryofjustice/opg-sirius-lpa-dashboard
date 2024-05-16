@@ -50,6 +50,12 @@ services:
       - ./:/go/src/app
       - ./.gocache:/go/pkg/mod
 
+  pact-publisher:
+    image: pactfoundation/pact-cli:latest
+    working_dir: /go/src/app
+    volumes:
+      - ./:/go/src/app
+
   cypress:
     image: cypress/included:latest
     command: run --browser chrome
