@@ -50,11 +50,11 @@ services:
       - ./:/go/src/app
       - ./.gocache:/go/pkg/mod
 
-  pact-publisher:
+  pact:
     image: pactfoundation/pact-cli:1
     working_dir: /go/src/app
     volumes:
-      - ./:/go/src/app
+      - ./pacts:/go/src/app/pacts
 
   cypress:
     image: cypress/included:latest
