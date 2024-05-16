@@ -6,13 +6,16 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAssign(t *testing.T) {
-	pact := newPact()
-	defer pact.Teardown()
+
+	pact, err := newPact()
+
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name          string
@@ -26,20 +29,20 @@ func TestAssign(t *testing.T) {
 					AddInteraction().
 					Given("I have a pending case assigned").
 					UponReceiving("A request to reassign a case").
-					WithRequest(dsl.Request{
+					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPut,
-						Path:   dsl.String("/api/v1/users/47/cases/58"),
-						Body: dsl.Like(map[string]interface{}{
-							"data": dsl.EachLike(map[string]interface{}{
-								"assigneeId": dsl.Like(99),
-								"caseType":   dsl.String("LPA"),
-								"id":         dsl.Like(1),
+						Path:   matchers.String("/api/v1/users/47/cases/58"),
+						Body: matchers.Like(map[string]interface{}{
+							"data": matchers.EachLike(map[string]interface{}{
+								"assigneeId": matchers.Like(99),
+								"caseType":   matchers.String("LPA"),
+								"id":         matchers.Like(1),
 							}, 1),
 						}),
 					}).
-					WillRespondWith(dsl.Response{
+					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
-						Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
+						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
 					})
 			},
 		},
@@ -48,9 +51,8 @@ func TestAssign(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
-
-			assert.Nil(t, pact.Verify(func() error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://localhost:%d", pact.Server.Port))
+			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
 
 				err := client.Assign(Context{Context: context.Background()}, []int{58}, 47)
 				assert.Equal(t, tc.expectedError, err)

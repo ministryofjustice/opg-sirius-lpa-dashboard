@@ -7,30 +7,28 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
 	"github.com/stretchr/testify/assert"
 )
 
-func newPact() *dsl.Pact {
-	return &dsl.Pact{
-		Consumer:          "sirius-lpa-dashboard",
-		Provider:          "sirius",
-		Host:              "localhost",
-		PactFileWriteMode: "merge",
-		LogDir:            "../../logs",
-		PactDir:           "../../pacts",
-	}
+func newPact() (*consumer.V2HTTPMockProvider, error) {
+	return consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "sirius-lpa-dashboard",
+		Provider: "sirius",
+		Host:     "127.0.0.1",
+		LogDir:   "../../logs",
+		PactDir:  "../../pacts",
+	})
 }
 
-func newIgnoredPact() *dsl.Pact {
-	return &dsl.Pact{
-		Consumer:          "ignored",
-		Provider:          "ignored",
-		Host:              "localhost",
-		PactFileWriteMode: "merge",
-		LogDir:            "../../logs",
-		PactDir:           "../../pacts",
-	}
+func newIgnoredPact() (*consumer.V2HTTPMockProvider, error) {
+	return consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "ignored",
+		Provider: "ignored",
+		Host:     "127.0.0.1",
+		LogDir:   "../../logs",
+		PactDir:  "../../pacts",
+	})
 }
 
 func teapotServer() *httptest.Server {
