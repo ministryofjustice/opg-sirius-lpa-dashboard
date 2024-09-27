@@ -173,6 +173,32 @@ func TestErrorHandlerStatusKnown(t *testing.T) {
 	}
 }
 
+func TestErrorHandlerSiriusStatus(t *testing.T) {
+	assert := assert.New(t)
+
+	ctx, logBuf := contextWithLogger()
+
+	tmpl := &mockTemplate{}
+	statusError := &sirius.StatusError{Code: http.StatusTeapot}
+
+	wrap := errorHandler(tmpl, "/prefix", "http://sirius")
+	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return statusError
+	})
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, "GET", "/path", nil)
+
+	handler.ServeHTTP(w, r)
+
+	resp := w.Result()
+	assert.Equal(http.StatusTeapot, resp.StatusCode)
+
+	assert.Equal(1, tmpl.count)
+	assert.Equal(errorVars{SiriusURL: "http://sirius", Code: http.StatusTeapot, Error: statusError.Title()}, tmpl.lastVars)
+	assert.Equal("", logBuf.String())
+}
+
 func TestErrorHandlerTemplateError(t *testing.T) {
 	assert := assert.New(t)
 
