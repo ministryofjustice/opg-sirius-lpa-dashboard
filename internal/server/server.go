@@ -174,6 +174,10 @@ func errorHandler(tmplError Template, prefix, siriusURL string) func(next Handle
 					}
 				}
 
+				if statusError, ok := err.(*sirius.StatusError); ok {
+					code = statusError.Code
+				}
+
 				logger := telemetry.LoggerFromContext(r.Context())
 				if code == http.StatusInternalServerError {
 					logger.Error(err.Error())
