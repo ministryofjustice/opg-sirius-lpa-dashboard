@@ -170,9 +170,7 @@ func errorHandler(tmplError Template, prefix, siriusURL string) func(next Handle
 				code := http.StatusInternalServerError
 				message := err.Error()
 				if status, ok := err.(StatusError); ok {
-					if status.Code() == http.StatusForbidden || status.Code() == http.StatusNotFound {
-						code = status.Code()
-					}
+					code = status.Code()
 				}
 
 				if statusError, ok := err.(*sirius.StatusError); ok {
