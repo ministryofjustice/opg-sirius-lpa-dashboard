@@ -119,7 +119,7 @@ func TestErrorHandlerStatus(t *testing.T) {
 
 	wrap := errorHandler(tmplError, "/prefix", "http://sirius")
 	handler := wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return StatusError(http.StatusTeapot)
+		return StatusError(http.StatusInternalServerError)
 	})
 
 	w := httptest.NewRecorder()
@@ -131,12 +131,12 @@ func TestErrorHandlerStatus(t *testing.T) {
 	assert.Equal(http.StatusInternalServerError, resp.StatusCode)
 
 	assert.Equal(1, tmplError.count)
-	assert.Equal(errorVars{SiriusURL: "http://sirius", Code: http.StatusInternalServerError, Error: "418 I'm a teapot"}, tmplError.lastVars)
+	assert.Equal(errorVars{SiriusURL: "http://sirius", Code: http.StatusInternalServerError, Error: "500 Internal Server Error"}, tmplError.lastVars)
 
 	data := map[string]string{}
 	err := json.Unmarshal(logBuf.Bytes(), &data)
 	assert.Nil(err)
-	assert.Equal("418 I'm a teapot", data["msg"])
+	assert.Equal("500 Internal Server Error", data["msg"])
 	assert.Equal("ERROR", data["level"])
 }
 
