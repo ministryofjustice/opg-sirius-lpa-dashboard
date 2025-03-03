@@ -1,4 +1,4 @@
-FROM golang:1.23-bookworm
+FROM golang:1.24-bookworm
 
 RUN go install gotest.tools/gotestsum@latest
 RUN go install github.com/pact-foundation/pact-go/v2@v2.2.0
