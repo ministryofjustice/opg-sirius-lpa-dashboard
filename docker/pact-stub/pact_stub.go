@@ -6,9 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
+	"slices"
 	"strings"
 	"time"
 )
@@ -64,18 +65,16 @@ type Pacts struct {
 }
 
 type Interaction struct {
-	Description   string   `json:"description"`
-	ProviderState string   `json:"providerState"`
 	Request       Request  `json:"request"`
 	Response      Response `json:"response"`
 }
 
 type Request struct {
-	Method  string            `json:"method"`
-	Path    string            `json:"path"`
-	Query   string            `json:"query"`
-	Headers map[string]string `json:"headers"`
-	Body    interface{}       `json:"body"`
+	Method  string              `json:"method"`
+	Path    string              `json:"path"`
+	Query   map[string][]string `json:"query"`
+	Headers map[string][]string `json:"headers"`
+	Body    interface{}         `json:"body"`
 }
 
 func (q Request) String() string {
@@ -91,26 +90,21 @@ func (q Request) Match(r *http.Request) bool {
 		return false
 	}
 
-	if q.Query != "" {
-		if expectedQuery, err := url.ParseQuery(q.Query); err == nil {
-			query := r.URL.Query()
-
-			if expectedQuery.Encode() != query.Encode() {
-				log.Println("QX", q)
-				return false
-			}
-		}
+	if !reflect.DeepEqual(q.Query, r.URL.Query()) {
+		log.Println("QX", q)
 	}
 
-	for k, v := range q.Headers {
+	for k, vs := range q.Headers {
 		if k == "Cookie" {
-			for ck, cv := range readCookies(v) {
-				if cookie, err := r.Cookie(ck); err != nil || cookie.Value != cv {
-					log.Println("CX", q)
-					return false
+			for _, v := range vs {
+				for ck, cv := range readCookies(v) {
+					if cookie, err := r.Cookie(ck); err != nil || cookie.Value != cv {
+						log.Println("CX", q)
+						return false
+					}
 				}
 			}
-		} else if r.Header.Get(k) != v {
+		} else if !slices.Contains(vs, r.Header.Get(k)) {
 			log.Println("HX", q)
 			return false
 		}
@@ -134,14 +128,16 @@ func readCookies(s string) map[string]string {
 }
 
 type Response struct {
-	Status  int               `json:"status"`
-	Headers map[string]string `json:"headers"`
-	Body    interface{}       `json:"body"`
+	Status  int                 `json:"status"`
+	Headers map[string][]string `json:"headers"`
+	Body    interface{}         `json:"body"`
 }
 
 func (r Response) Send(w http.ResponseWriter) {
-	for k, v := range r.Headers {
-		w.Header().Add(k, v)
+	for k, vs := range r.Headers {
+		for _, v := range vs {
+			w.Header().Add(k, v)
+		}
 	}
 
 	w.WriteHeader(r.Status)
