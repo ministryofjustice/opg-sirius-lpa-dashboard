@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newPact() (*consumer.V2HTTPMockProvider, error) {
-	return consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+func newPact() (*consumer.V4HTTPMockProvider, error) {
+	return consumer.NewV4Pact(consumer.MockHTTPProviderConfig{
 		Consumer: "sirius-lpa-dashboard",
 		Provider: "sirius",
 		Host:     "127.0.0.1",
@@ -21,8 +21,8 @@ func newPact() (*consumer.V2HTTPMockProvider, error) {
 	})
 }
 
-func newIgnoredPact() (*consumer.V2HTTPMockProvider, error) {
-	return consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+func newIgnoredPact() (*consumer.V4HTTPMockProvider, error) {
+	return consumer.NewV4Pact(consumer.MockHTTPProviderConfig{
 		Consumer: "ignored",
 		Provider: "ignored",
 		Host:     "127.0.0.1",
