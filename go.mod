@@ -2,10 +2,10 @@ module github.com/ministryofjustice/opg-sirius-lpa-dashboard
 
 go 1.22.0
 
-toolchain go1.24.0
+toolchain go1.24.1
 
 require (
-	github.com/ministryofjustice/opg-go-common v1.71.0
+	github.com/ministryofjustice/opg-go-common v1.74.0
 	github.com/pact-foundation/pact-go/v2 v2.2.0
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.59.0
