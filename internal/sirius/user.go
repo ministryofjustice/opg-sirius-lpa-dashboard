@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-const PotUserEmail string =  "opgcasework@publicguardian.gov.uk"
+const PotUserEmail string = "opgcasework@publicguardian.gov.uk"
 
 func (c *Client) User(ctx Context, id int) (Assignee, error) {
 	var v Assignee
@@ -20,7 +20,7 @@ func (c *Client) User(ctx Context, id int) (Assignee, error) {
 	if err != nil {
 		return v, err
 	}
-	defer resp.Body.Close() //#nosec G307 false positive
+	defer resp.Body.Close() //nolint:errcheck // no need to check error when closing body
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return v, ErrUnauthorized
