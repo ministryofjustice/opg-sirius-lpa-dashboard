@@ -37,7 +37,7 @@ func (c *Client) TasksByAssignee(ctx Context, id int, criteria Criteria) ([]Task
 	if err != nil {
 		return nil, nil, err
 	}
-	defer resp.Body.Close() //#nosec G307 false positive
+	defer resp.Body.Close() //nolint:errcheck // no need to check error when closing body
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		return nil, nil, ErrUnauthorized
