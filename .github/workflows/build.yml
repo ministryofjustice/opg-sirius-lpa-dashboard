@@ -18,7 +18,7 @@ jobs:
     name: Identify version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: "0"
       - name: Define commit SHA and branch
@@ -52,9 +52,9 @@ jobs:
     name: Build LPA Dashboard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Cache Images
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
@@ -70,11 +70,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [identify]
     steps:
-      - uses: actions/checkout@v4
-      - uses: unfor19/install-aws-cli-action@v1
+      - uses: actions/checkout@v4.2.2
+      - uses: unfor19/install-aws-cli-action@v1.0.7
 
       - name: Cache Go Dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.3
         with:
           path: .gocache
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -95,7 +95,7 @@ jobs:
             --broker-password ${{ secrets.PACT_BROKER_PASSWORD }}
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.4.0
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -104,7 +104,7 @@ jobs:
           verbose: true
 
       - name: Persist Pacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: pacts
           path: |
@@ -115,11 +115,11 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Run linting
         run: make lint
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v3.28.15
         if: always()
         with:
           sarif_file: test-results/golangci-lint.sarif
@@ -131,15 +131,15 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Cache Images
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.2.1
         with:
           name: pacts
           path: ./pacts
@@ -162,15 +162,15 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Cache Images
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.2.1
         with:
           name: pacts
           path: ./pacts
@@ -184,7 +184,7 @@ jobs:
         run: make cypress
 
       - name: Upload Cypress screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: failure()
         with:
           name: cypress-screenshots
@@ -195,7 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [identify, "build", "test", "lint", "acceptance-test", "cypress"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: "0"
       - name: Extract branch name
@@ -206,10 +206,10 @@ jobs:
             echo BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/\//-/g') >> $GITHUB_ENV
           fi
         id: extract_branch
-      - uses: unfor19/install-aws-cli-action@v1
+      - uses: unfor19/install-aws-cli-action@v1.0.7
 
       - name: Cache Images
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.3
         with:
           path: /tmp/images
           key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
@@ -221,13 +221,13 @@ jobs:
         run: make scan
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v3.28.15
         if: always()
         with:
           sarif_file: 'test-results/trivy.sarif'
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -238,7 +238,7 @@ jobs:
 
       - name: ECR Login
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           registries: 311462405659
 
@@ -262,10 +262,10 @@ jobs:
     needs: [identify, push]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -276,7 +276,7 @@ jobs:
 
       - name: Install AWS CLI
         id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
+        uses: unfor19/install-aws-cli-action@v1.0.7
 
       - name: Push Tag to Parameter Store
         run: |
