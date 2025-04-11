@@ -1,6 +1,5 @@
-import MOJFrontend from "@ministryofjustice/frontend/moj/all.js";
+import * as MOJFrontend from "@ministryofjustice/frontend";
 import * as GOVUKFrontend from "govuk-frontend";
-import $ from "jquery";
 
 function initEnableWhenSelection() {
   const button = document.querySelector("button[data-enable-when-selection]");
@@ -85,9 +84,6 @@ function initFilterHeadings() {
     };
   }
 }
-
-// Expose jQuery on window so MOJFrontend can use it
-window.$ = $;
 
 // we aren't using the JS tabs, but they try to initialise this will stop them breaking
 GOVUKFrontend.Tabs.prototype.setup = () => {};
