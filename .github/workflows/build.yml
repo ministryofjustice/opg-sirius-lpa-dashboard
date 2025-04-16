@@ -49,21 +49,25 @@ jobs:
       tag: ${{ steps.bump_version.outputs.tag }}
 
   build:
-    name: Build LPA Dashboard
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Cache Images
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: /tmp/images
-          key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
-      - name: Build Images
-        run: |
-          make build-ci
-          mkdir -p /tmp/images
-          docker save -o /tmp/images/app.tar 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
-          docker save -o /tmp/images/pact-stub.tar pact-stub:latest
+    strategy:
+        fail-fast: true
+        matrix:
+          include:
+            - image_name: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard
+              service_name: lpa-dashboard
+              build_options: --file docker/sirius-lpa-dashboard/Dockerfile
+              context: .
+            - image_name: pact-stub
+              service_name: pact-stub
+              context: docker/pact-stub
+    name: Build ${{ matrix.service_name }}
+    uses: ministryofjustice/opg-github-workflows/.github/workflows/build-multi-architecture-image.yml@6bc0246b5cca2f4c85d06986c82a9a42643f6851 # v3.13.0
+    with:
+      image_name: ${{ matrix.image_name }}
+      artifact_name: ${{ matrix.service_name }}-multi-arch
+      job_name: Build ${{ matrix.service_name }} Image
+      build_path: ${{ matrix.context }}
+      build_options: ${{ matrix.build_options }}
 
   test:
     name: Unit Tests
@@ -132,22 +136,27 @@ jobs:
       - test
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Cache Images
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+
+      - name: Set up Docker
+        run: |
+          echo '{"experimental": true, "features": { "containerd-snapshotter": true }}' | sudo tee -a /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker run --privileged --rm tonistiigi/binfmt --install all
+      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
+          pattern: "*-multi-arch"
           path: /tmp/images
-          key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
+          merge-multiple: true
+      - name: Load Images
+        run: |
+          docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
+          docker load -i /tmp/images/pact-stub-multi-arch.tar
 
       - name: Download Artifacts
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: pacts
           path: ./pacts
-
-      - name: Restore images
-        run: |
-          docker load -i /tmp/images/app.tar
-          docker load -i /tmp/images/pact-stub.tar
 
       - name: Run pa11y
         run: make pa11y
@@ -163,22 +172,27 @@ jobs:
       - test
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Cache Images
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+
+      - name: Set up Docker
+        run: |
+          echo '{"experimental": true, "features": { "containerd-snapshotter": true }}' | sudo tee -a /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker run --privileged --rm tonistiigi/binfmt --install all
+      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
+          pattern: "*-multi-arch"
           path: /tmp/images
-          key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
+          merge-multiple: true
+      - name: Load Images
+        run: |
+          docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
+          docker load -i /tmp/images/pact-stub-multi-arch.tar
 
       - name: Download Artifacts
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: pacts
           path: ./pacts
-
-      - name: Restore images
-        run: |
-          docker load -i /tmp/images/app.tar
-          docker load -i /tmp/images/pact-stub.tar
 
       - name: Start app
         run: make cypress
@@ -208,14 +222,20 @@ jobs:
         id: extract_branch
       - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1.0.7
 
-      - name: Cache Images
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      - name: Set up Docker
+        run: |
+          echo '{"experimental": true, "features": { "containerd-snapshotter": true }}' | sudo tee -a /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker run --privileged --rm tonistiigi/binfmt --install all
+      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
+          pattern: "*-multi-arch"
           path: /tmp/images
-          key: ${{ runner.os }}-images-${{ github.run_id }}-${{ github.run_number }}
-
-      - name: Restore Image
-        run: docker load -i /tmp/images/app.tar
+          merge-multiple: true
+      - name: Load Images
+        run: |
+          docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
+          docker load -i /tmp/images/pact-stub-multi-arch.tar
 
       - name: Run Trivy
         run: make scan
@@ -255,6 +275,31 @@ jobs:
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
           else
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
+          fis
+
+  end_of_pr_workflow:
+    name: End of PR Workflow
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [
+      identify,
+      build,
+      test,
+      lint,
+      acceptance-test,
+      cypress,
+      push
+      ]
+    steps:
+      - name: End of PR Workflow
+        run: |
+          if ${{ contains(needs.*.result,'failure') }}
+          then
+            echo "Not all checks succedeed, check the previous jobs."
+            exit 1
+          else
+            echo "All checks succedeed!"
+            exit 0
           fi
 
   push-tags:
