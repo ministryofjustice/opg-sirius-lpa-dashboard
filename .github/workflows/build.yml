@@ -276,6 +276,7 @@ jobs:
           else
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
           fi
+          exit 1
 
   end_of_pr_workflow:
     name: End of PR Workflow
@@ -295,10 +296,10 @@ jobs:
         run: |
           if ${{ contains(needs.*.result,'success') }}
           then
-            echo "All workflow jobs succeded!"
+            echo "All checks succedeed!"
             exit 0
           else
-            echo "Not all workflows passed, check the previous workflows."
+            echo "Not all checks succedeed, check the previous workflows."
             exit 1
           fi
 
