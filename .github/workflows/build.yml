@@ -293,13 +293,13 @@ jobs:
     steps:
       - name: End of PR Workflow
         run: |
-          if ${{ contains(needs.*.result,'success') }}
+          if ${{ contains(needs.*.result,'failure') }}
           then
-            echo "All workflow jobs succeded!"
-            exit 0
-          else
-            echo "Not all workflows passed, check the previous workflows."
+            echo "Not all checks succedeed, check the previous jobs."
             exit 1
+          else
+            echo "All checks succedeed!"
+            exit 0
           fi
 
   push-tags:
