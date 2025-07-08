@@ -31,16 +31,13 @@ jobs:
               echo "COMMIT=${{github.event.pull_request.head.sha}}" >> $GITHUB_OUTPUT
               echo "BRANCH=${{github.head_ref}}" >> $GITHUB_OUTPUT
           fi
-      - name: Bump version
-        id: semver_tag
-        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@c9c5dfb290b8f614df0884928c521165ba83d630 # v3.1.4
-        with:
-          default_bump: minor
-          releases_enabled: false
     outputs:
       commit: ${{ steps.commit_branch.outputs.COMMIT }}
       branch: ${{ steps.commit_branch.outputs.BRANCH }}
-      tag: ${{ steps.semver_tag.outputs.created_tag }}
+
+  create-tag:
+    name: Create Tags
+    uses: ./.github/workflows/create-tags.yml
 
   build:
     strategy:
@@ -66,7 +63,7 @@ jobs:
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: [identify]
+    needs: [identify, create-tag]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1.0.7
@@ -87,7 +84,7 @@ jobs:
           docker compose run --rm pact pact-broker publish ./pacts/sirius-lpa-dashboard-sirius.json \
             --consumer-app-version ${{ needs.identify.outputs.commit }} \
             --branch ${{ needs.identify.outputs.branch }} \
-            --tag ${{ needs.identify.outputs.tag }} \
+            --tag ${{ needs.create-tag.outputs.tag }} \
             --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
             --broker-username admin \
             --broker-password ${{ secrets.PACT_BROKER_PASSWORD }}
@@ -201,19 +198,11 @@ jobs:
   push:
     name: "Build & Push Containers"
     runs-on: ubuntu-latest
-    needs: [identify, "build", "test", "lint", "acceptance-test", "cypress"]
+    needs: ['identify', 'create-tag', 'build', 'test', 'lint', 'acceptance-test', 'cypress']
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: "0"
-      - name: Extract branch name
-        run: |
-          if [ "${{ github.head_ref }}" == "" ]; then
-            echo BRANCH_NAME=main >> $GITHUB_ENV
-          else
-            echo BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/\//-/g') >> $GITHUB_ENV
-          fi
-        id: extract_branch
       - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1.0.7
 
       - name: Set up Docker
@@ -261,29 +250,21 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: sirius/sirius-lpa-dashboard
         run: |
-          docker tag 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
+          docker tag 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.create-tag.outputs.tag }}
           if [ "${{ needs.identify.outputs.branch }}" == "main" ]; then
-            docker tag 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.identify.outputs.tag }}
-            docker tag 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.identify.outputs.tag }}-$(date +"%Y%m%d%H%M%S")
+            docker tag 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.create-tag.outputs.tag }}
+            docker tag 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ needs.create-tag.outputs.tag }}-${{ needs.create-tag.outputs.timestamp }}
             # We want all of the tags pushed
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
           else
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.identify.outputs.tag }}
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ needs.create-tag.outputs.tag }}
           fi
 
   end_of_pr_workflow:
     name: End of PR Workflow
     runs-on: ubuntu-latest
     if: always()
-    needs: [
-      identify,
-      build,
-      test,
-      lint,
-      acceptance-test,
-      cypress,
-      push
-      ]
+    needs: ['identify', 'create-tag', 'build', 'test', 'lint', 'acceptance-test', 'cypress', 'push']
     steps:
       - name: End of PR Workflow
         run: |
@@ -298,7 +279,7 @@ jobs:
 
   push-tags:
     runs-on: ubuntu-latest
-    needs: [identify, end_of_pr_workflow]
+    needs: ['create-tag', 'end_of_pr_workflow']
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -319,7 +300,7 @@ jobs:
 
       - name: Push Tag to Parameter Store
         run: |
-          aws ssm put-parameter --name "opg-sirius-lpa-dashboard-latest-green-build" --type "String" --value "${{ needs.identify.outputs.tag }}" --overwrite --region=eu-west-1
+          aws ssm put-parameter --name "opg-sirius-lpa-dashboard-latest-green-build" --type "String" --value "${{ needs.create-tag.outputs.tag }}" --overwrite --region=eu-west-1
 
       - name: Trigger Dev Deploy
         shell: bash
