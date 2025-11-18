@@ -1,9 +1,52 @@
 describe("All of another user's cases", () => {
-  beforeEach(() => {
-    cy.visit("/users/all-cases/47");
-  });
-
   it("shows all the user's cases", () => {
+    cy.addMock("/api/v1/users/current", "GET", {
+      status: 200,
+      body: {
+        displayName: "A Manager",
+        id: 114,
+        roles: ["Manager"],
+      },
+    });
+
+    cy.addMock("/api/v1/users/47", "GET", {
+      status: 200,
+      body: {
+        displayName: "John Paulson",
+        id: 47,
+        teams: [
+          {
+            displayName: "Cool Team",
+            id: 12,
+          },
+        ],
+      },
+    });
+
+    cy.addCaseFilterMock(
+      {
+        assigneeId: 47,
+        filter: "caseType:lpa,active:true",
+      },
+      [
+        {
+          caseSubtype: "pfa",
+          donor: {
+            id: 23,
+            firstname: "Adrian",
+            surname: "Kurkjian",
+            uId: "7000-5382-4438",
+          },
+          id: 36,
+          receiptDate: "12/05/2021",
+          status: "Perfect",
+          uId: "7000-8548-8461",
+        },
+      ],
+    );
+
+    cy.visit("/users/all-cases/47");
+
     cy.title().should("contain", "John");
     cy.get("h1").should("contain", "John");
 
