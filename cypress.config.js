@@ -1,4 +1,4 @@
-const { defineConfig } = require('cypress')
+const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   chromeWebSecurity: false,
@@ -11,7 +11,7 @@ module.exports = defineConfig({
         return launchOptions;
       });
     },
-    baseUrl: 'http://localhost:8888/',
-    supportFile: false,
+    baseUrl: "http://localhost:8888/",
+    supportFile: "cypress/support/index.js",
   },
-})
+});

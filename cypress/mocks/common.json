@@ -1,0 +1,15 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/users/current"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "body": "{\"displayName\":\"Test User\",\"id\":104,\"roles\":[\"OPG User\"]}"
+      }
+    }
+  ]
+}

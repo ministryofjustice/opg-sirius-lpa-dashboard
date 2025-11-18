@@ -1,35 +1,28 @@
-version: "3.6"
-
 services:
   lpa-dashboard:
     image: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
     build:
       dockerfile: docker/sirius-lpa-dashboard/Dockerfile
     depends_on:
-      - pact-stub
+      - sirius-mock
     ports: ["8888:8888"]
     environment:
       PORT: 8888
-      SIRIUS_URL: http://pact-stub:8080
+      SIRIUS_URL: http://sirius-mock:8080
       SIRIUS_PUBLIC_URL: http://localhost:8080
 
-  pact-stub:
-    image: pact-stub:latest
-    build: docker/pact-stub
-    ports: ["8080:8080"]
-    environment:
-      PACT_DIR: ./pacts
-      PORT: 8080
+  sirius-mock:
+    image: wiremock/wiremock:3.13.1
+    ports: ["8563:8080"]
     volumes:
-      - ./pacts:/app/pacts
+      - "./cypress/mocks:/home/wiremock/mappings"
 
   puppeteer:
     build: docker/puppeteer
     depends_on:
       - lpa-dashboard
-      - pact-stub
     environment:
-      - LHCI_BUILD_CONTEXT__CURRENT_HASH=$CIRCLE_SHA1
+      - LHCI_BUILD_CONTEXT__CURRENT_HASH=$GITHUB_SHA
       - LHCI_BUILD_CONTEXT__GITHUB_REPO_SLUG=ministryofjustice/opg-sirius-lpa-dashboard
       - LHCI_GITHUB_APP_TOKEN
 
@@ -62,9 +55,10 @@ services:
     entrypoint: cypress
     depends_on:
       - lpa-dashboard
-      - pact-stub
+      - sirius-mock
     environment:
       - CYPRESS_BASE_URL=http://lpa-dashboard:8888
+      - CYPRESS_MOCK_SERVER_URI=http://sirius-mock:8080
       - CYPRESS_VIDEO=false
     working_dir: /e2e
     volumes:

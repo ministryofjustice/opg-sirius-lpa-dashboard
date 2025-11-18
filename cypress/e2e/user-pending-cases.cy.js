@@ -1,9 +1,53 @@
 describe("Another user's pending cases", () => {
-  beforeEach(() => {
-    cy.visit("/users/pending-cases/47");
-  });
-
   it("shows the user's pending cases", () => {
+    cy.addMock("/api/v1/users/current", "GET", {
+      status: 200,
+      body: {
+        displayName: "A Manager",
+        id: 114,
+        roles: ["Manager"],
+      },
+    });
+
+    cy.addMock("/api/v1/users/47", "GET", {
+      status: 200,
+      body: {
+        displayName: "John Paulson",
+        id: 47,
+        teams: [
+          {
+            displayName: "Cool Team",
+            id: 12,
+          },
+        ],
+      },
+    });
+
+    cy.addCaseFilterMock(
+      {
+        assigneeId: 47,
+        filter: "status:Pending,caseType:lpa,active:true",
+      },
+      [
+        {
+          caseSubtype: "hw",
+          donor: {
+            firstname: "Wilma",
+            id: 17,
+            surname: "Ruthman",
+            uId: "7000-5382-4438",
+          },
+          id: 58,
+          receiptDate: "14/05/2021",
+          status: "Pending",
+          taskCount: 1,
+          uId: "7000-2830-9492",
+        },
+      ],
+    );
+
+    cy.visit("/users/pending-cases/47");
+
     cy.title().should("contain", "John");
     cy.get("h1").should("contain", "John");
 
@@ -11,7 +55,7 @@ describe("Another user's pending cases", () => {
 
     cy.get(".govuk-tabs__list-item--selected").should(
       "contain",
-      "Pending cases"
+      "Pending cases",
     );
 
     const $row = cy.get("table > tbody > tr");
