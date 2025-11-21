@@ -12,7 +12,7 @@ import (
 )
 
 func TestFeedback(t *testing.T) {
-	pact, err := newIgnoredPact()
+	pact, err := newPact()
 
 	assert.NoError(t, err)
 
@@ -30,13 +30,13 @@ func TestFeedback(t *testing.T) {
 					UponReceiving("A request to give feedback").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPost,
-						Path:   matchers.String("/api/wth"),
+						Path:   matchers.String("/api/v1/feedback/poas"),
 						Body: matchers.Like(map[string]interface{}{
 							"message": matchers.String("hey"),
 						}),
 					}).
 					WithCompleteResponse(consumer.Response{
-						Status:  http.StatusOK,
+						Status:  http.StatusForbidden,
 						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
 					})
 			},
@@ -67,7 +67,7 @@ func TestFeedbackStatusError(t *testing.T) {
 	err := client.Feedback(Context{Context: context.Background()}, "hey")
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/wth",
+		URL:    s.URL + "/api/v1/feedback/poas",
 		Method: http.MethodPost,
 	}, err)
 }
