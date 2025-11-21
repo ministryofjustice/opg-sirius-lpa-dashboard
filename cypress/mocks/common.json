@@ -1,0 +1,37 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/users/current"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "body": "{\"displayName\":\"Test User\",\"id\":104,\"roles\":[\"OPG User\"]}"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/assignees/104/cases?filter=status%3APending%2CcaseType%3Alpa%2Cactive%3Atrue&page=1&sort=workedDate%3Adesc%2CreceiptDate%3Aasc"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "body": "{\"cases\":[{\"caseSubtype\":\"hw\",\"donor\":{\"firstname\":\"Wilma\",\"id\":17,\"surname\":\"Ruthman\",\"uId\":\"7000-5382-4438\"},\"id\":58,\"receiptDate\":\"14/05/2021\",\"status\":\"Pending\",\"taskCount\":1,\"uId\":\"7000-2830-9492\"}],\"limit\":25,\"pages\":{\"current\":1,\"total\":1},\"total\":1}"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/assignees/104/cases?filter=status%3APending%2Cworked%3Afalse%2CcaseType%3Alpa%2Cactive%3Atrue&limit=1&page=1"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "body": "{\"cases\":[],\"limit\":25,\"pages\":{\"current\":1,\"total\":1},\"total\":0}"
+      }
+    }
+  ]
+}

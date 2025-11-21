@@ -1,5 +1,80 @@
 describe("Team work in progress", () => {
   beforeEach(() => {
+    cy.addMock("/api/v1/users/current", "GET", {
+      status: 200,
+      body: {
+        displayName: "Manager",
+        id: 107,
+        roles: ["Manager"],
+      },
+    });
+
+    cy.addMock("/api/v1/teams", "GET", {
+      status: 200,
+      body: [
+        {
+          displayName: "Casework Team",
+          id: 66,
+          members: [
+            {
+              displayName: "John",
+              id: 47,
+            },
+          ],
+        },
+        {
+          displayName: "Nottingham casework team",
+          id: 67,
+        },
+      ],
+    });
+
+    cy.addMock("/api/v1/teams/66/cases?page=1", "GET", {
+      status: 200,
+      body: {
+        cases: [
+          {
+            assignee: {
+              displayName: "John Smith",
+              id: 17,
+            },
+            caseSubtype: "pfa",
+            donor: {
+              firstname: "Adrian",
+              id: 23,
+              surname: "Kurkjian",
+              uId: "7000-5382-4438",
+            },
+            id: 36,
+            receiptDate: "12/05/2021",
+            status: "Perfect",
+            uId: "7000-8548-8461",
+          },
+        ],
+        metadata: {
+          tasksCompleted: [
+            {
+              assignee: {
+                displayName: "John Smith",
+                id: 17,
+              },
+              total: 3,
+            },
+          ],
+          worked: [
+            {
+              assignee: {
+                displayName: "John Smith",
+                id: 17,
+              },
+              total: 1,
+            },
+          ],
+          workedTotal: 1,
+        },
+      },
+    });
+
     cy.visit("/teams/work-in-progress/66");
   });
 
@@ -9,7 +84,7 @@ describe("Team work in progress", () => {
 
     cy.get(".govuk-tabs__list-item--selected").should(
       "contain",
-      "Casework Team - work in progress"
+      "Casework Team - work in progress",
     );
     cy.get(".moj-ticket-panel .govuk-heading-xl")
       .invoke("text")
@@ -50,6 +125,70 @@ describe("Team work in progress", () => {
 
     cy.contains("Show filters").click();
     cy.contains("label", "John").click();
+
+    cy.addCaseFilterMock({
+      assigneeId: 107,
+      filter: "status:Pending,worked:false,caseType:lpa,active:true",
+    });
+
+    cy.addCaseFilterMock({
+      assigneeId: 107,
+      filter: "status:Pending,caseType:lpa,active:true",
+      sort: "workedDate:desc,receiptDate:asc",
+    });
+
+    cy.addMock("/api/v1/teams/66/cases?filter=allocation%3A47&page=1", "GET", {
+      status: 200,
+      body: {
+        cases: [
+          {
+            assignee: {
+              displayName: "John Smith",
+              id: 17,
+            },
+            caseSubtype: "pfa",
+            donor: {
+              firstname: "Someone",
+              id: 23,
+              surname: "Else",
+              uId: "7000-5382-4438",
+            },
+            id: 36,
+            receiptDate: "12/05/2021",
+            status: "Perfect",
+            uId: "7000-8548-8461",
+          },
+        ],
+        limit: 25,
+        metadata: {
+          tasksCompleted: [
+            {
+              assignee: {
+                displayName: "John Smith",
+                id: 17,
+              },
+              total: 3,
+            },
+          ],
+          worked: [
+            {
+              assignee: {
+                displayName: "John Smith",
+                id: 17,
+              },
+              total: 1,
+            },
+          ],
+          workedTotal: 1,
+        },
+        pages: {
+          current: 1,
+          total: 1,
+        },
+        total: 1,
+      },
+    });
+
     cy.contains("Apply filters").click();
     cy.url().should("contain", "allocation=47");
 
@@ -63,11 +202,36 @@ describe("Team work in progress", () => {
   });
 
   it("enables navigation to other teams via dropdown", () => {
+    cy.addCaseFilterMock({
+      assigneeId: 107,
+      filter: "status:Pending,worked:false,caseType:lpa,active:true",
+    });
+
+    cy.addCaseFilterMock({
+      assigneeId: 107,
+      filter: "status:Pending,caseType:lpa,active:true",
+      sort: "workedDate:desc,receiptDate:asc",
+    });
+
+    cy.addMock("/api/v1/teams/67/cases?page=1", "GET", {
+      status: 200,
+      body: {
+        cases: [
+          {
+            id: 853,
+            receiptDate: "12/05/2021",
+            status: "Perfect",
+            uId: "7000-8548-2721",
+          },
+        ],
+      },
+    });
+
     cy.get("[data-select-navigate]").select("Nottingham casework team");
     cy.url().should("contain", "teams/work-in-progress/67");
     cy.get(".govuk-tabs__list-item--selected").should(
       "contain",
-      "Nottingham casework team - work in progress"
+      "Nottingham casework team - work in progress",
     );
     cy.get(".moj-ticket-panel").should("contain", "Nottingham casework team");
   });
