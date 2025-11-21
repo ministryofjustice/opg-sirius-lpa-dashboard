@@ -20,7 +20,7 @@ func (c *Client) Feedback(ctx Context, message string) error {
 		return err
 	}
 
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/wth", &buf)
+	req, err := c.newRequest(ctx, http.MethodPost, "/api/v1/feedback/poas", &buf)
 	if err != nil {
 		return err
 	}

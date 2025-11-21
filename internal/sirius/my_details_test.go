@@ -70,65 +70,6 @@ func TestMyDetails(t *testing.T) {
 	}
 }
 
-func TestMyDetailsIgnored(t *testing.T) {
-	pact, err := newIgnoredPact()
-
-	assert.NoError(t, err)
-
-	testCases := []struct {
-		name              string
-		setup             func()
-		expectedMyDetails MyDetails
-		expectedError     error
-	}{
-		{
-			name: "OK",
-			setup: func() {
-				pact.
-					AddInteraction().
-					Given("User exists").
-					UponReceiving("A request to get my details").
-					WithCompleteRequest(consumer.Request{
-						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/users/current"),
-					}).
-					WithCompleteResponse(consumer.Response{
-						Status:  http.StatusOK,
-						Headers: matchers.MapMatcher{"Content-Type": matchers.String("application/json")},
-						Body: matchers.Like(map[string]interface{}{
-							"id":    matchers.Like(47),
-							"roles": []string{"Manager", "Self Allocation User"},
-							"teams": matchers.EachLike(map[string]interface{}{
-								"id":          matchers.Like(66),
-								"displayName": matchers.Like("my team"),
-							}, 1),
-						}),
-					})
-			},
-			expectedMyDetails: MyDetails{
-				ID:    47,
-				Roles: []string{"Manager", "Self Allocation User"},
-				Teams: []MyDetailsTeam{{ID: 66, DisplayName: "my team"}},
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			tc.setup()
-
-			assert.Nil(t, pact.ExecuteTest(t, func(config consumer.MockServerConfig) error {
-				client, _ := NewClient(http.DefaultClient, fmt.Sprintf("http://127.0.0.1:%d", config.Port))
-
-				myDetails, err := client.MyDetails(Context{Context: context.Background()})
-				assert.Equal(t, tc.expectedMyDetails, myDetails)
-				assert.Equal(t, tc.expectedError, err)
-				return nil
-			}))
-		})
-	}
-}
-
 func TestMyDetailsStatusError(t *testing.T) {
 	s := teapotServer()
 	defer s.Close()

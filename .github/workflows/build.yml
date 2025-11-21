@@ -111,14 +111,6 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
-      - name: Persist Pacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: pacts
-          path: |
-            ./pacts/sirius-lpa-dashboard-sirius.json
-            ./pacts/ignored-ignored.json
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -156,12 +148,6 @@ jobs:
           docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
           docker load -i /tmp/images/pact-stub-multi-arch.tar
 
-      - name: Download Artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          name: pacts
-          path: ./pacts
-
       - name: Run pa11y
         run: make pa11y
 
@@ -191,12 +177,6 @@ jobs:
         run: |
           docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
           docker load -i /tmp/images/pact-stub-multi-arch.tar
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          name: pacts
-          path: ./pacts
 
       - name: Start app
         run: make cypress
