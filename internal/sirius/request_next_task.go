@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Client) RequestNextTask(ctx Context) error {
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/v1/request-new-task", nil)
+	req, err := c.newRequest(ctx, http.MethodPost, "/lpa-api/v1/request-new-task", nil)
 	if err != nil {
 		return err
 	}

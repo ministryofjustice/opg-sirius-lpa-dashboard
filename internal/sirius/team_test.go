@@ -33,7 +33,7 @@ func TestTeam(t *testing.T) {
 					UponReceiving("A request for an LPA team with ID 66").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/teams/66"),
+						Path:   matchers.String("/lpa-api/v1/teams/66"),
 					}).
 					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
@@ -86,7 +86,7 @@ func TestTeamStatusError(t *testing.T) {
 	_, err := client.Team(Context{Context: context.Background()}, 123)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/teams/123",
+		URL:    s.URL + "/lpa-api/v1/teams/123",
 		Method: http.MethodGet,
 	}, err)
 }

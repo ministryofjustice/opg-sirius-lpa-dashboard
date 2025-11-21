@@ -12,7 +12,7 @@ type apiPages struct {
 }
 
 func (c *Client) CasesWithOpenTasksByAssignee(ctx Context, id, page int) ([]Case, *Pagination, error) {
-	url := fmt.Sprintf("/api/v1/assignees/%d/cases-with-open-tasks?page=%d", id, page)
+	url := fmt.Sprintf("/lpa-api/v1/assignees/%d/cases-with-open-tasks?page=%d", id, page)
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {

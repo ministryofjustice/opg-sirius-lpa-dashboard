@@ -31,7 +31,7 @@ func TestAssign(t *testing.T) {
 					UponReceiving("A request to reassign a case").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPut,
-						Path:   matchers.String("/api/v1/users/47/cases/58"),
+						Path:   matchers.String("/lpa-api/v1/users/47/cases/58"),
 						Body: matchers.Like(map[string]interface{}{
 							"data": matchers.EachLike(map[string]interface{}{
 								"assigneeId": matchers.Like(99),
@@ -71,7 +71,7 @@ func TestAssignStatusError(t *testing.T) {
 	err := client.Assign(Context{Context: context.Background()}, []int{1}, 47)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/users/47/cases/1",
+		URL:    s.URL + "/lpa-api/v1/users/47/cases/1",
 		Method: http.MethodPut,
 	}, err)
 }

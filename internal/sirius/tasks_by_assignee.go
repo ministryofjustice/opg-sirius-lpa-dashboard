@@ -26,7 +26,7 @@ type TaskCaseItem struct {
 }
 
 func (c *Client) TasksByAssignee(ctx Context, id int, criteria Criteria) ([]Task, *Pagination, error) {
-	url := fmt.Sprintf("/api/v1/assignees/%d/tasks?%s", id, criteria.String())
+	url := fmt.Sprintf("/lpa-api/v1/assignees/%d/tasks?%s", id, criteria.String())
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {

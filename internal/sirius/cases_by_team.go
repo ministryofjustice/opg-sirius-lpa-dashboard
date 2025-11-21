@@ -24,7 +24,7 @@ type CasesByTeamMetadataMember struct {
 }
 
 func (c *Client) CasesByTeam(ctx Context, id int, criteria Criteria) (*CasesByTeam, error) {
-	url := fmt.Sprintf("/api/v1/teams/%d/cases?%s", id, criteria.String())
+	url := fmt.Sprintf("/lpa-api/v1/teams/%d/cases?%s", id, criteria.String())
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {

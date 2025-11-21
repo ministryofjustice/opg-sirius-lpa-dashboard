@@ -1,6 +1,6 @@
 describe("Another user's pending cases", () => {
   it("shows the user's pending cases", () => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "A Manager",
@@ -9,7 +9,7 @@ describe("Another user's pending cases", () => {
       },
     });
 
-    cy.addMock("/api/v1/users/47", "GET", {
+    cy.addMock("/lpa-api/v1/users/47", "GET", {
       status: 200,
       body: {
         displayName: "John Paulson",

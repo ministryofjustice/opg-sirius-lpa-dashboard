@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Client) RequestNextCases(ctx Context) error {
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/v1/request-new-cases", nil)
+	req, err := c.newRequest(ctx, http.MethodPost, "/lpa-api/v1/request-new-cases", nil)
 	if err != nil {
 		return err
 	}

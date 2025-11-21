@@ -38,7 +38,7 @@ func (d Donor) DisplayName() string {
 func (c *Client) CasesByAssignee(ctx Context, id int, criteria Criteria) ([]Case, *Pagination, error) {
 	criteria = criteria.Filter("caseType", "lpa").Filter("active", "true")
 
-	url := fmt.Sprintf("/api/v1/assignees/%d/cases?%s", id, criteria.String())
+	url := fmt.Sprintf("/lpa-api/v1/assignees/%d/cases?%s", id, criteria.String())
 
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {

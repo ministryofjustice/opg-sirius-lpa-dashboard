@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/api/v1/users/current"
+        "url": "/lpa-api/v1/users/current"
       },
       "response": {
         "status": 200,
@@ -14,7 +14,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/api/v1/assignees/104/cases?filter=status%3APending%2CcaseType%3Alpa%2Cactive%3Atrue&page=1&sort=workedDate%3Adesc%2CreceiptDate%3Aasc"
+        "url": "/lpa-api/v1/assignees/104/cases?filter=status%3APending%2CcaseType%3Alpa%2Cactive%3Atrue&page=1&sort=workedDate%3Adesc%2CreceiptDate%3Aasc"
       },
       "response": {
         "status": 200,
@@ -25,7 +25,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/api/v1/assignees/104/cases?filter=status%3APending%2Cworked%3Afalse%2CcaseType%3Alpa%2Cactive%3Atrue&limit=1&page=1"
+        "url": "/lpa-api/v1/assignees/104/cases?filter=status%3APending%2Cworked%3Afalse%2CcaseType%3Alpa%2Cactive%3Atrue&limit=1&page=1"
       },
       "response": {
         "status": 200,

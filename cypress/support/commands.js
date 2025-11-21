@@ -15,7 +15,7 @@ Cypress.Commands.add(
 
     await addMock(
       {
-        path: `/api/v1/assignees/${assigneeId}/cases`,
+        path: `/lpa-api/v1/assignees/${assigneeId}/cases`,
         query: {
           page: 1,
           ...rest,
@@ -46,7 +46,7 @@ Cypress.Commands.add(
 
     await addMock(
       {
-        path: `/api/v1/assignees/${assigneeId}/tasks`,
+        path: `/lpa-api/v1/assignees/${assigneeId}/tasks`,
         query: {
           ...rest,
         },

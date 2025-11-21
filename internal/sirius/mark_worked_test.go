@@ -29,7 +29,7 @@ func TestMarkWorked(t *testing.T) {
 					UponReceiving("A request to mark the case as worked").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPut,
-						Path:   matchers.String("/api/v1/lpas/800"),
+						Path:   matchers.String("/lpa-api/v1/lpas/800"),
 						Body:   matchers.Like(map[string]interface{}{"worked": true}),
 					}).
 					WithCompleteResponse(consumer.Response{
@@ -64,7 +64,7 @@ func TestMarkWorkedStatusError(t *testing.T) {
 	err := client.MarkWorked(Context{Context: context.Background()}, 1)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/lpas/1",
+		URL:    s.URL + "/lpa-api/v1/lpas/1",
 		Method: http.MethodPut,
 	}, err)
 }

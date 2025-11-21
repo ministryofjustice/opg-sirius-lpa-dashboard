@@ -32,7 +32,7 @@ func TestCasesWithOpenTasksByAssignee(t *testing.T) {
 					UponReceiving("A request to get my cases with open tasks").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/assignees/47/cases-with-open-tasks"),
+						Path:   matchers.String("/lpa-api/v1/assignees/47/cases-with-open-tasks"),
 						Query: matchers.MapMatcher{
 							"page": matchers.String("1"),
 						},
@@ -113,7 +113,7 @@ func TestCasesWithOpenTasksByAssigneeStatusError(t *testing.T) {
 	_, _, err := client.CasesWithOpenTasksByAssignee(Context{Context: context.Background()}, 47, 2)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/assignees/47/cases-with-open-tasks?page=2",
+		URL:    s.URL + "/lpa-api/v1/assignees/47/cases-with-open-tasks?page=2",
 		Method: http.MethodGet,
 	}, err)
 }

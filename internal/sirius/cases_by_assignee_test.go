@@ -36,7 +36,7 @@ func TestCasesByAssignee(t *testing.T) {
 					WithCompleteRequest(
 						consumer.Request{
 							Method: http.MethodGet,
-							Path:   matchers.String("/api/v1/assignees/47/cases"),
+							Path:   matchers.String("/lpa-api/v1/assignees/47/cases"),
 							Query: matchers.MapMatcher{
 								"page":   matchers.String("1"),
 								"filter": matchers.String("caseType:lpa,active:true"),
@@ -100,7 +100,7 @@ func TestCasesByAssignee(t *testing.T) {
 					UponReceiving("A request to get my pending cases").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Path:   matchers.String("/lpa-api/v1/assignees/47/cases"),
 						Query: matchers.MapMatcher{
 							"page":   matchers.String("1"),
 							"filter": matchers.String("status:Pending,caseType:lpa,active:true"),
@@ -163,7 +163,7 @@ func TestCasesByAssignee(t *testing.T) {
 					UponReceiving("A request to get my pending cases sorted by worked date").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Path:   matchers.String("/lpa-api/v1/assignees/47/cases"),
 						Query: matchers.MapMatcher{
 							"page":   matchers.String("1"),
 							"filter": matchers.String("status:Pending,caseType:lpa,active:true"),
@@ -226,7 +226,7 @@ func TestCasesByAssignee(t *testing.T) {
 					UponReceiving("A request to get my oldest pending case").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Path:   matchers.String("/lpa-api/v1/assignees/47/cases"),
 						Query: matchers.MapMatcher{
 							"page":   matchers.String("1"),
 							"limit":  matchers.String("1"),
@@ -317,7 +317,7 @@ func TestHasWorkableCase(t *testing.T) {
 					UponReceiving("A request to get a pending, unworked case").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/assignees/47/cases"),
+						Path:   matchers.String("/lpa-api/v1/assignees/47/cases"),
 						Query: matchers.MapMatcher{
 							"page":   matchers.String("1"),
 							"limit":  matchers.String("1"),
@@ -378,7 +378,7 @@ func TestCasesByAssigneeStatusError(t *testing.T) {
 	_, _, err := client.CasesByAssignee(Context{Context: context.Background()}, 47, Criteria{}.Page(2))
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/assignees/47/cases?filter=caseType%3Alpa%2Cactive%3Atrue&page=2",
+		URL:    s.URL + "/lpa-api/v1/assignees/47/cases?filter=caseType%3Alpa%2Cactive%3Atrue&page=2",
 		Method: http.MethodGet,
 	}, err)
 }
@@ -392,7 +392,7 @@ func TestHasWorkableCaseStatusError(t *testing.T) {
 	_, err := client.HasWorkableCase(Context{Context: context.Background()}, 47)
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/assignees/47/cases?filter=status%3APending%2Cworked%3Afalse%2CcaseType%3Alpa%2Cactive%3Atrue&limit=1&page=1",
+		URL:    s.URL + "/lpa-api/v1/assignees/47/cases?filter=status%3APending%2Cworked%3Afalse%2CcaseType%3Alpa%2Cactive%3Atrue&limit=1&page=1",
 		Method: http.MethodGet,
 	}, err)
 }

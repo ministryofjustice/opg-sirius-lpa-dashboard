@@ -38,7 +38,7 @@ func (c *Client) Assign(ctx Context, cases []int, assignee int) error {
 		return err
 	}
 
-	url := fmt.Sprintf("/api/v1/users/%d/cases/%s", assignee, strings.Join(caseList, "+"))
+	url := fmt.Sprintf("/lpa-api/v1/users/%d/cases/%s", assignee, strings.Join(caseList, "+"))
 
 	req, err := c.newRequest(ctx, http.MethodPut, url, &buf)
 	if err != nil {

@@ -1,6 +1,6 @@
 describe("Reassign", () => {
   beforeEach(() => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "Manager",
@@ -9,7 +9,7 @@ describe("Reassign", () => {
       },
     });
 
-    cy.addMock("/api/v1/users/47", "GET", {
+    cy.addMock("/lpa-api/v1/users/47", "GET", {
       status: 200,
       body: {
         id: 47,
@@ -57,7 +57,7 @@ describe("Reassign", () => {
       filter: "status:Pending,worked:false,caseType:lpa,active:true",
     });
 
-    cy.addMock("/api/v1/teams/3", "GET", {
+    cy.addMock("/lpa-api/v1/teams/3", "GET", {
       status: 200,
       body: {
         id: 47,
@@ -72,14 +72,18 @@ describe("Reassign", () => {
 
     cy.contains("Reassign or return selected case(s)").click();
 
-    cy.addMock("/api/v1/users?email=opgcasework@publicguardian.gov.uk", "GET", {
-      status: 200,
-      body: {
-        id: 14,
+    cy.addMock(
+      "/lpa-api/v1/users?email=opgcasework@publicguardian.gov.uk",
+      "GET",
+      {
+        status: 200,
+        body: {
+          id: 14,
+        },
       },
-    });
+    );
 
-    cy.addMock("/api/v1/users/14/cases/58", "PUT", {
+    cy.addMock("/lpa-api/v1/users/14/cases/58", "PUT", {
       status: 200,
     });
 
