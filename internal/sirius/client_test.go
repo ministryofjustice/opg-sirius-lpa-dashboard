@@ -21,16 +21,6 @@ func newPact() (*consumer.V4HTTPMockProvider, error) {
 	})
 }
 
-func newIgnoredPact() (*consumer.V4HTTPMockProvider, error) {
-	return consumer.NewV4Pact(consumer.MockHTTPProviderConfig{
-		Consumer: "ignored",
-		Provider: "ignored",
-		Host:     "127.0.0.1",
-		LogDir:   "../../logs",
-		PactDir:  "../../pacts",
-	})
-}
-
 func teapotServer() *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

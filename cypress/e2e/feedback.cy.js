@@ -26,7 +26,7 @@ describe("Feedback", () => {
 
     cy.get("textarea").type("Hey");
 
-    cy.addMock("/api/wth", "POST", {
+    cy.addMock("/api/v1/feedback/poas", "POST", {
       status: 200,
     });
 
