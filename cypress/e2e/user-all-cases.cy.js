@@ -1,6 +1,6 @@
 describe("All of another user's cases", () => {
   it("shows all the user's cases", () => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "A Manager",
@@ -9,7 +9,7 @@ describe("All of another user's cases", () => {
       },
     });
 
-    cy.addMock("/api/v1/users/47", "GET", {
+    cy.addMock("/lpa-api/v1/users/47", "GET", {
       status: 200,
       body: {
         displayName: "John Paulson",

@@ -33,7 +33,7 @@ func TestUserByEmail(t *testing.T) {
 					UponReceiving("A request to get !Manager's ID").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/users"),
+						Path:   matchers.String("/lpa-api/v1/users"),
 						Query: matchers.MapMatcher{
 							"email": matchers.String(PotUserEmail),
 						},
@@ -77,7 +77,7 @@ func TestUserByEmailStatusError(t *testing.T) {
 	_, err := client.UserByEmail(Context{Context: context.Background()}, "someone@opgtest.com")
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/users?email=someone@opgtest.com",
+		URL:    s.URL + "/lpa-api/v1/users?email=someone@opgtest.com",
 		Method: http.MethodGet,
 	}, err)
 }

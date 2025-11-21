@@ -35,7 +35,7 @@ func TestTasksByAssignee(t *testing.T) {
 					UponReceiving("A request to get my tasks").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/assignees/47/tasks"),
+						Path:   matchers.String("/lpa-api/v1/assignees/47/tasks"),
 						Query: matchers.MapMatcher{
 							"filter": matchers.String("status:Not started"),
 							"sort":   matchers.String("dueDate:asc,name:desc"),
@@ -123,7 +123,7 @@ func TestTasksByAssigneeStatusError(t *testing.T) {
 	_, _, err := client.TasksByAssignee(Context{Context: context.Background()}, 47, Criteria{})
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/assignees/47/tasks?",
+		URL:    s.URL + "/lpa-api/v1/assignees/47/tasks?",
 		Method: http.MethodGet,
 	}, err)
 }

@@ -29,7 +29,7 @@ func TestRequestNextCases(t *testing.T) {
 					UponReceiving("A request to be assigned new cases").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPost,
-						Path:   matchers.String("/api/v1/request-new-cases"),
+						Path:   matchers.String("/lpa-api/v1/request-new-cases"),
 					}).
 					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
@@ -63,7 +63,7 @@ func TestRequestNextCasesStatusError(t *testing.T) {
 	err := client.RequestNextCases(Context{Context: context.Background()})
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/request-new-cases",
+		URL:    s.URL + "/lpa-api/v1/request-new-cases",
 		Method: http.MethodPost,
 	}, err)
 }

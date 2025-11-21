@@ -29,7 +29,7 @@ func TestFeedback(t *testing.T) {
 					UponReceiving("A request to give feedback").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPost,
-						Path:   matchers.String("/api/v1/feedback/poas"),
+						Path:   matchers.String("/lpa-api/v1/feedback/poas"),
 						Body: matchers.Like(map[string]interface{}{
 							"message": matchers.String("hey"),
 						}),
@@ -71,7 +71,7 @@ func TestFeedbackStatusError(t *testing.T) {
 	err := client.Feedback(Context{Context: context.Background()}, "hey")
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/feedback/poas",
+		URL:    s.URL + "/lpa-api/v1/feedback/poas",
 		Method: http.MethodPost,
 	}, err)
 }

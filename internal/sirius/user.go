@@ -11,7 +11,7 @@ const PotUserEmail string = "opgcasework@publicguardian.gov.uk"
 func (c *Client) User(ctx Context, id int) (Assignee, error) {
 	var v Assignee
 
-	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/api/v1/users/%d", id), nil)
+	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/lpa-api/v1/users/%d", id), nil)
 	if err != nil {
 		return v, err
 	}

@@ -34,7 +34,7 @@ func TestCasesByTeam(t *testing.T) {
 					UponReceiving("A request to get my team's cases").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodGet,
-						Path:   matchers.String("/api/v1/teams/66/cases"),
+						Path:   matchers.String("/lpa-api/v1/teams/66/cases"),
 						Query: matchers.MapMatcher{
 							"page": matchers.String("1"),
 						},

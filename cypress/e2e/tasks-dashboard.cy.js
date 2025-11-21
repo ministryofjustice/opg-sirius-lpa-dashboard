@@ -1,6 +1,6 @@
 describe("Tasks dashboard", () => {
   it("shows your tasks", () => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "Manager",

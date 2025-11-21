@@ -1,6 +1,6 @@
 describe("Case navigation", () => {
   beforeEach(() => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "Central Manager",
@@ -60,12 +60,16 @@ describe("Case navigation", () => {
   });
 
   it("can direct to my team tab on LPA allocations", () => {
-    cy.addMock("/api/v1/users?email=opgcasework@publicguardian.gov.uk", "GET", {
-      status: 200,
-      body: {
-        id: 14,
+    cy.addMock(
+      "/lpa-api/v1/users?email=opgcasework@publicguardian.gov.uk",
+      "GET",
+      {
+        status: 200,
+        body: {
+          id: 14,
+        },
       },
-    });
+    );
 
     cy.addCaseFilterMock({
       assigneeId: 14,
@@ -78,12 +82,16 @@ describe("Case navigation", () => {
   });
 
   it("can direct to central pot tab on LPA allocations", () => {
-    cy.addMock("/api/v1/users?email=opgcasework@publicguardian.gov.uk", "GET", {
-      status: 200,
-      body: {
-        id: 14,
+    cy.addMock(
+      "/lpa-api/v1/users?email=opgcasework@publicguardian.gov.uk",
+      "GET",
+      {
+        status: 200,
+        body: {
+          id: 14,
+        },
       },
-    });
+    );
 
     cy.addCaseFilterMock({
       assigneeId: 14,
@@ -96,12 +104,16 @@ describe("Case navigation", () => {
   });
 
   it("can direct to your cases page from LPA allocations", () => {
-    cy.addMock("/api/v1/users?email=opgcasework@publicguardian.gov.uk", "GET", {
-      status: 200,
-      body: {
-        id: 14,
+    cy.addMock(
+      "/lpa-api/v1/users?email=opgcasework@publicguardian.gov.uk",
+      "GET",
+      {
+        status: 200,
+        body: {
+          id: 14,
+        },
       },
-    });
+    );
 
     cy.addCaseFilterMock({
       assigneeId: 14,
@@ -115,7 +127,7 @@ describe("Case navigation", () => {
   });
 
   it("can direct to LPA allocations team tab from another user's cases", () => {
-    cy.addMock("/api/v1/users/47", "GET", {
+    cy.addMock("/lpa-api/v1/users/47", "GET", {
       status: 200,
       body: {
         teams: [
@@ -127,7 +139,7 @@ describe("Case navigation", () => {
       },
     });
 
-    cy.addMock("/api/v1/assignees/47/cases-with-open-tasks?page=1", "GET", {
+    cy.addMock("/lpa-api/v1/assignees/47/cases-with-open-tasks?page=1", "GET", {
       status: 200,
       body: {},
     });

@@ -9,7 +9,7 @@ describe("Central pot pending cases", () => {
   });
 
   it("shows your cases", () => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "Central Manager",
@@ -18,12 +18,16 @@ describe("Central pot pending cases", () => {
       },
     });
 
-    cy.addMock("/api/v1/users?email=opgcasework@publicguardian.gov.uk", "GET", {
-      status: 200,
-      body: {
-        id: 14,
+    cy.addMock(
+      "/lpa-api/v1/users?email=opgcasework@publicguardian.gov.uk",
+      "GET",
+      {
+        status: 200,
+        body: {
+          id: 14,
+        },
       },
-    });
+    );
 
     // Latest cases
     cy.addCaseFilterMock(

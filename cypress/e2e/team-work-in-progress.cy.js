@@ -1,6 +1,6 @@
 describe("Team work in progress", () => {
   beforeEach(() => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "Manager",
@@ -9,7 +9,7 @@ describe("Team work in progress", () => {
       },
     });
 
-    cy.addMock("/api/v1/teams", "GET", {
+    cy.addMock("/lpa-api/v1/teams", "GET", {
       status: 200,
       body: [
         {
@@ -29,7 +29,7 @@ describe("Team work in progress", () => {
       ],
     });
 
-    cy.addMock("/api/v1/teams/66/cases?page=1", "GET", {
+    cy.addMock("/lpa-api/v1/teams/66/cases?page=1", "GET", {
       status: 200,
       body: {
         cases: [
@@ -137,57 +137,61 @@ describe("Team work in progress", () => {
       sort: "workedDate:desc,receiptDate:asc",
     });
 
-    cy.addMock("/api/v1/teams/66/cases?filter=allocation%3A47&page=1", "GET", {
-      status: 200,
-      body: {
-        cases: [
-          {
-            assignee: {
-              displayName: "John Smith",
-              id: 17,
+    cy.addMock(
+      "/lpa-api/v1/teams/66/cases?filter=allocation%3A47&page=1",
+      "GET",
+      {
+        status: 200,
+        body: {
+          cases: [
+            {
+              assignee: {
+                displayName: "John Smith",
+                id: 17,
+              },
+              caseSubtype: "pfa",
+              donor: {
+                firstname: "Someone",
+                id: 23,
+                surname: "Else",
+                uId: "7000-5382-4438",
+              },
+              id: 36,
+              receiptDate: "12/05/2021",
+              status: "Perfect",
+              uId: "7000-8548-8461",
             },
-            caseSubtype: "pfa",
-            donor: {
-              firstname: "Someone",
-              id: 23,
-              surname: "Else",
-              uId: "7000-5382-4438",
-            },
-            id: 36,
-            receiptDate: "12/05/2021",
-            status: "Perfect",
-            uId: "7000-8548-8461",
+          ],
+          limit: 25,
+          metadata: {
+            tasksCompleted: [
+              {
+                assignee: {
+                  displayName: "John Smith",
+                  id: 17,
+                },
+                total: 3,
+              },
+            ],
+            worked: [
+              {
+                assignee: {
+                  displayName: "John Smith",
+                  id: 17,
+                },
+                total: 1,
+              },
+            ],
+            workedTotal: 1,
           },
-        ],
-        limit: 25,
-        metadata: {
-          tasksCompleted: [
-            {
-              assignee: {
-                displayName: "John Smith",
-                id: 17,
-              },
-              total: 3,
-            },
-          ],
-          worked: [
-            {
-              assignee: {
-                displayName: "John Smith",
-                id: 17,
-              },
-              total: 1,
-            },
-          ],
-          workedTotal: 1,
-        },
-        pages: {
-          current: 1,
+          pages: {
+            current: 1,
+            total: 1,
+          },
           total: 1,
         },
-        total: 1,
       },
-    });
+    );
 
     cy.contains("Apply filters").click();
     cy.url().should("contain", "allocation=47");
@@ -213,7 +217,7 @@ describe("Team work in progress", () => {
       sort: "workedDate:desc,receiptDate:asc",
     });
 
-    cy.addMock("/api/v1/teams/67/cases?page=1", "GET", {
+    cy.addMock("/lpa-api/v1/teams/67/cases?page=1", "GET", {
       status: 200,
       body: {
         cases: [
