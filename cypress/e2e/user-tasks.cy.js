@@ -1,6 +1,6 @@
 describe("Another user's tasks", () => {
   it("shows the user's tasks", () => {
-    cy.addMock("/api/v1/users/current", "GET", {
+    cy.addMock("/lpa-api/v1/users/current", "GET", {
       status: 200,
       body: {
         displayName: "A Manager",
@@ -9,7 +9,7 @@ describe("Another user's tasks", () => {
       },
     });
 
-    cy.addMock("/api/v1/users/47", "GET", {
+    cy.addMock("/lpa-api/v1/users/47", "GET", {
       status: 200,
       body: {
         displayName: "John Paulson",
@@ -23,7 +23,7 @@ describe("Another user's tasks", () => {
       },
     });
 
-    cy.addMock("/api/v1/assignees/47/cases-with-open-tasks?page=1", "GET", {
+    cy.addMock("/lpa-api/v1/assignees/47/cases-with-open-tasks?page=1", "GET", {
       status: 200,
       body: {
         cases: [

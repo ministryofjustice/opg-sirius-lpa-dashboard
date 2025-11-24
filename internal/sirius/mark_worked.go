@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Client) MarkWorked(ctx Context, id int) error {
-	req, err := c.newRequest(ctx, http.MethodPut, fmt.Sprintf("/api/v1/lpas/%d", id), strings.NewReader(`{"worked":true}`))
+	req, err := c.newRequest(ctx, http.MethodPut, fmt.Sprintf("/lpa-api/v1/lpas/%d", id), strings.NewReader(`{"worked":true}`))
 	if err != nil {
 		return err
 	}

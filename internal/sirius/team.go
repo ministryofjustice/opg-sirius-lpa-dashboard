@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Client) Team(ctx Context, id int) (Team, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/api/v1/teams/%d", id), nil)
+	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/lpa-api/v1/teams/%d", id), nil)
 	if err != nil {
 		return Team{}, err
 	}

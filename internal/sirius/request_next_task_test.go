@@ -30,7 +30,7 @@ func TestRequestNextTask(t *testing.T) {
 					UponReceiving("A request to be assigned a new payment task").
 					WithCompleteRequest(consumer.Request{
 						Method: http.MethodPost,
-						Path:   matchers.String("/api/v1/request-new-task"),
+						Path:   matchers.String("/lpa-api/v1/request-new-task"),
 					}).
 					WithCompleteResponse(consumer.Response{
 						Status:  http.StatusOK,
@@ -64,7 +64,7 @@ func TestRequestNextTaskStatusError(t *testing.T) {
 	err := client.RequestNextTask(Context{Context: context.Background()})
 	assert.Equal(t, &StatusError{
 		Code:   http.StatusTeapot,
-		URL:    s.URL + "/api/v1/request-new-task",
+		URL:    s.URL + "/lpa-api/v1/request-new-task",
 		Method: http.MethodPost,
 	}, err)
 }

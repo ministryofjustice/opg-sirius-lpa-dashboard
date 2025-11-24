@@ -15,7 +15,7 @@ type authUserResponse struct {
 }
 
 func (c *Client) UserByEmail(ctx Context, email string) (User, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/api/v1/users?email=%s", email), nil)
+	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/lpa-api/v1/users?email=%s", email), nil)
 	if err != nil {
 		return User{}, err
 	}
