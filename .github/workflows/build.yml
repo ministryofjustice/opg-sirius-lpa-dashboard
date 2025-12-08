@@ -31,7 +31,7 @@ jobs:
     name: Identify version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: "0"
       - name: Define commit SHA and branch
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [identify, create-tag]
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
       - name: Cache Go Dependencies
@@ -115,11 +115,11 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Run linting
         run: make lint
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@fdbfb4d2750291e159f0156def62b853c2798ca2 # v4.31.5
+        uses: github/codeql-action/upload-sarif@fe4161a26a8629af62121b670040955b330f9af2 # v4.31.6
         if: always()
         with:
           sarif_file: test-results/golangci-lint.sarif
@@ -131,7 +131,7 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Set up Docker
         run: |
@@ -161,7 +161,7 @@ jobs:
       - build
       - test
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Set up Docker
         run: |
@@ -193,7 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: ['identify', 'create-tag', 'build', 'test', 'lint', 'acceptance-test', 'cypress']
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: "0"
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
@@ -217,7 +217,7 @@ jobs:
         run: make scan
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@fdbfb4d2750291e159f0156def62b853c2798ca2 # v4.31.5
+        uses: github/codeql-action/upload-sarif@fe4161a26a8629af62121b670040955b330f9af2 # v4.31.6
         if: always()
         with:
           sarif_file: 'test-results/trivy.sarif'
@@ -273,7 +273,7 @@ jobs:
     needs: ['create-tag', 'end_of_pr_workflow']
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Configure OIDC AWS credentials for SSM
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
