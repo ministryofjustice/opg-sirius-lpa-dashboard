@@ -12,7 +12,7 @@
     "prettier": "prettier --write ."
   },
   "dependencies": {
-    "@ministryofjustice/frontend": "^5.0.0",
+    "@ministryofjustice/frontend": "^8.0.0",
     "cypress": "15.8.1",
     "govuk-frontend": "^5.0.0"
   },
