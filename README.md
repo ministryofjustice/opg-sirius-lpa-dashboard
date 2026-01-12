@@ -22,9 +22,12 @@ This will run the application at http://localhost:8888/, and against the mock.
 Alternatively the application can be run without the use of Docker
 
 ```
-yarn && yarn build
+npm ci && npm run build
 SIRIUS_PUBLIC_URL=http://localhost:8080 SIRIUS_URL=http://localhost:8080 PORT=8888 go run main.go
 ```
+
+If you get an error message from running the `npm ci` this could be due to you having a package.json and you will
+need to run `npm install` first.
 
 If you want to run your local changes in the context of local sirius then build the local image and start up sirius.
 
