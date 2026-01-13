@@ -8,6 +8,7 @@ services:
     ports: ["8888:8888"]
     environment:
       PORT: 8888
+      HEALTHCHECK: /lpa/dashboard/health-check
       SIRIUS_URL: http://sirius-mock:8080
       SIRIUS_PUBLIC_URL: http://localhost:8080
 
