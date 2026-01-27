@@ -13,7 +13,7 @@ services:
       SIRIUS_PUBLIC_URL: http://localhost:8080
 
   sirius-mock:
-    image: wiremock/wiremock:3.13.2
+    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
     ports: ["8563:8080"]
     volumes:
       - "./cypress/mocks:/home/wiremock/mappings"
@@ -28,7 +28,7 @@ services:
       - LHCI_GITHUB_APP_TOKEN
 
   go-lint:
-    image: golangci/golangci-lint:v2.8.0
+    image: golangci/golangci-lint:v2.8.0@sha256:bebcfa63db7df53e417845ed61e4540519cf74fcba22793cdd174b3415a9e4e2
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
@@ -45,7 +45,7 @@ services:
       - ./.gocache:/go/pkg/mod
 
   pact:
-    image: pactfoundation/pact-cli:1
+    image: pactfoundation/pact-cli:1@sha256:2bac6b611119eb8444b2fc8b7504e8389222386f5ecefb7307b8ba99f5c6223d
     working_dir: /go/src/app
     volumes:
       - ./pacts:/go/src/app/pacts
@@ -66,7 +66,7 @@ services:
       - ./:/e2e
 
   trivy:
-    image: aquasec/trivy:latest
+    image: aquasec/trivy:latest@sha256:05d0126976bdedcd0782a0336f77832dbea1c81b9cc5e4b3a5ea5d2ec863aca7
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./.trivy-cache:/root/.cache
