@@ -66,7 +66,7 @@ services:
       - ./:/e2e
 
   trivy:
-    image: aquasec/trivy:latest@sha256:05d0126976bdedcd0782a0336f77832dbea1c81b9cc5e4b3a5ea5d2ec863aca7
+    image: aquasec/trivy:latest@sha256:1c78ed1ef824ab8bb05b04359d186e4c1229d0b3e67005faacb54a7d71974f73
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./.trivy-cache:/root/.cache
