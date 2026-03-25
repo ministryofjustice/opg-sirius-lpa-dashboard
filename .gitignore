@@ -11,4 +11,3 @@ web/static
 test-results
 .gocache
 .cache
-.trivy-cache

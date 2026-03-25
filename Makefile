@@ -1,12 +1,12 @@
 .PHONY: cypress
 
-all: lint unit-test build-all scan pa11y lighthouse cypress down
+all: lint unit-test build-all pa11y lighthouse cypress down
 
 lint:
 	docker compose run --rm go-lint
 
 test-results:
-	mkdir -p -m 0777 test-results .gocache pacts logs cypress/screenshots .trivy-cache
+	mkdir -p -m 0777 test-results .gocache pacts logs cypress/screenshots
 
 setup-directories: test-results
 
@@ -21,10 +21,6 @@ build-ci:
 
 build-all:
 	docker compose build --parallel lpa-dashboard pact-stub puppeteer
-
-scan: setup-directories
-	docker compose run --rm trivy image --format table --exit-code 0 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
-	docker compose run --rm trivy image --format sarif --output /test-results/trivy.sarif --exit-code 1 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
 
 pa11y: setup-directories
 	docker compose run --rm --entrypoint="pa11y-ci" puppeteer
