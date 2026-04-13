@@ -65,7 +65,7 @@ jobs:
               service_name: pact-stub
               context: docker/pact-stub
     name: Build ${{ matrix.service_name }}
-    uses: ministryofjustice/opg-github-workflows/.github/workflows/build-multi-architecture-image.yml@775636910c06dbeb813ab4d83b55142d1bb94d28 # v3.17.0
+    uses: ministryofjustice/opg-github-workflows/.github/workflows/build-multi-architecture-image.yml@52bd7a342cac0ed99690a3da1054cda827ab43e0 # v3.19.1
     with:
       image_name: ${{ matrix.image_name }}
       artifact_name: ${{ matrix.service_name }}-multi-arch
@@ -82,7 +82,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
       - name: Cache Go Dependencies
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: .gocache
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -103,7 +103,7 @@ jobs:
             --broker-password ${{ secrets.PACT_BROKER_PASSWORD }}
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.5.4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -119,7 +119,7 @@ jobs:
       - name: Run linting
         run: make lint
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
         if: always()
         with:
           sarif_file: test-results/golangci-lint.sarif
@@ -213,18 +213,6 @@ jobs:
           docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
           docker load -i /tmp/images/pact-stub-multi-arch.tar
 
-      - name: Snyk Scan
-        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
-        with:
-          SNYK_TEST_IMAGE: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
-          SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
-
-      - name: Upload Snyk scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
-        if: always()
-        with:
-          sarif_file: 'test-results/snyk.sarif'
-
       - name: Configure OIDC AWS credentials for ECR push
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
@@ -235,9 +223,21 @@ jobs:
 
       - name: ECR Login
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@c962da2960ed15f492addc26fffa274485265950 # v2.0.2
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
         with:
           registries: 311462405659
+
+      - name: Snyk Scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
+        with:
+          SNYK_TEST_IMAGE: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
+          SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
+
+      - name: Upload Snyk scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
+        if: always()
+        with:
+          sarif_file: 'test-results/snyk.sarif'
 
       - name: Push Container
         env:
