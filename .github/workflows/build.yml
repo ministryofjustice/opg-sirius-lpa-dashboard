@@ -213,18 +213,6 @@ jobs:
           docker load -i /tmp/images/lpa-dashboard-multi-arch.tar
           docker load -i /tmp/images/pact-stub-multi-arch.tar
 
-      - name: Snyk Scan
-        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
-        with:
-          SNYK_TEST_IMAGE: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
-          SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
-
-      - name: Upload Snyk scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
-        if: always()
-        with:
-          sarif_file: 'test-results/snyk.sarif'
-
       - name: Configure OIDC AWS credentials for ECR push
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
@@ -238,6 +226,18 @@ jobs:
         uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
         with:
           registries: 311462405659
+
+      - name: Snyk Scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
+        with:
+          SNYK_TEST_IMAGE: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
+          SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
+
+      - name: Upload Snyk scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
+        if: always()
+        with:
+          sarif_file: 'test-results/snyk.sarif'
 
       - name: Push Container
         env:
