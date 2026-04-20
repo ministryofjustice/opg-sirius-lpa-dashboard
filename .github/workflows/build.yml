@@ -65,7 +65,7 @@ jobs:
               service_name: pact-stub
               context: docker/pact-stub
     name: Build ${{ matrix.service_name }}
-    uses: ministryofjustice/opg-github-workflows/.github/workflows/build-multi-architecture-image.yml@52bd7a342cac0ed99690a3da1054cda827ab43e0 # v3.19.1
+    uses: ministryofjustice/opg-github-workflows/.github/workflows/build-multi-architecture-image.yml@f567efb2782f73a972073276a00bc4bcf92a3728 # v3.19.2
     with:
       image_name: ${{ matrix.image_name }}
       artifact_name: ${{ matrix.service_name }}-multi-arch
@@ -82,7 +82,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
       - name: Cache Go Dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .gocache
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -228,7 +228,7 @@ jobs:
           registries: 311462405659
 
       - name: Snyk Scan
-        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
         with:
           SNYK_TEST_IMAGE: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/sirius/sirius-lpa-dashboard:latest
           SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
