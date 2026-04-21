@@ -2,7 +2,7 @@
   position: relative;
   padding: 0 0 10px;
   margin-bottom: 10px;
-  border-bottom: 1px solid $govuk-border-colour;
+  border-bottom: 1px solid govuk-functional-colour(border);
 }
 
 .app-c-option-select__heading {
@@ -18,7 +18,7 @@
   text-align: left;
   padding: 0;
   cursor: pointer;
-  color: $govuk-link-colour;
+  color: govuk-functional-colour(link);
 }
 
 .app-c-option-select__title {
