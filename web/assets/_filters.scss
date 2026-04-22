@@ -33,7 +33,7 @@
   left: 9px;
   width: 30px;
   height: 40px;
-  fill: #0b0c0c;
+  fill: govuk-functional-colour(text);
 }
 
 [aria-expanded="true"] ~ .app-c-option-select__icon--up {
