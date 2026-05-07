@@ -1,4 +1,4 @@
-FROM golang:1.25-bookworm@sha256:916d09f50df6af501cda192d349f57c66a6d738ca80241a8d18e4f1e1d2ed8a5
+FROM golang:1.25-bookworm@sha256:0515b52dd3015b4bc3dfe20e573393dd0846bb3c6c3810b5642da793a236b44a
 
 RUN go install gotest.tools/gotestsum@latest
 RUN go install github.com/pact-foundation/pact-go/v2@v2.2.0
