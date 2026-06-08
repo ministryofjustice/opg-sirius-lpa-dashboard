@@ -11,7 +11,7 @@ RUN npm ci --ignore-scripts
 COPY web/assets web/assets
 RUN npm run build
 
-FROM golang:1.26 AS build-env
+FROM golang:1.26@sha256:68cb6d68bed024785b69195b89af7ac7a444f27791435f98647edff595aa0479 AS build-env
 
 ARG TARGETARCH
 WORKDIR /app
