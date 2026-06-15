@@ -13,7 +13,7 @@ services:
       SIRIUS_PUBLIC_URL: http://localhost:8080
 
   sirius-mock:
-    image: wiremock/wiremock:3.13.2
+    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
     ports: ["8563:8080"]
     volumes:
       - "./cypress/mocks:/home/wiremock/mappings"
@@ -45,7 +45,7 @@ services:
       - ./.gocache:/go/pkg/mod
 
   pact:
-    image: pactfoundation/pact-cli:1
+    image: pactfoundation/pact-cli:1@sha256:cd239d7b1665263ac30d2d1b411238dff783ce2b547ddcec51ab460555371cca
     working_dir: /go/src/app
     volumes:
       - ./pacts:/go/src/app/pacts
