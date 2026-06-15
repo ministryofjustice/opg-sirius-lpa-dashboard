@@ -28,7 +28,7 @@ services:
       - LHCI_GITHUB_APP_TOKEN
 
   go-lint:
-    image: golangci/golangci-lint:v2.9.0@sha256:dbe337da33f7d649126107cd2cf0375e932c156c1e20e32a2d5205a79ba8c7a8
+    image: golangci/golangci-lint:v2.12.2@sha256:5cceeef04e53efe1470638d4b4b4f5ceefd574955ab3941b2d9a68a8c9ad5240
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
@@ -51,7 +51,7 @@ services:
       - ./pacts:/go/src/app/pacts
 
   cypress:
-    image: cypress/included:15.13.0@sha256:1048a3bac8a29e63159668a36d6dbbcf3a8a291d6f413c85edaf7e39bba9f3d9
+    image: cypress/included:15.16.0@sha256:057f6c6bbb661342ea712f94f5b870823823e3617354db7a78a01f2aabbfc2ad
     command: run --browser chrome
     entrypoint: cypress
     depends_on:
