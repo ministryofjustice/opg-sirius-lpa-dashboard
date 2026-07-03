@@ -6,6 +6,8 @@ services:
     depends_on:
       - sirius-mock
     ports: ["8888:8888"]
+    privileged: false
+    user: app
     environment:
       PORT: 8888
       HEALTHCHECK: /lpa/dashboard/health-check
