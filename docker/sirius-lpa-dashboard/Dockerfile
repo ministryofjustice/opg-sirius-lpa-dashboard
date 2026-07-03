@@ -13,6 +13,15 @@ RUN npm run build
 
 FROM golang:1.26@sha256:87a41d2539e5671777734e91f467499ed5eafb1fb1f77221dff2744db7a51775 AS build-env
 
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid 65532 \
+    app
+
 ARG TARGETARCH
 WORKDIR /app
 
@@ -40,13 +49,15 @@ WORKDIR /go/bin
 
 COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build-env /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=build-env /etc/passwd /etc/passwd
+COPY --from=build-env /etc/group /etc/group
 
 COPY --from=build-env /go/bin/opg-sirius-lpa-dashboard opg-sirius-lpa-dashboard
 COPY --from=healthcheck-build /go/bin/healthcheck healthcheck
 COPY --from=asset-env /app/web/static web/static
 COPY web/template web/template
 
-USER 65532
+USER app
 
 HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=3 CMD [ "/go/bin/healthcheck" ]
 
