@@ -54,7 +54,7 @@ services:
       - ./pacts:/go/src/app/pacts
 
   cypress:
-    image: cypress/included:15.18.0@sha256:dd99f59c8ef766157ce779222708007e9e7107980552dafdc6f037dd6a382524
+    image: cypress/included:16.1.0@sha256:9618e4f3798bfc5434aeab1283813653437bbacc5d15922433b37f10b33aad49
     command: run --browser chrome
     entrypoint: cypress
     depends_on:
