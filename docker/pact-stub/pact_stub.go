@@ -169,8 +169,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	slog.Info("request",
 		slog.String("method", r.Method),
 		slog.String("path", r.URL.Path),
-		slog.String("query", r.URL.Query().Encode()),
-		slog.Any("headers", r.Header))
+		slog.String("query", r.URL.Query().Encode()))
 
 	for _, interaction := range s.interactions {
 		if interaction.Request.Match(r) {
