@@ -1,9 +1,12 @@
 .PHONY: cypress
 
-all: lint unit-test build-all pa11y lighthouse cypress down
+all: lint gosec unit-test build-all pa11y lighthouse cypress down
 
 lint:
 	docker compose run --rm go-lint
+
+gosec: setup-directories
+	docker compose run --rm gosec
 
 test-results:
 	mkdir -p -m 0777 test-results .gocache pacts logs cypress/screenshots
