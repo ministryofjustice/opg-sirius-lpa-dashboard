@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -42,7 +43,7 @@ func readInteractions(dir string) ([]Interaction, error) {
 	}
 
 	for _, path := range paths {
-		file, err := os.Open(filepath.Clean(path))
+		file, err := os.Open(filepath.Clean(path)) // #nosec G703 -- path comes from globbing the PACT_DIR env var, not from request data
 		if err != nil {
 			return nil, fmt.Errorf("opening %s: %w", path, err)
 		}
@@ -165,7 +166,11 @@ type Server struct {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("-> method=%s path=%s query=%s headers=%v body=%v\n", r.Method, r.URL.Path, r.URL.Query().Encode(), r.Header, nil)
+	slog.Info("request",
+		slog.String("method", r.Method),
+		slog.String("path", r.URL.Path),
+		slog.String("query", r.URL.Query().Encode()),
+		slog.Any("headers", r.Header))
 
 	for _, interaction := range s.interactions {
 		if interaction.Request.Match(r) {
